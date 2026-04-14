@@ -1,0 +1,2049 @@
+{
+  "project": "certi-master",
+  "generatedFrom": "controller mappings",
+  "totalEndpoints": 139,
+  "sides": {
+    "admin": {
+      "totalEndpoints": 24,
+      "functions": {
+        "Engagement / Post Administration": [
+          {
+            "service": "engagement-service",
+            "controller": "AdminPostController",
+            "operationId": "getAllPosts",
+            "method": "GET",
+            "path": "/api/v1/admin/posts",
+            "pathParams": [],
+            "queryParams": [
+              "status",
+              "page",
+              "size",
+              "sortBy",
+              "sortDirection"
+            ],
+            "requestBodyType": null,
+            "responseType": "PageDto<PostResponse>",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/AdminPostController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "AdminPostController",
+            "operationId": "featurePost",
+            "method": "POST",
+            "path": "/api/v1/admin/posts/{id}/feature",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [
+              "featured"
+            ],
+            "requestBodyType": null,
+            "responseType": "PostResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/AdminPostController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "AdminPostController",
+            "operationId": "pinPost",
+            "method": "POST",
+            "path": "/api/v1/admin/posts/{id}/pin",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [
+              "pinned"
+            ],
+            "requestBodyType": null,
+            "responseType": "PostResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/AdminPostController.java"
+          }
+        ],
+        "Identity / User Administration": [
+          {
+            "service": "identity-service",
+            "controller": "AdminUserController",
+            "operationId": "listUsers",
+            "method": "GET",
+            "path": "/api/v1/admin/users",
+            "pathParams": [],
+            "queryParams": [
+              "search",
+              "roleCode",
+              "status",
+              "registrationDateFrom",
+              "registrationDateTo"
+            ],
+            "requestBodyType": null,
+            "responseType": "PageDto<UserSummaryResponse>",
+            "sourceFile": "identity-service/src/main/java/com/certimaster/identity_service/controller/AdminUserController.java"
+          },
+          {
+            "service": "identity-service",
+            "controller": "AdminUserController",
+            "operationId": "bulkActivate",
+            "method": "POST",
+            "path": "/api/v1/admin/users/bulk/activate",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": "BulkUserRequest",
+            "responseType": "BulkOperationResult",
+            "sourceFile": "identity-service/src/main/java/com/certimaster/identity_service/controller/AdminUserController.java"
+          },
+          {
+            "service": "identity-service",
+            "controller": "AdminUserController",
+            "operationId": "bulkDeactivate",
+            "method": "POST",
+            "path": "/api/v1/admin/users/bulk/deactivate",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": "BulkUserRequest",
+            "responseType": "BulkOperationResult",
+            "sourceFile": "identity-service/src/main/java/com/certimaster/identity_service/controller/AdminUserController.java"
+          },
+          {
+            "service": "identity-service",
+            "controller": "AdminUserController",
+            "operationId": "deleteUser",
+            "method": "DELETE",
+            "path": "/api/v1/admin/users/{id}",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "Void",
+            "sourceFile": "identity-service/src/main/java/com/certimaster/identity_service/controller/AdminUserController.java"
+          },
+          {
+            "service": "identity-service",
+            "controller": "AdminUserController",
+            "operationId": "getUserById",
+            "method": "GET",
+            "path": "/api/v1/admin/users/{id}",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "UserDetailResponse",
+            "sourceFile": "identity-service/src/main/java/com/certimaster/identity_service/controller/AdminUserController.java"
+          },
+          {
+            "service": "identity-service",
+            "controller": "AdminUserController",
+            "operationId": "updateUser",
+            "method": "PUT",
+            "path": "/api/v1/admin/users/{id}",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": "UpdateUserRequest",
+            "responseType": "UserDetailResponse",
+            "sourceFile": "identity-service/src/main/java/com/certimaster/identity_service/controller/AdminUserController.java"
+          },
+          {
+            "service": "identity-service",
+            "controller": "AdminUserController",
+            "operationId": "activateUser",
+            "method": "PATCH",
+            "path": "/api/v1/admin/users/{id}/activate",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "Void",
+            "sourceFile": "identity-service/src/main/java/com/certimaster/identity_service/controller/AdminUserController.java"
+          },
+          {
+            "service": "identity-service",
+            "controller": "AdminUserController",
+            "operationId": "deactivateUser",
+            "method": "PATCH",
+            "path": "/api/v1/admin/users/{id}/deactivate",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "Void",
+            "sourceFile": "identity-service/src/main/java/com/certimaster/identity_service/controller/AdminUserController.java"
+          },
+          {
+            "service": "identity-service",
+            "controller": "AdminUserController",
+            "operationId": "forceLogoutAllSessions",
+            "method": "DELETE",
+            "path": "/api/v1/admin/users/{id}/sessions",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "Map<String, Integer>",
+            "sourceFile": "identity-service/src/main/java/com/certimaster/identity_service/controller/AdminUserController.java"
+          },
+          {
+            "service": "identity-service",
+            "controller": "AdminUserController",
+            "operationId": "getActiveSessions",
+            "method": "GET",
+            "path": "/api/v1/admin/users/{id}/sessions/active",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "List<Map<String, Object>>",
+            "sourceFile": "identity-service/src/main/java/com/certimaster/identity_service/controller/AdminUserController.java"
+          },
+          {
+            "service": "identity-service",
+            "controller": "AdminUserController",
+            "operationId": "forceLogoutSession",
+            "method": "DELETE",
+            "path": "/api/v1/admin/users/{id}/sessions/{sessionId}",
+            "pathParams": [
+              "id",
+              "sessionId"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "Void",
+            "sourceFile": "identity-service/src/main/java/com/certimaster/identity_service/controller/AdminUserController.java"
+          }
+        ],
+        "Learning / Catalog Administration": [
+          {
+            "service": "learning-service",
+            "controller": "AdminCertificationController",
+            "operationId": "create",
+            "method": "POST",
+            "path": "/api/v1/admin/certifications",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": "CertificationRequest",
+            "responseType": "CertificationResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/AdminCertificationController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "CertificationDomainController",
+            "operationId": "createDomain",
+            "method": "POST",
+            "path": "/api/v1/admin/certifications/{certificationId}/domains",
+            "pathParams": [
+              "certificationId"
+            ],
+            "queryParams": [],
+            "requestBodyType": "CertificationDomainRequest",
+            "responseType": "CertificationDomainResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/CertificationDomainController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "AdminCertificationController",
+            "operationId": "delete",
+            "method": "DELETE",
+            "path": "/api/v1/admin/certifications/{id}",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "Void",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/AdminCertificationController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "AdminCertificationController",
+            "operationId": "update",
+            "method": "PUT",
+            "path": "/api/v1/admin/certifications/{id}",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": "CertificationRequest",
+            "responseType": "CertificationResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/AdminCertificationController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "AdminCertificationController",
+            "operationId": "updateStatus",
+            "method": "PATCH",
+            "path": "/api/v1/admin/certifications/{id}/status",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [
+              "status"
+            ],
+            "requestBodyType": null,
+            "responseType": "Void",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/AdminCertificationController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "CertificationDomainController",
+            "operationId": "deleteDomain",
+            "method": "DELETE",
+            "path": "/api/v1/admin/domains/{id}",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "Void",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/CertificationDomainController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "CertificationDomainController",
+            "operationId": "updateDomain",
+            "method": "PUT",
+            "path": "/api/v1/admin/domains/{id}",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": "CertificationDomainRequest",
+            "responseType": "CertificationDomainResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/CertificationDomainController.java"
+          }
+        ],
+        "Notification / Administration": [
+          {
+            "service": "notification-service",
+            "controller": "AdminNotificationController",
+            "operationId": "broadcast",
+            "method": "POST",
+            "path": "/api/v1/admin/notifications/broadcast",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": "BroadcastRequest",
+            "responseType": "Map<String, Object>",
+            "sourceFile": "notification-service/src/main/java/com/certimaster/notification_service/controller/AdminNotificationController.java"
+          },
+          {
+            "service": "notification-service",
+            "controller": "AdminNotificationController",
+            "operationId": "listTemplates",
+            "method": "GET",
+            "path": "/api/v1/admin/notifications/templates",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "List<NotificationTemplate>",
+            "sourceFile": "notification-service/src/main/java/com/certimaster/notification_service/controller/AdminNotificationController.java"
+          },
+          {
+            "service": "notification-service",
+            "controller": "AdminNotificationController",
+            "operationId": "updateTemplate",
+            "method": "PUT",
+            "path": "/api/v1/admin/notifications/templates/{key}",
+            "pathParams": [
+              "key"
+            ],
+            "queryParams": [],
+            "requestBodyType": "NotificationTemplate",
+            "responseType": "NotificationTemplate",
+            "sourceFile": "notification-service/src/main/java/com/certimaster/notification_service/controller/AdminNotificationController.java"
+          }
+        ]
+      }
+    },
+    "client": {
+      "totalEndpoints": 109,
+      "functions": {
+        "Engagement / Bookmarks": [
+          {
+            "service": "engagement-service",
+            "controller": "BookmarkController",
+            "operationId": "getUserBookmarks",
+            "method": "GET",
+            "path": "/api/v1/bookmarks",
+            "pathParams": [],
+            "queryParams": [
+              "page",
+              "size"
+            ],
+            "requestBodyType": null,
+            "responseType": "PageDto<BookmarkResponse>",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/BookmarkController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "BookmarkController",
+            "operationId": "toggleBookmark",
+            "method": "POST",
+            "path": "/api/v1/bookmarks/posts/{postId}",
+            "pathParams": [
+              "postId"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "BookmarkResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/BookmarkController.java"
+          }
+        ],
+        "Engagement / Comments": [
+          {
+            "service": "engagement-service",
+            "controller": "CommentController",
+            "operationId": "getComments",
+            "method": "GET",
+            "path": "/api/v1/posts/{postId}/comments",
+            "pathParams": [
+              "postId"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "List<CommentResponse>",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/CommentController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "CommentController",
+            "operationId": "addComment",
+            "method": "POST",
+            "path": "/api/v1/posts/{postId}/comments",
+            "pathParams": [
+              "postId"
+            ],
+            "queryParams": [],
+            "requestBodyType": "CommentRequest",
+            "responseType": "CommentResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/CommentController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "CommentController",
+            "operationId": "getCommentsPaginated",
+            "method": "GET",
+            "path": "/api/v1/posts/{postId}/comments/paginated",
+            "pathParams": [
+              "postId"
+            ],
+            "queryParams": [
+              "page",
+              "size"
+            ],
+            "requestBodyType": null,
+            "responseType": "PageDto<CommentResponse>",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/CommentController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "CommentController",
+            "operationId": "deleteComment",
+            "method": "DELETE",
+            "path": "/api/v1/posts/{postId}/comments/{commentId}",
+            "pathParams": [
+              "postId",
+              "commentId"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "Void",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/CommentController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "CommentController",
+            "operationId": "updateComment",
+            "method": "PUT",
+            "path": "/api/v1/posts/{postId}/comments/{commentId}",
+            "pathParams": [
+              "postId",
+              "commentId"
+            ],
+            "queryParams": [],
+            "requestBodyType": "CommentRequest",
+            "responseType": "CommentResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/CommentController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "CommentController",
+            "operationId": "addReply",
+            "method": "POST",
+            "path": "/api/v1/posts/{postId}/comments/{commentId}/replies",
+            "pathParams": [
+              "postId",
+              "commentId"
+            ],
+            "queryParams": [],
+            "requestBodyType": "CommentRequest",
+            "responseType": "CommentResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/CommentController.java"
+          }
+        ],
+        "Engagement / Posts": [
+          {
+            "service": "engagement-service",
+            "controller": "PostController",
+            "operationId": "searchPosts",
+            "method": "GET",
+            "path": "/api/v1/posts",
+            "pathParams": [],
+            "queryParams": [
+              "keyword",
+              "status",
+              "authorId",
+              "tagId",
+              "contentType",
+              "difficultyLevel",
+              "page",
+              "size",
+              "sortBy",
+              "sortDirection"
+            ],
+            "requestBodyType": null,
+            "responseType": "PageDto<PostResponse>",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/PostController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "PostController",
+            "operationId": "createPost",
+            "method": "POST",
+            "path": "/api/v1/posts",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": "PostRequest",
+            "responseType": "PostResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/PostController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "PostController",
+            "operationId": "getPostsByAuthor",
+            "method": "GET",
+            "path": "/api/v1/posts/author/{authorId}",
+            "pathParams": [
+              "authorId"
+            ],
+            "queryParams": [
+              "page",
+              "size"
+            ],
+            "requestBodyType": null,
+            "responseType": "PageDto<PostResponse>",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/PostController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "PostController",
+            "operationId": "getFeaturedPosts",
+            "method": "GET",
+            "path": "/api/v1/posts/featured",
+            "pathParams": [],
+            "queryParams": [
+              "page",
+              "size"
+            ],
+            "requestBodyType": null,
+            "responseType": "PageDto<PostResponse>",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/PostController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "PostController",
+            "operationId": "getTrendingPosts",
+            "method": "GET",
+            "path": "/api/v1/posts/trending",
+            "pathParams": [],
+            "queryParams": [
+              "page",
+              "size"
+            ],
+            "requestBodyType": null,
+            "responseType": "PageDto<PostResponse>",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/PostController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "PostController",
+            "operationId": "deletePost",
+            "method": "DELETE",
+            "path": "/api/v1/posts/{id}",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "Void",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/PostController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "PostController",
+            "operationId": "updatePost",
+            "method": "PUT",
+            "path": "/api/v1/posts/{id}",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": "PostRequest",
+            "responseType": "PostResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/PostController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "PostController",
+            "operationId": "archivePost",
+            "method": "POST",
+            "path": "/api/v1/posts/{id}/archive",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "PostResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/PostController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "PostController",
+            "operationId": "publishPost",
+            "method": "POST",
+            "path": "/api/v1/posts/{id}/publish",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "PostResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/PostController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "PostController",
+            "operationId": "schedulePost",
+            "method": "POST",
+            "path": "/api/v1/posts/{id}/schedule",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "PostResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/PostController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "PostController",
+            "operationId": "submitForReview",
+            "method": "POST",
+            "path": "/api/v1/posts/{id}/submit-review",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "PostResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/PostController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "PostController",
+            "operationId": "getPostBySlug",
+            "method": "GET",
+            "path": "/api/v1/posts/{slug}",
+            "pathParams": [
+              "slug"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "PostDetailResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/PostController.java"
+          }
+        ],
+        "Engagement / Progress Analytics": [
+          {
+            "service": "engagement-service",
+            "controller": "ProgressController",
+            "operationId": "getActivityFeed",
+            "method": "GET",
+            "path": "/api/v1/progress/activity-feed",
+            "pathParams": [],
+            "queryParams": [
+              "certificationId",
+              "page",
+              "size"
+            ],
+            "requestBodyType": null,
+            "responseType": "List<ActivityFeedItem>",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/ProgressController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "ProgressController",
+            "operationId": "getAlertRules",
+            "method": "GET",
+            "path": "/api/v1/progress/alerts/rules",
+            "pathParams": [],
+            "queryParams": [
+              "certificationId"
+            ],
+            "requestBodyType": null,
+            "responseType": "List<AlertRuleResponse>",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/ProgressController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "ProgressController",
+            "operationId": "createAlertRule",
+            "method": "POST",
+            "path": "/api/v1/progress/alerts/rules",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": "CreateAlertRuleRequest",
+            "responseType": "AlertRuleResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/ProgressController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "ProgressController",
+            "operationId": "updateAlertRule",
+            "method": "PUT",
+            "path": "/api/v1/progress/alerts/rules/{id}",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": "UpdateAlertRuleRequest",
+            "responseType": "AlertRuleResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/ProgressController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "ProgressController",
+            "operationId": "getBenchmark",
+            "method": "GET",
+            "path": "/api/v1/progress/benchmark",
+            "pathParams": [],
+            "queryParams": [
+              "certificationId"
+            ],
+            "requestBodyType": null,
+            "responseType": "BenchmarkResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/ProgressController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "ProgressController",
+            "operationId": "getDashboard",
+            "method": "GET",
+            "path": "/api/v1/progress/dashboard",
+            "pathParams": [],
+            "queryParams": [
+              "certificationId"
+            ],
+            "requestBodyType": null,
+            "responseType": "DashboardResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/ProgressController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "ProgressController",
+            "operationId": "getHeatmap",
+            "method": "GET",
+            "path": "/api/v1/progress/heatmap",
+            "pathParams": [],
+            "queryParams": [
+              "certificationId"
+            ],
+            "requestBodyType": null,
+            "responseType": "List<HeatmapEntry>",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/ProgressController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "ProgressController",
+            "operationId": "getPaceAnalysis",
+            "method": "GET",
+            "path": "/api/v1/progress/pace",
+            "pathParams": [],
+            "queryParams": [
+              "certificationId"
+            ],
+            "requestBodyType": null,
+            "responseType": "PaceAnalysisResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/ProgressController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "ProgressController",
+            "operationId": "getStreaks",
+            "method": "GET",
+            "path": "/api/v1/progress/streaks",
+            "pathParams": [],
+            "queryParams": [
+              "certificationId"
+            ],
+            "requestBodyType": null,
+            "responseType": "List<StreakResponse>",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/ProgressController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "ProgressController",
+            "operationId": "freezeStreak",
+            "method": "POST",
+            "path": "/api/v1/progress/streaks/freeze",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": "FreezeStreakRequest",
+            "responseType": "Void",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/ProgressController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "ProgressController",
+            "operationId": "getDomainProgressTrend",
+            "method": "GET",
+            "path": "/api/v1/progress/trends/domain-progress",
+            "pathParams": [],
+            "queryParams": [
+              "certificationId",
+              "domainId",
+              "days"
+            ],
+            "requestBodyType": null,
+            "responseType": "DomainTrendResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/ProgressController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "ProgressController",
+            "operationId": "getMockScoreTrend",
+            "method": "GET",
+            "path": "/api/v1/progress/trends/mock-scores",
+            "pathParams": [],
+            "queryParams": [
+              "certificationId"
+            ],
+            "requestBodyType": null,
+            "responseType": "MockScoreTrendResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/ProgressController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "ProgressController",
+            "operationId": "getReadinessTrend",
+            "method": "GET",
+            "path": "/api/v1/progress/trends/readiness",
+            "pathParams": [],
+            "queryParams": [
+              "certificationId",
+              "days"
+            ],
+            "requestBodyType": null,
+            "responseType": "List<TrendDataPoint>",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/ProgressController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "ProgressController",
+            "operationId": "getStudyTimeTrend",
+            "method": "GET",
+            "path": "/api/v1/progress/trends/study-time",
+            "pathParams": [],
+            "queryParams": [
+              "certificationId",
+              "days"
+            ],
+            "requestBodyType": null,
+            "responseType": "StudyTimeTrendResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/ProgressController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "ProgressController",
+            "operationId": "getWeeklyReports",
+            "method": "GET",
+            "path": "/api/v1/progress/weekly-reports",
+            "pathParams": [],
+            "queryParams": [
+              "certificationId",
+              "page",
+              "size"
+            ],
+            "requestBodyType": null,
+            "responseType": "Page<WeeklyReportResponse>",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/ProgressController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "ProgressController",
+            "operationId": "getWeeklyReportById",
+            "method": "GET",
+            "path": "/api/v1/progress/weekly-reports/{id}",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "WeeklyReportResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/ProgressController.java"
+          }
+        ],
+        "Engagement / Tags": [
+          {
+            "service": "engagement-service",
+            "controller": "TagController",
+            "operationId": "search",
+            "method": "GET",
+            "path": "/api/v1/tags",
+            "pathParams": [],
+            "queryParams": [
+              "keyword",
+              "page",
+              "size",
+              "sortBy",
+              "sortDirection"
+            ],
+            "requestBodyType": null,
+            "responseType": "PageDto<TagResponse>",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/TagController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "TagController",
+            "operationId": "createTag",
+            "method": "POST",
+            "path": "/api/v1/tags",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": "TagRequest",
+            "responseType": "TagResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/TagController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "TagController",
+            "operationId": "deleteTag",
+            "method": "DELETE",
+            "path": "/api/v1/tags/{id}",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "Void",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/TagController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "TagController",
+            "operationId": "updateTag",
+            "method": "PUT",
+            "path": "/api/v1/tags/{id}",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": "TagRequest",
+            "responseType": "TagResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/TagController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "TagController",
+            "operationId": "getTagBySlug",
+            "method": "GET",
+            "path": "/api/v1/tags/{slug}",
+            "pathParams": [
+              "slug"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "TagResponse",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/TagController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "TagController",
+            "operationId": "getPostsByTag",
+            "method": "GET",
+            "path": "/api/v1/tags/{slug}/posts",
+            "pathParams": [
+              "slug"
+            ],
+            "queryParams": [
+              "page",
+              "size"
+            ],
+            "requestBodyType": null,
+            "responseType": "PageDto<PostResponse>",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/TagController.java"
+          }
+        ],
+        "Identity / Authentication": [
+          {
+            "service": "identity-service",
+            "controller": "AuthController",
+            "operationId": "getCurrentUser",
+            "method": "GET",
+            "path": "/api/v1/auth/current",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "UserResponse",
+            "sourceFile": "identity-service/src/main/java/com/certimaster/identity_service/controller/AuthController.java"
+          },
+          {
+            "service": "identity-service",
+            "controller": "AuthController",
+            "operationId": "login",
+            "method": "POST",
+            "path": "/api/v1/auth/login",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": "LoginRequest",
+            "responseType": "LoginResponse",
+            "sourceFile": "identity-service/src/main/java/com/certimaster/identity_service/controller/AuthController.java"
+          },
+          {
+            "service": "identity-service",
+            "controller": "AuthController",
+            "operationId": "logout",
+            "method": "POST",
+            "path": "/api/v1/auth/logout",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "Void",
+            "sourceFile": "identity-service/src/main/java/com/certimaster/identity_service/controller/AuthController.java"
+          },
+          {
+            "service": "identity-service",
+            "controller": "AuthController",
+            "operationId": "getOauthAuthorizationUrl",
+            "method": "GET",
+            "path": "/api/v1/auth/oauth/authorize/{provider}",
+            "pathParams": [
+              "provider"
+            ],
+            "queryParams": [
+              "redirectUri",
+              "state"
+            ],
+            "requestBodyType": null,
+            "responseType": "Map<String, String>",
+            "sourceFile": "identity-service/src/main/java/com/certimaster/identity_service/controller/AuthController.java"
+          },
+          {
+            "service": "identity-service",
+            "controller": "AuthController",
+            "operationId": "oauthCallback",
+            "method": "GET",
+            "path": "/api/v1/auth/oauth/callback/{provider}",
+            "pathParams": [
+              "provider"
+            ],
+            "queryParams": [
+              "code",
+              "state",
+              "error"
+            ],
+            "requestBodyType": null,
+            "responseType": "Void",
+            "sourceFile": "identity-service/src/main/java/com/certimaster/identity_service/controller/AuthController.java"
+          },
+          {
+            "service": "identity-service",
+            "controller": "AuthController",
+            "operationId": "refresh",
+            "method": "POST",
+            "path": "/api/v1/auth/refresh",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": "RefreshTokenRequest",
+            "responseType": "LoginResponse",
+            "sourceFile": "identity-service/src/main/java/com/certimaster/identity_service/controller/AuthController.java"
+          },
+          {
+            "service": "identity-service",
+            "controller": "AuthController",
+            "operationId": "register",
+            "method": "POST",
+            "path": "/api/v1/auth/register",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": "RegisterRequest",
+            "responseType": "RegisterResponse",
+            "sourceFile": "identity-service/src/main/java/com/certimaster/identity_service/controller/AuthController.java"
+          },
+          {
+            "service": "identity-service",
+            "controller": "AuthController",
+            "operationId": "verifyEmail",
+            "method": "GET",
+            "path": "/api/v1/auth/verify-email",
+            "pathParams": [],
+            "queryParams": [
+              "token"
+            ],
+            "requestBodyType": null,
+            "responseType": "Void",
+            "sourceFile": "identity-service/src/main/java/com/certimaster/identity_service/controller/AuthController.java"
+          }
+        ],
+        "Identity / Profile": [
+          {
+            "service": "identity-service",
+            "controller": "ProfileController",
+            "operationId": "getMyProfile",
+            "method": "GET",
+            "path": "/api/v1/profile/me",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "ProfileResponse",
+            "sourceFile": "identity-service/src/main/java/com/certimaster/identity_service/controller/ProfileController.java"
+          },
+          {
+            "service": "identity-service",
+            "controller": "ProfileController",
+            "operationId": "updateMyProfile",
+            "method": "PUT",
+            "path": "/api/v1/profile/me",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": "UpdateProfileRequest",
+            "responseType": "ProfileResponse",
+            "sourceFile": "identity-service/src/main/java/com/certimaster/identity_service/controller/ProfileController.java"
+          },
+          {
+            "service": "identity-service",
+            "controller": "ProfileController",
+            "operationId": "uploadAvatar",
+            "method": "POST",
+            "path": "/api/v1/profile/me/avatar",
+            "pathParams": [],
+            "queryParams": [
+              "file"
+            ],
+            "requestBodyType": null,
+            "responseType": "Map<String, String>",
+            "sourceFile": "identity-service/src/main/java/com/certimaster/identity_service/controller/ProfileController.java"
+          },
+          {
+            "service": "identity-service",
+            "controller": "ProfileController",
+            "operationId": "getUserProfile",
+            "method": "GET",
+            "path": "/api/v1/profile/{userId}",
+            "pathParams": [
+              "userId"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "ProfileResponse",
+            "sourceFile": "identity-service/src/main/java/com/certimaster/identity_service/controller/ProfileController.java"
+          }
+        ],
+        "Learning / Certifications": [
+          {
+            "service": "learning-service",
+            "controller": "CertificationController",
+            "operationId": "search",
+            "method": "GET",
+            "path": "/api/v1/certifications",
+            "pathParams": [],
+            "queryParams": [
+              "keyword",
+              "provider",
+              "level",
+              "status",
+              "providerId",
+              "difficultyLevel",
+              "page",
+              "size",
+              "sortBy",
+              "sortDirection"
+            ],
+            "requestBodyType": null,
+            "responseType": "PageDto<CertificationResponse>",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/CertificationController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "CertificationController",
+            "operationId": "searchFullText",
+            "method": "GET",
+            "path": "/api/v1/certifications/search",
+            "pathParams": [],
+            "queryParams": [
+              "query",
+              "page",
+              "size"
+            ],
+            "requestBodyType": null,
+            "responseType": "PageDto<CertificationResponse>",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/CertificationController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "CertificationController",
+            "operationId": "getById",
+            "method": "GET",
+            "path": "/api/v1/certifications/{id}",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "CertificationDetailResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/CertificationController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "CertificationController",
+            "operationId": "getBySlug",
+            "method": "GET",
+            "path": "/api/v1/certifications/{slug}",
+            "pathParams": [
+              "slug"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "CertificationDetailResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/CertificationController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "CertificationController",
+            "operationId": "getDomainTree",
+            "method": "GET",
+            "path": "/api/v1/certifications/{slug}/domains",
+            "pathParams": [
+              "slug"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "List<CertificationDomainResponse>",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/CertificationController.java"
+          }
+        ],
+        "Learning / Exam Sessions": [
+          {
+            "service": "learning-service",
+            "controller": "ExamSessionController",
+            "operationId": "getActiveSessions",
+            "method": "GET",
+            "path": "/api/v1/exam-sessions/active",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "List<UserExamSessionResponse>",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/ExamSessionController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "ExamSessionController",
+            "operationId": "startExam",
+            "method": "POST",
+            "path": "/api/v1/exam-sessions/exam/{examId}/start",
+            "pathParams": [
+              "examId"
+            ],
+            "queryParams": [],
+            "requestBodyType": "StartExamRequest",
+            "responseType": "ExamSessionResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/ExamSessionController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "ExamSessionController",
+            "operationId": "startPracticeSession",
+            "method": "POST",
+            "path": "/api/v1/exam-sessions/practice/start",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": "StartPracticeRequest",
+            "responseType": "ExamSessionResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/ExamSessionController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "ExamSessionController",
+            "operationId": "getSession",
+            "method": "GET",
+            "path": "/api/v1/exam-sessions/{sessionId}",
+            "pathParams": [
+              "sessionId"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "UserExamSessionResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/ExamSessionController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "ExamSessionController",
+            "operationId": "abandonSession",
+            "method": "POST",
+            "path": "/api/v1/exam-sessions/{sessionId}/abandon",
+            "pathParams": [
+              "sessionId"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "Void",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/ExamSessionController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "ExamSessionController",
+            "operationId": "submitAnswer",
+            "method": "POST",
+            "path": "/api/v1/exam-sessions/{sessionId}/answer",
+            "pathParams": [
+              "sessionId"
+            ],
+            "queryParams": [],
+            "requestBodyType": "AnswerQuestionRequest",
+            "responseType": "AnswerFeedbackResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/ExamSessionController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "ExamSessionController",
+            "operationId": "completeSession",
+            "method": "POST",
+            "path": "/api/v1/exam-sessions/{sessionId}/complete",
+            "pathParams": [
+              "sessionId"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "ExamResultResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/ExamSessionController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "ExamSessionController",
+            "operationId": "resumeSession",
+            "method": "GET",
+            "path": "/api/v1/exam-sessions/{sessionId}/resume",
+            "pathParams": [
+              "sessionId"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "ResumeSessionResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/ExamSessionController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "ExamSessionController",
+            "operationId": "reviewSession",
+            "method": "GET",
+            "path": "/api/v1/exam-sessions/{sessionId}/review",
+            "pathParams": [
+              "sessionId"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "ReviewSessionResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/ExamSessionController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "ExamSessionController",
+            "operationId": "timeoutSession",
+            "method": "POST",
+            "path": "/api/v1/exam-sessions/{sessionId}/timeout",
+            "pathParams": [
+              "sessionId"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "ExamResultResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/ExamSessionController.java"
+          }
+        ],
+        "Learning / Exams": [
+          {
+            "service": "learning-service",
+            "controller": "ExamController",
+            "operationId": "search",
+            "method": "GET",
+            "path": "/api/v1/exams",
+            "pathParams": [],
+            "queryParams": [
+              "keyword",
+              "certificationId",
+              "type",
+              "status",
+              "page",
+              "size",
+              "sortBy",
+              "sortDirection"
+            ],
+            "requestBodyType": null,
+            "responseType": "PageDto<ExamResponse>",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/ExamController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "ExamController",
+            "operationId": "create",
+            "method": "POST",
+            "path": "/api/v1/exams",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": "ExamRequest",
+            "responseType": "ExamResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/ExamController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "ExamController",
+            "operationId": "getByCertificationId",
+            "method": "GET",
+            "path": "/api/v1/exams/certification/{certificationId}",
+            "pathParams": [
+              "certificationId"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "List<ExamResponse>",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/ExamController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "ExamController",
+            "operationId": "delete",
+            "method": "DELETE",
+            "path": "/api/v1/exams/{id}",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "Void",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/ExamController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "ExamController",
+            "operationId": "getById",
+            "method": "GET",
+            "path": "/api/v1/exams/{id}",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "ExamDetailResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/ExamController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "ExamController",
+            "operationId": "update",
+            "method": "PUT",
+            "path": "/api/v1/exams/{id}",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": "ExamRequest",
+            "responseType": "ExamResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/ExamController.java"
+          }
+        ],
+        "Learning / Question Tags": [
+          {
+            "service": "learning-service",
+            "controller": "TagController",
+            "operationId": "search",
+            "method": "GET",
+            "path": "/api/v1/question-tags",
+            "pathParams": [],
+            "queryParams": [
+              "keyword",
+              "status",
+              "page",
+              "size",
+              "sortBy",
+              "sortDirection"
+            ],
+            "requestBodyType": null,
+            "responseType": "PageDto<TagResponse>",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/TagController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "TagController",
+            "operationId": "create",
+            "method": "POST",
+            "path": "/api/v1/question-tags",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": "TagRequest",
+            "responseType": "TagResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/TagController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "TagController",
+            "operationId": "getAll",
+            "method": "GET",
+            "path": "/api/v1/question-tags/all",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "List<TagResponse>",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/TagController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "TagController",
+            "operationId": "removeTagsFromQuestion",
+            "method": "DELETE",
+            "path": "/api/v1/question-tags/question/{questionId}",
+            "pathParams": [
+              "questionId"
+            ],
+            "queryParams": [],
+            "requestBodyType": "List<Long>",
+            "responseType": "Void",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/TagController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "TagController",
+            "operationId": "getByQuestionId",
+            "method": "GET",
+            "path": "/api/v1/question-tags/question/{questionId}",
+            "pathParams": [
+              "questionId"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "List<TagResponse>",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/TagController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "TagController",
+            "operationId": "addTagsToQuestion",
+            "method": "POST",
+            "path": "/api/v1/question-tags/question/{questionId}",
+            "pathParams": [
+              "questionId"
+            ],
+            "queryParams": [],
+            "requestBodyType": "List<Long>",
+            "responseType": "Void",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/TagController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "TagController",
+            "operationId": "delete",
+            "method": "DELETE",
+            "path": "/api/v1/question-tags/{id}",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "Void",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/TagController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "TagController",
+            "operationId": "getById",
+            "method": "GET",
+            "path": "/api/v1/question-tags/{id}",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "TagResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/TagController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "TagController",
+            "operationId": "update",
+            "method": "PUT",
+            "path": "/api/v1/question-tags/{id}",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": "TagRequest",
+            "responseType": "TagResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/TagController.java"
+          }
+        ],
+        "Learning / Questions": [
+          {
+            "service": "learning-service",
+            "controller": "QuestionController",
+            "operationId": "getQuestionsByExam",
+            "method": "GET",
+            "path": "/api/v1/questions",
+            "pathParams": [],
+            "queryParams": [
+              "examId"
+            ],
+            "requestBodyType": null,
+            "responseType": "ExamQuestionsGroupedResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/QuestionController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "QuestionController",
+            "operationId": "create",
+            "method": "POST",
+            "path": "/api/v1/questions",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": "QuestionWithOptionsRequest",
+            "responseType": "QuestionResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/QuestionController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "QuestionController",
+            "operationId": "bulkImport",
+            "method": "POST",
+            "path": "/api/v1/questions/bulk-import",
+            "pathParams": [],
+            "queryParams": [
+              "certificationId",
+              "domainId"
+            ],
+            "requestBodyType": "List<BulkQuestionRequest>",
+            "responseType": "BulkImportResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/QuestionController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "QuestionController",
+            "operationId": "getByDomainId",
+            "method": "GET",
+            "path": "/api/v1/questions/domain/{domainId}",
+            "pathParams": [
+              "domainId"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "List<QuestionResponse>",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/QuestionController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "QuestionController",
+            "operationId": "delete",
+            "method": "DELETE",
+            "path": "/api/v1/questions/{id}",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "Void",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/QuestionController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "QuestionController",
+            "operationId": "getById",
+            "method": "GET",
+            "path": "/api/v1/questions/{id}",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "QuestionResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/QuestionController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "QuestionController",
+            "operationId": "update",
+            "method": "PUT",
+            "path": "/api/v1/questions/{id}",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": "QuestionWithOptionsRequest",
+            "responseType": "QuestionResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/QuestionController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "QuestionController",
+            "operationId": "getByIdForExam",
+            "method": "GET",
+            "path": "/api/v1/questions/{id}/exam",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "QuestionResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/QuestionController.java"
+          }
+        ],
+        "Learning / Results": [
+          {
+            "service": "learning-service",
+            "controller": "ResultController",
+            "operationId": "getUserHistory",
+            "method": "GET",
+            "path": "/api/v1/results/user/{userId}/history",
+            "pathParams": [
+              "userId"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "UserHistoryResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/ResultController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "ResultController",
+            "operationId": "getResultDetail",
+            "method": "GET",
+            "path": "/api/v1/results/{resultId}",
+            "pathParams": [
+              "resultId"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "ResultDetailResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/ResultController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "ResultController",
+            "operationId": "getQuestionReport",
+            "method": "GET",
+            "path": "/api/v1/results/{resultId}/questions",
+            "pathParams": [
+              "resultId"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "QuestionReportResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/ResultController.java"
+          }
+        ],
+        "Learning / Study Plans": [
+          {
+            "service": "learning-service",
+            "controller": "StudyPlanController",
+            "operationId": "createStudyPlan",
+            "method": "POST",
+            "path": "/api/v1/study-plans",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": "CreateStudyPlanRequest",
+            "responseType": "StudyPlanDetailResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/StudyPlanController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "StudyPlanController",
+            "operationId": "getActivePlan",
+            "method": "GET",
+            "path": "/api/v1/study-plans/active",
+            "pathParams": [],
+            "queryParams": [
+              "certificationId"
+            ],
+            "requestBodyType": null,
+            "responseType": "StudyPlanDetailResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/StudyPlanController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "StudyPlanController",
+            "operationId": "getPlanById",
+            "method": "GET",
+            "path": "/api/v1/study-plans/{planId}",
+            "pathParams": [
+              "planId"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "StudyPlanDetailResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/StudyPlanController.java"
+          },
+          {
+            "service": "learning-service",
+            "controller": "StudyPlanTaskController",
+            "operationId": "completeTask",
+            "method": "PUT",
+            "path": "/api/v1/study-plans/{planId}/tasks/{taskId}/complete",
+            "pathParams": [
+              "planId",
+              "taskId"
+            ],
+            "queryParams": [],
+            "requestBodyType": "CompleteTaskRequest",
+            "responseType": "Void",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/StudyPlanTaskController.java"
+          }
+        ],
+        "Learning / User Progress": [
+          {
+            "service": "learning-service",
+            "controller": "ProgressController",
+            "operationId": "getUserProgress",
+            "method": "GET",
+            "path": "/api/v1/progress/user/{userId}/cert/{certificationId}",
+            "pathParams": [
+              "userId",
+              "certificationId"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "UserProgressResponse",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/ProgressController.java"
+          }
+        ],
+        "Notification / Preferences": [
+          {
+            "service": "notification-service",
+            "controller": "NotificationPreferenceController",
+            "operationId": "get",
+            "method": "GET",
+            "path": "/api/v1/notification-preferences",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "PreferenceDto",
+            "sourceFile": "notification-service/src/main/java/com/certimaster/notification_service/controller/NotificationPreferenceController.java"
+          },
+          {
+            "service": "notification-service",
+            "controller": "NotificationPreferenceController",
+            "operationId": "update",
+            "method": "PUT",
+            "path": "/api/v1/notification-preferences",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": "UpdatePreferencesRequest",
+            "responseType": "PreferenceDto",
+            "sourceFile": "notification-service/src/main/java/com/certimaster/notification_service/controller/NotificationPreferenceController.java"
+          },
+          {
+            "service": "notification-service",
+            "controller": "NotificationPreferenceController",
+            "operationId": "registerPushToken",
+            "method": "POST",
+            "path": "/api/v1/notification-preferences/push-token",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": "RegisterPushTokenRequest",
+            "responseType": "Void",
+            "sourceFile": "notification-service/src/main/java/com/certimaster/notification_service/controller/NotificationPreferenceController.java"
+          },
+          {
+            "service": "notification-service",
+            "controller": "NotificationPreferenceController",
+            "operationId": "removePushToken",
+            "method": "DELETE",
+            "path": "/api/v1/notification-preferences/push-token/{token}",
+            "pathParams": [
+              "token"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "Void",
+            "sourceFile": "notification-service/src/main/java/com/certimaster/notification_service/controller/NotificationPreferenceController.java"
+          }
+        ],
+        "Notification / User Inbox": [
+          {
+            "service": "notification-service",
+            "controller": "NotificationController",
+            "operationId": "list",
+            "method": "GET",
+            "path": "/api/v1/notifications",
+            "pathParams": [],
+            "queryParams": [
+              "category",
+              "isRead",
+              "page",
+              "size"
+            ],
+            "requestBodyType": null,
+            "responseType": "Page<NotificationDto>",
+            "sourceFile": "notification-service/src/main/java/com/certimaster/notification_service/controller/NotificationController.java"
+          },
+          {
+            "service": "notification-service",
+            "controller": "NotificationController",
+            "operationId": "markAllRead",
+            "method": "PATCH",
+            "path": "/api/v1/notifications/read-all",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "Map<String, Integer>",
+            "sourceFile": "notification-service/src/main/java/com/certimaster/notification_service/controller/NotificationController.java"
+          },
+          {
+            "service": "notification-service",
+            "controller": "NotificationController",
+            "operationId": "unreadCount",
+            "method": "GET",
+            "path": "/api/v1/notifications/unread-count",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "Map<String, Long>",
+            "sourceFile": "notification-service/src/main/java/com/certimaster/notification_service/controller/NotificationController.java"
+          },
+          {
+            "service": "notification-service",
+            "controller": "NotificationController",
+            "operationId": "dismiss",
+            "method": "DELETE",
+            "path": "/api/v1/notifications/{id}",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "Void",
+            "sourceFile": "notification-service/src/main/java/com/certimaster/notification_service/controller/NotificationController.java"
+          },
+          {
+            "service": "notification-service",
+            "controller": "NotificationController",
+            "operationId": "markRead",
+            "method": "PATCH",
+            "path": "/api/v1/notifications/{id}/read",
+            "pathParams": [
+              "id"
+            ],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "Void",
+            "sourceFile": "notification-service/src/main/java/com/certimaster/notification_service/controller/NotificationController.java"
+          }
+        ]
+      }
+    },
+    "internal-system": {
+      "totalEndpoints": 6,
+      "functions": {
+        "Engagement / Internal Post Discovery": [
+          {
+            "service": "engagement-service",
+            "controller": "InternalPostController",
+            "operationId": "getPostsByCertification",
+            "method": "GET",
+            "path": "/api/v1/internal/posts/by-certification",
+            "pathParams": [],
+            "queryParams": [
+              "certificationId",
+              "limit"
+            ],
+            "requestBodyType": null,
+            "responseType": "PageDto<PostResponse>",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/InternalPostController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "InternalPostController",
+            "operationId": "getPostsByDomain",
+            "method": "GET",
+            "path": "/api/v1/internal/posts/by-domain",
+            "pathParams": [],
+            "queryParams": [
+              "certificationId",
+              "domainId",
+              "limit"
+            ],
+            "requestBodyType": null,
+            "responseType": "PageDto<PostResponse>",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/InternalPostController.java"
+          },
+          {
+            "service": "engagement-service",
+            "controller": "InternalPostController",
+            "operationId": "getPostsByTags",
+            "method": "GET",
+            "path": "/api/v1/internal/posts/by-tags",
+            "pathParams": [],
+            "queryParams": [
+              "tags",
+              "limit"
+            ],
+            "requestBodyType": null,
+            "responseType": "PageDto<PostResponse>",
+            "sourceFile": "engagement-service/src/main/java/com/certimaster/engagement_service/controller/InternalPostController.java"
+          }
+        ],
+        "Gateway / Fallback": [
+          {
+            "service": "api-gateway",
+            "controller": "FallbackController",
+            "operationId": "fallback",
+            "method": "GET",
+            "path": "/fallback",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "Map<String, Object>",
+            "sourceFile": "api-gateway/src/main/java/com/certimaster/apigateway/controller/FallbackController.java"
+          }
+        ],
+        "Learning / Internal Study Plan": [
+          {
+            "service": "learning-service",
+            "controller": "InternalStudyPlanController",
+            "operationId": "getActiveSummaries",
+            "method": "GET",
+            "path": "/api/v1/internal/study-plans/active-summaries",
+            "pathParams": [],
+            "queryParams": [],
+            "requestBodyType": null,
+            "responseType": "List<StudyPlanSummaryResponse>",
+            "sourceFile": "learning-service/src/main/java/com/certimaster/learning_service/controller/InternalStudyPlanController.java"
+          }
+        ],
+        "Notification / Email Webhooks": [
+          {
+            "service": "notification-service",
+            "controller": "EmailWebhookController",
+            "operationId": "handleWebhook",
+            "method": "POST",
+            "path": "/api/v1/webhooks/email/{provider}",
+            "pathParams": [
+              "provider"
+            ],
+            "queryParams": [],
+            "requestBodyType": "Map<String, Object>",
+            "responseType": "Void",
+            "sourceFile": "notification-service/src/main/java/com/certimaster/notification_service/controller/EmailWebhookController.java"
+          }
+        ]
+      }
+    }
+  }
+}
