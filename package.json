@@ -6,7 +6,26 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
+    "gen:api": "npm run gen:api:identity && npm run gen:api:learning && npm run gen:api:engagement && npm run gen:api:notification",
+    "gen:api:identity": "openapi-typescript http://localhost:8080/v3/api-docs/identity -o ./src/lib/api/schema/identity.ts --alphabetize",
+    "gen:api:learning": "openapi-typescript http://localhost:8080/v3/api-docs/learning -o ./src/lib/api/schema/learning.ts --alphabetize",
+    "gen:api:engagement": "openapi-typescript http://localhost:8080/v3/api-docs/engagement -o ./src/lib/api/schema/engagement.ts --alphabetize",
+    "gen:api:notification": "openapi-typescript http://localhost:8080/v3/api-docs/notification -o ./src/lib/api/schema/notification.ts --alphabetize",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@base-ui/react": "^1.4.0",
@@ -48,12 +67,20 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.3",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "openapi-typescript": "^7.13.0",
+    "prettier": "^3.8.3",
+    "prettier-plugin-tailwindcss": "^0.7.2",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
