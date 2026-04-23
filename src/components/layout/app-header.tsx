@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Bảng điều khiển" },
   { href: "/certifications", label: "Chứng chỉ" },
+  { href: "/my-prep", label: "Kế hoạch ôn thi" },
   { href: "/blog", label: "Bài viết" },
 ];
 
