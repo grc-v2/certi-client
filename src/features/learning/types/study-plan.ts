@@ -2,6 +2,8 @@ export type PlanStatus = "ACTIVE" | "PAUSED" | "COMPLETED" | "ABANDONED" | strin
 
 export type ExperienceLevel = "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "EXPERT";
 
+export type TaskStatus = "PENDING" | "IN_PROGRESS" | "COMPLETED" | "SKIPPED" | string;
+
 export interface StudyPlanCertificationInfo {
   id: number;
   name: string;
@@ -71,42 +73,60 @@ export interface StudyPlanListResponse {
 }
 
 export interface DomainAllocation {
-  id?: number;
-  domainId?: number;
-  domainName?: string;
-  allocatedHours?: string | null;
-  weightPercentage?: string | null;
-  completedHours?: string | null;
-  proficiencyLevel?: string | null;
+  id: number;
+  domainId: number;
+  domainName: string;
+  domainCode: string | null;
+  weightPercentage: string | null;
+  allocatedHours: string | null;
+  completedHours: string | null;
+  proficiencyLevel: string | null;
+  displayOrder: number | null;
 }
 
-export interface WeekTask {
-  id?: number;
-  title?: string;
-  description?: string | null;
-  scheduledDate?: string | null;
-  status?: string;
-  estimatedMinutes?: number | null;
-  type?: string;
+export interface DailyTask {
+  id: number;
+  scheduledDate: string;
+  taskType: string;
+  title: string;
+  description: string | null;
+  estimatedMinutes: number | null;
+  actualMinutes: number | null;
+  status: TaskStatus;
+  displayOrder: number | null;
+  domainName: string | null;
+}
+
+export interface DailyTaskDetail extends DailyTask {
+  domainCode: string | null;
+  keyKnowledge: string[] | null;
+  learningObjectives: string[] | null;
+  examTips: string[] | null;
 }
 
 export interface StudyPlanWeek {
-  id?: number;
+  id: number;
   weekNumber: number;
-  startDate?: string | null;
-  endDate?: string | null;
-  status?: string;
-  focusArea?: string | null;
-  tasks?: WeekTask[];
+  phase: string | null;
+  theme: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  plannedHours: string | null;
+  completedHours: string | null;
+  status: string | null;
+  dailyTasks: DailyTask[];
 }
 
 export interface StudyPlanMilestone {
-  id?: number;
-  title?: string;
-  description?: string | null;
-  dueDate?: string | null;
-  achieved?: boolean;
-  achievedAt?: string | null;
+  id: number;
+  milestoneType: string | null;
+  title: string;
+  description: string | null;
+  targetValue: string | null;
+  achievedValue: string | null;
+  targetDate: string | null;
+  achievedDate: string | null;
+  status: string;
 }
 
 export interface StudyPlanDetail {
