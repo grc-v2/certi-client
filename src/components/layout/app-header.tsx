@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { clientEnv } from "@/config/env";
 import { useCurrentUser, useLogout } from "@/features/identity/hooks/use-auth";
+import { NotificationBell } from "@/features/notification/components/notification-bell";
 import type { AuthUser } from "@/lib/auth/user-store";
 import { cn } from "@/lib/utils";
 
@@ -70,6 +71,7 @@ export function AppHeader() {
         <div className="ml-auto flex items-center gap-3">
           {user ? (
             <>
+              <NotificationBell />
               <Link
                 href="/profile"
                 className="hover:bg-muted flex items-center gap-2 rounded-full px-2 py-1"
