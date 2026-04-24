@@ -1,22 +1,18 @@
-import Link from "next/link";
-import type { ReactNode } from "react";
-
-import { clientEnv } from "@/config/env";
-
-export default function AuthLayout({ children }: { children: ReactNode }) {
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <main className="flex flex-1 items-center justify-center px-6 py-16">
-      <div className="flex w-full max-w-md flex-col gap-8">
-        <div className="flex flex-col items-center gap-2 text-center">
-          <Link href="/" className="text-xl font-semibold tracking-tight hover:underline">
-            {clientEnv.NEXT_PUBLIC_APP_NAME}
-          </Link>
-          <p className="text-muted-foreground text-sm">Nền tảng luyện thi chứng chỉ</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <a href="/" className="inline-flex items-center gap-2 cursor-pointer">
+            <div className="w-10 h-10 bg-[#0A66C2] rounded-xl flex items-center justify-center">
+              <span className="text-white font-bold text-lg">C</span>
+            </div>
+            <span className="text-2xl font-bold text-slate-900 dark:text-white">CertiMaster</span>
+          </a>
+          <p className="mt-2 text-slate-500 dark:text-slate-400 text-sm">Nền tảng học chứng chỉ chuyên sâu</p>
         </div>
-        <div className="border-border bg-card rounded-2xl border p-6 shadow-sm sm:p-8">
-          {children}
-        </div>
+        {children}
       </div>
-    </main>
-  );
+    </div>
+  )
 }
