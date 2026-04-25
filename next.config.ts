@@ -1,17 +1,14 @@
-import path from "node:path";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  turbopack: {
-    root: path.resolve(__dirname),
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'}/api/:path*`,
+      },
+    ]
   },
-  images: {
-    remotePatterns: [
-      { protocol: "https", hostname: "**.certimaster.io" },
-      { protocol: "https", hostname: "localhost" },
-    ],
-  },
-  experimental: {},
 };
 
 export default nextConfig;

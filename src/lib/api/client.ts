@@ -1,115 +1,96 @@
-import axios, {
-  type AxiosError,
-  type AxiosInstance,
-  type AxiosResponse,
-  type InternalAxiosRequestConfig,
-} from "axios";
+import axios, { AxiosError } from 'axios'
+import { API_BASE_URL } from '@/lib/constants'
+import Cookies from 'js-cookie'
 
-import { clientEnv } from "@/config/env";
+// Module-level token — set immediately on login/refresh, survives across requests
+let _accessToken: string | null = null
+let _refreshToken: string | null = null
 
-import { tokenStore } from "./token-store";
-import { ApiError, type ApiResponse, type ProblemDetail } from "./types";
-
-interface RetryableConfig extends InternalAxiosRequestConfig {
-  _retry?: boolean;
-  _skipAuth?: boolean;
-  _skipUnwrap?: boolean;
+export function setClientTokens(access: string, refresh: string) {
+  _accessToken = access
+  _refreshToken = refresh
+  Cookies.set('access_token', access, { expires: 1, path: '/' })
+  Cookies.set('refresh_token', refresh, { expires: 30, path: '/' })
 }
 
-function isApiResponse<T>(body: unknown): body is ApiResponse<T> {
-  return (
-    typeof body === "object" &&
-    body !== null &&
-    "data" in body &&
-    "metadata" in body &&
-    typeof (body as { metadata?: unknown }).metadata === "object"
-  );
+export function clearClientTokens() {
+  _accessToken = null
+  _refreshToken = null
+  Cookies.remove('access_token', { path: '/' })
+  Cookies.remove('refresh_token', { path: '/' })
 }
 
-function toProblemDetail(error: AxiosError): ProblemDetail {
-  const body = error.response?.data as Partial<ProblemDetail> | undefined;
-  if (body && typeof body === "object" && "title" in body && "status" in body) {
-    return body as ProblemDetail;
+// On page load, hydrate memory from cookies so existing sessions work
+if (typeof window !== 'undefined') {
+  _accessToken = Cookies.get('access_token') ?? null
+  _refreshToken = Cookies.get('refresh_token') ?? null
+}
+
+export const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: { 'Content-Type': 'application/json' },
+})
+
+apiClient.interceptors.request.use((config) => {
+  const token = _accessToken ?? Cookies.get('access_token')
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
+
+// Unwrap standard envelope: { metadata, data } → response.data = data
+apiClient.interceptors.response.use((response) => {
+  if (response.data && 'metadata' in response.data && 'data' in response.data) {
+    response.data = response.data.data
   }
-  return {
-    title: error.response?.statusText ?? "Network error",
-    status: error.response?.status ?? 0,
-    detail: error.message,
-  };
+  return response
+})
+
+let isRefreshing = false
+let failedQueue: Array<{ resolve: (value: unknown) => void; reject: (reason?: unknown) => void }> = []
+
+const processQueue = (error: AxiosError | null, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) prom.reject(error)
+    else prom.resolve(token)
+  })
+  failedQueue = []
 }
 
-export const api: AxiosInstance = axios.create({
-  baseURL: clientEnv.NEXT_PUBLIC_API_BASE_URL,
-  withCredentials: true,
-  timeout: 30_000,
-  headers: { "Content-Type": "application/json" },
-});
-
-api.interceptors.request.use((config) => {
-  const typed = config as RetryableConfig;
-  if (!typed._skipAuth) {
-    const token = tokenStore.get();
-    if (token) {
-      typed.headers.set("Authorization", `Bearer ${token}`);
-    }
-  }
-  return typed;
-});
-
-let refreshInflight: Promise<string | null> | null = null;
-
-async function refreshAccessToken(): Promise<string | null> {
-  if (refreshInflight) return refreshInflight;
-
-  refreshInflight = (async () => {
-    try {
-      const response = await axios.post<ApiResponse<{ accessToken: string }>>(
-        "/api/v1/auth/refresh",
-        {},
-        {
-          baseURL: clientEnv.NEXT_PUBLIC_API_BASE_URL,
-          withCredentials: true,
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-      const next = response.data.data.accessToken;
-      tokenStore.set(next);
-      return next;
-    } catch {
-      tokenStore.clear();
-      return null;
-    } finally {
-      refreshInflight = null;
-    }
-  })();
-
-  return refreshInflight;
-}
-
-api.interceptors.response.use(
-  (response: AxiosResponse) => {
-    const config = response.config as RetryableConfig;
-    if (config._skipUnwrap) return response;
-    if (response.status === 204) return response;
-    if (isApiResponse(response.data)) {
-      response.data = response.data.data;
-    }
-    return response;
-  },
+apiClient.interceptors.response.use(
+  (response) => response,
   async (error: AxiosError) => {
-    const config = error.config as RetryableConfig | undefined;
-
-    if (error.response?.status === 401 && config && !config._retry && !config._skipAuth) {
-      config._retry = true;
-      const newToken = await refreshAccessToken();
-      if (newToken) {
-        config.headers.set("Authorization", `Bearer ${newToken}`);
-        return api.request(config);
+    const originalRequest = error.config as typeof error.config & { _retry?: boolean }
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject })
+        }).then((token) => {
+          if (originalRequest.headers) originalRequest.headers.Authorization = `Bearer ${token}`
+          return apiClient(originalRequest)
+        })
+      }
+      originalRequest._retry = true
+      isRefreshing = true
+      try {
+        const refreshToken = _refreshToken ?? Cookies.get('refresh_token')
+        const { data } = await apiClient.post('/api/v1/auth/refresh', { refreshToken })
+        const newAccess = data.tokens?.accessToken ?? data.accessToken
+        const newRefresh = data.tokens?.refreshToken ?? data.refreshToken ?? _refreshToken ?? ''
+        setClientTokens(newAccess, newRefresh)
+        processQueue(null, newAccess)
+        if (originalRequest.headers) originalRequest.headers.Authorization = `Bearer ${newAccess}`
+        return apiClient(originalRequest)
+      } catch (err) {
+        processQueue(err as AxiosError, null)
+        clearClientTokens()
+        window.location.href = '/login'
+        return Promise.reject(err)
+      } finally {
+        isRefreshing = false
       }
     }
+    return Promise.reject(error)
+  }
+)
 
-    throw new ApiError(toProblemDetail(error));
-  },
-);
-
-export type { ApiResponse, ProblemDetail } from "./types";
+export default apiClient

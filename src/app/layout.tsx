@@ -1,38 +1,34 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+import { QueryProvider } from '@/providers/query-provider'
+import { AppThemeProvider } from '@/providers/theme-provider'
+import { Toaster } from 'sonner'
 
-import { AppProviders } from "@/providers";
-
-import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
-  title: {
-    default: "CertiMaster",
-    template: "%s · CertiMaster",
-  },
-  description: "Nền tảng học tập và luyện thi chứng chỉ hiệu quả.",
-};
+  title: { default: 'CertiMaster', template: '%s | CertiMaster' },
+  description: 'Nền tảng học chứng chỉ chuyên sâu và cộng đồng chia sẻ kiến thức',
+}
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="vi"
-      suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="flex min-h-full flex-col">
-        <AppProviders>{children}</AppProviders>
+    <html lang="vi" suppressHydrationWarning>
+      <body className={`${inter.variable} font-sans antialiased`}>
+        <AppThemeProvider>
+          <QueryProvider>
+            {children}
+            <Toaster richColors position="top-right" />
+          </QueryProvider>
+        </AppThemeProvider>
       </body>
     </html>
-  );
+  )
 }
