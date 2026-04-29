@@ -26,11 +26,11 @@ export default function AdminPostsPage() {
   })
 
   const featureMutation = useMutation({
-    mutationFn: ({ id, featured }: { id: string; featured: boolean }) => postsApi.adminFeature(id, featured),
+    mutationFn: ({ id, featured }: { id: number; featured: boolean }) => postsApi.adminFeature(id, featured),
     onSuccess: () => { toast.success('Đã cập nhật'); queryClient.invalidateQueries({ queryKey: ['admin-posts'] }) },
   })
   const pinMutation = useMutation({
-    mutationFn: ({ id, pinned }: { id: string; pinned: boolean }) => postsApi.adminPin(id, pinned),
+    mutationFn: ({ id, pinned }: { id: number; pinned: boolean }) => postsApi.adminPin(id, pinned),
     onSuccess: () => { toast.success('Đã cập nhật'); queryClient.invalidateQueries({ queryKey: ['admin-posts'] }) },
   })
 

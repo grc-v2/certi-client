@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { studyPlansApi, type StudyPlanListItem, type StudyPlanListResponse } from '@/lib/api/study-plans'
-import { examSessionsApi, type UserExamSessionResponse } from '@/lib/api/exam-sessions'
+import { examSessionsApi, type ActiveSessionResponse } from '@/lib/api/exam-sessions'
 import { resultsApi, type HistoryResultItem } from '@/lib/api/results'
 import { useAuthStore } from '@/store/auth-store'
 import { formatDate, formatRelativeTime, cn } from '@/lib/utils'
@@ -94,7 +94,7 @@ export default function LearnPage() {
     queryFn: examSessionsApi.getActive,
   })
 
-  const sessions: UserExamSessionResponse[] = (activeSessions as UserExamSessionResponse[]) ?? []
+  const sessions: ActiveSessionResponse[] = (activeSessions as ActiveSessionResponse[]) ?? []
   const studyPlans: StudyPlanListItem[] = plans?.items ?? []
 
   return (
@@ -119,9 +119,9 @@ export default function LearnPage() {
           </p>
           <div className="space-y-2">
             {sessions.map(s => (
-              <div key={s.sessionId} className="flex items-center justify-between">
-                <span className="text-sm text-yellow-700 dark:text-yellow-400">{s.examName}</span>
-                <Link href={`/exam/${s.sessionId}`}>
+              <div key={s.id} className="flex items-center justify-between">
+                <span className="text-sm text-yellow-700 dark:text-yellow-400">{s.examTitle}</span>
+                <Link href={`/exam/${s.id}`}>
                   <Button size="sm" className="bg-yellow-600 hover:bg-yellow-700 text-white cursor-pointer">Tiếp tục thi</Button>
                 </Link>
               </div>

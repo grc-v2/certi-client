@@ -6,11 +6,14 @@ import Cookies from 'js-cookie'
 let _accessToken: string | null = null
 let _refreshToken: string | null = null
 
-export function setClientTokens(access: string, refresh: string) {
+export function setClientTokens(access: string, refresh: string, roles?: string[]) {
   _accessToken = access
   _refreshToken = refresh
   Cookies.set('access_token', access, { expires: 1, path: '/' })
   Cookies.set('refresh_token', refresh, { expires: 30, path: '/' })
+  if (roles) {
+    Cookies.set('user_role', roles.join(','), { expires: 1, path: '/' })
+  }
 }
 
 export function clearClientTokens() {
@@ -18,6 +21,7 @@ export function clearClientTokens() {
   _refreshToken = null
   Cookies.remove('access_token', { path: '/' })
   Cookies.remove('refresh_token', { path: '/' })
+  Cookies.remove('user_role', { path: '/' })
 }
 
 // On page load, hydrate memory from cookies so existing sessions work

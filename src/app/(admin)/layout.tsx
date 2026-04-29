@@ -4,7 +4,8 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, Users, FileText, GraduationCap,
-  Bell, ChevronRight, LogOut, Menu, X, Moon, Sun, Settings
+  Bell, ChevronRight, LogOut, Menu, X, Moon, Sun, Settings,
+  HelpCircle, ClipboardList,
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useMutation } from '@tanstack/react-query'
@@ -20,15 +21,23 @@ const adminNav = [
   { href: '/admin/users', icon: Users, label: 'Người dùng' },
   { href: '/admin/posts', icon: FileText, label: 'Bài viết' },
   { href: '/admin/certifications', icon: GraduationCap, label: 'Chứng chỉ' },
+  { href: '/admin/questions', icon: HelpCircle, label: 'Câu hỏi' },
   { href: '/admin/notifications', icon: Bell, label: 'Thông báo' },
+  { href: '/admin/audit', icon: ClipboardList, label: 'Audit Log' },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { theme, setTheme } = useTheme()
-  const { user, logout } = useAuthStore()
+  const { user, logout, isAdmin } = useAuthStore()
   const router = useRouter()
+
+  // Client-side RBAC guard
+  if (!isAdmin()) {
+    router.push('/dashboard')
+    return null
+  }
 
   const logoutMutation = useMutation({
     mutationFn: authApi.logout,

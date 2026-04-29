@@ -372,7 +372,7 @@ function CreatePlanDialog({
   const [step, setStep] = useState(0)
 
   const form = useForm<CreatePlanForm>({
-    resolver: zodResolver(createPlanSchema),
+    resolver: zodResolver(createPlanSchema) as never,
     defaultValues: {
       studyDaysPerWeek: 5,
       preferredStudyDays: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY'],

@@ -15,8 +15,16 @@ export function middleware(request: NextRequest) {
   }
 
   // Require auth for protected routes
-  if (!token && !PUBLIC_ROUTES.some(r => pathname.startsWith(r))) {
+  if (!token) {
     return NextResponse.redirect(new URL(`/login?redirect=${encodeURIComponent(pathname)}`, request.url))
+  }
+
+  // RBAC: admin routes require ADMIN role cookie
+  if (ADMIN_ROUTES.some(r => pathname.startsWith(r))) {
+    const userRole = request.cookies.get('user_role')?.value ?? ''
+    if (!userRole.includes('ADMIN')) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
   }
 
   return NextResponse.next()

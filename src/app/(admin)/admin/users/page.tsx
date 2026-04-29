@@ -1,15 +1,17 @@
 'use client'
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Search, UserCheck, UserX, Trash2, Eye, Users, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, UserCheck, UserX, Trash2, Eye, Users, ChevronLeft, ChevronRight, Shield, Calendar, ArrowUpDown, LogOut, Edit2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Label } from '@/components/ui/label'
 import { adminApi, type UserSummaryResponse, type UserDetailResponse } from '@/lib/api/admin'
 import { formatDate, cn } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -19,27 +21,43 @@ export default function AdminUsersPage() {
   const [page, setPage] = useState(0)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [roleFilter, setRoleFilter] = useState('')
+  const [sortBy, setSortBy] = useState('')
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [detailUser, setDetailUser] = useState<UserDetailResponse | null>(null)
+  const [confirmAction, setConfirmAction] = useState<{ type: 'delete' | 'deactivate' | 'activate'; id: string; name: string } | null>(null)
+  const [editUser, setEditUser] = useState<UserDetailResponse | null>(null)
+  const [editForm, setEditForm] = useState({ fullName: '', bio: '' })
   const debouncedSearch = useDebounce(search, 400)
   const queryClient = useQueryClient()
 
   const { data, isLoading } = useQuery({
-    queryKey: ['admin-users', page, debouncedSearch, statusFilter],
-    queryFn: () => adminApi.listUsers({ search: debouncedSearch || undefined, status: statusFilter || undefined, page, size: 15 }),
+    queryKey: ['admin-users', page, debouncedSearch, statusFilter, roleFilter, sortBy],
+    queryFn: () => adminApi.listUsers({
+      search: debouncedSearch || undefined,
+      status: statusFilter || undefined,
+      role: roleFilter || undefined,
+      sort: sortBy || undefined,
+      page, size: 15,
+    }),
   })
 
   const activateMutation = useMutation({
     mutationFn: (id: string) => adminApi.activateUser(id),
-    onSuccess: () => { toast.success('Đã kích hoạt người dùng'); queryClient.invalidateQueries({ queryKey: ['admin-users'] }) },
+    onSuccess: () => { toast.success('Đã kích hoạt người dùng'); queryClient.invalidateQueries({ queryKey: ['admin-users'] }); setConfirmAction(null) },
   })
   const deactivateMutation = useMutation({
     mutationFn: (id: string) => adminApi.deactivateUser(id),
-    onSuccess: () => { toast.success('Đã vô hiệu hóa'); queryClient.invalidateQueries({ queryKey: ['admin-users'] }) },
+    onSuccess: () => { toast.success('Đã vô hiệu hóa'); queryClient.invalidateQueries({ queryKey: ['admin-users'] }); setConfirmAction(null) },
   })
   const deleteMutation = useMutation({
     mutationFn: (id: string) => adminApi.deleteUser(id),
-    onSuccess: () => { toast.success('Đã xóa người dùng'); queryClient.invalidateQueries({ queryKey: ['admin-users'] }) },
+    onSuccess: () => { toast.success('Đã xóa người dùng'); queryClient.invalidateQueries({ queryKey: ['admin-users'] }); setConfirmAction(null) },
+  })
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: unknown }) => adminApi.updateUser(id, data),
+    onSuccess: () => { toast.success('Đã cập nhật'); setEditUser(null); queryClient.invalidateQueries({ queryKey: ['admin-users'] }) },
+    onError: () => toast.error('Không thể cập nhật'),
   })
   const bulkActivateMutation = useMutation({
     mutationFn: () => adminApi.bulkActivate(selectedIds),
@@ -81,6 +99,30 @@ export default function AdminUsersPage() {
               <SelectItem value="">Tất cả</SelectItem>
               <SelectItem value="ACTIVE">Hoạt động</SelectItem>
               <SelectItem value="INACTIVE">Vô hiệu</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v ?? '')}>
+            <SelectTrigger className="w-full sm:w-32 cursor-pointer">
+              <Shield className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
+              <SelectValue placeholder="Role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Tất cả</SelectItem>
+              <SelectItem value="ADMIN">Admin</SelectItem>
+              <SelectItem value="USER">User</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={sortBy} onValueChange={(v) => setSortBy(v ?? '')}>
+            <SelectTrigger className="w-full sm:w-40 cursor-pointer">
+              <ArrowUpDown className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
+              <SelectValue placeholder="Sắp xếp" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Mặc định</SelectItem>
+              <SelectItem value="fullName,asc">Tên A-Z</SelectItem>
+              <SelectItem value="fullName,desc">Tên Z-A</SelectItem>
+              <SelectItem value="registrationDate,desc">Mới nhất</SelectItem>
+              <SelectItem value="registrationDate,asc">Cũ nhất</SelectItem>
             </SelectContent>
           </Select>
           {selectedIds.length > 0 && (
@@ -145,7 +187,7 @@ export default function AdminUsersPage() {
                       </div>
                     </td>
                     <td className="p-3 hidden sm:table-cell">
-                      <Badge variant="secondary" className="text-xs">{user.roleCode}</Badge>
+                      <Badge variant="secondary" className={cn('text-xs', user.roleCode === 'ADMIN' ? 'bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-400' : '')}>{user.roleCode}</Badge>
                     </td>
                     <td className="p-3 text-slate-500 hidden md:table-cell text-xs">{formatDate(user.registrationDate)}</td>
                     <td className="p-3">
@@ -164,7 +206,7 @@ export default function AdminUsersPage() {
                         </button>
                         {user.status === 'ACTIVE' ? (
                           <button
-                            onClick={() => deactivateMutation.mutate(user.id)}
+                            onClick={() => setConfirmAction({ type: 'deactivate', id: user.id, name: user.fullName })}
                             className="p-1.5 text-slate-400 hover:text-red-500 cursor-pointer transition-colors rounded hover:bg-red-50 dark:hover:bg-red-950/20"
                             title="Vô hiệu hóa"
                           >
@@ -172,7 +214,7 @@ export default function AdminUsersPage() {
                           </button>
                         ) : (
                           <button
-                            onClick={() => activateMutation.mutate(user.id)}
+                            onClick={() => setConfirmAction({ type: 'activate', id: user.id, name: user.fullName })}
                             className="p-1.5 text-slate-400 hover:text-[#22C55E] cursor-pointer transition-colors rounded hover:bg-green-50 dark:hover:bg-green-950/20"
                             title="Kích hoạt"
                           >
@@ -180,7 +222,7 @@ export default function AdminUsersPage() {
                           </button>
                         )}
                         <button
-                          onClick={() => { if (confirm('Xóa người dùng này?')) deleteMutation.mutate(user.id) }}
+                          onClick={() => setConfirmAction({ type: 'delete', id: user.id, name: user.fullName })}
                           className="p-1.5 text-slate-400 hover:text-red-500 cursor-pointer transition-colors rounded hover:bg-red-50 dark:hover:bg-red-950/20"
                           title="Xóa"
                         >
@@ -209,38 +251,149 @@ export default function AdminUsersPage() {
         </CardContent>
       </Card>
 
-      {/* Detail dialog */}
+      {/* Detail dialog with tabs */}
       <Dialog open={!!detailUser} onOpenChange={() => setDetailUser(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>Chi tiết người dùng</DialogTitle></DialogHeader>
           {detailUser && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <Avatar className="w-12 h-12">
-                  <AvatarImage src={detailUser.avatarUrl ?? undefined} />
-                  <AvatarFallback className="bg-[#0A66C2] text-white">{detailUser.fullName?.slice(0,2).toUpperCase()}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-semibold text-slate-900 dark:text-white">{detailUser.fullName}</p>
-                  <p className="text-sm text-slate-500">{detailUser.email}</p>
+            <Tabs defaultValue="info">
+              <TabsList className="w-full">
+                <TabsTrigger value="info" className="flex-1 cursor-pointer">Thông tin</TabsTrigger>
+                <TabsTrigger value="sessions" className="flex-1 cursor-pointer">Phiên đăng nhập</TabsTrigger>
+              </TabsList>
+              <TabsContent value="info" className="space-y-4 mt-4">
+                <div className="flex items-center gap-3">
+                  <Avatar className="w-12 h-12">
+                    <AvatarImage src={detailUser.avatarUrl ?? undefined} />
+                    <AvatarFallback className="bg-[#0A66C2] text-white">{detailUser.fullName?.slice(0,2).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-semibold text-slate-900 dark:text-white">{detailUser.fullName}</p>
+                    <p className="text-sm text-slate-500">{detailUser.email}</p>
+                  </div>
                 </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div><span className="text-slate-500">Role:</span> <Badge variant="secondary">{detailUser.roleCode}</Badge></div>
-                <div><span className="text-slate-500">Trạng thái:</span> <Badge className={cn(detailUser.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700')}>{detailUser.status}</Badge></div>
-                <div><span className="text-slate-500">Bài viết:</span> <span className="font-medium">{detailUser.postCount}</span></div>
-                <div><span className="text-slate-500">Chứng chỉ:</span> <span className="font-medium">{detailUser.certificationCount}</span></div>
-              </div>
-              {detailUser.bio && <div><p className="text-sm text-slate-500 font-medium">Giới thiệu:</p><p className="text-sm mt-0.5">{detailUser.bio}</p></div>}
-              <div className="flex gap-2 pt-2">
-                <Button size="sm" onClick={() => { adminApi.forceLogoutAllSessions(detailUser.id); toast.success('Đã đăng xuất tất cả phiên') }} variant="outline" className="cursor-pointer text-red-600 border-red-300">
-                  Đăng xuất tất cả phiên
-                </Button>
-              </div>
-            </div>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div><span className="text-slate-500">Role:</span> <Badge variant="secondary">{detailUser.roleCode}</Badge></div>
+                  <div><span className="text-slate-500">Trạng thái:</span> <Badge className={cn(detailUser.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700')}>{detailUser.status}</Badge></div>
+                  <div><span className="text-slate-500">Bài viết:</span> <span className="font-medium">{detailUser.postCount}</span></div>
+                  <div><span className="text-slate-500">Chứng chỉ:</span> <span className="font-medium">{detailUser.certificationCount}</span></div>
+                </div>
+                {detailUser.bio && <div><p className="text-sm text-slate-500 font-medium">Giới thiệu:</p><p className="text-sm mt-0.5">{detailUser.bio}</p></div>}
+                <div className="flex gap-2 pt-2">
+                  <Button size="sm" variant="outline" className="cursor-pointer" onClick={() => {
+                    setEditUser(detailUser)
+                    setEditForm({ fullName: detailUser.fullName, bio: detailUser.bio ?? '' })
+                    setDetailUser(null)
+                  }}>
+                    <Edit2 className="w-3.5 h-3.5 mr-1.5" />Chỉnh sửa
+                  </Button>
+                  <Button size="sm" onClick={() => { adminApi.forceLogoutAllSessions(detailUser.id); toast.success('Đã đăng xuất tất cả phiên') }} variant="outline" className="cursor-pointer text-red-600 border-red-300">
+                    <LogOut className="w-3.5 h-3.5 mr-1.5" />Đăng xuất tất cả
+                  </Button>
+                </div>
+              </TabsContent>
+              <TabsContent value="sessions" className="mt-4">
+                <SessionsList userId={detailUser.id} />
+              </TabsContent>
+            </Tabs>
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Edit user dialog */}
+      <Dialog open={!!editUser} onOpenChange={() => setEditUser(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Chỉnh sửa người dùng</DialogTitle></DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div>
+              <Label htmlFor="edit-name">Tên</Label>
+              <Input id="edit-name" value={editForm.fullName} onChange={e => setEditForm(f => ({ ...f, fullName: e.target.value }))} />
+            </div>
+            <div>
+              <Label htmlFor="edit-bio">Giới thiệu</Label>
+              <Input id="edit-bio" value={editForm.bio} onChange={e => setEditForm(f => ({ ...f, bio: e.target.value }))} />
+            </div>
+            <Button
+              className="w-full bg-[#0A66C2] hover:bg-[#084E96] text-white cursor-pointer"
+              disabled={updateMutation.isPending}
+              onClick={() => editUser && updateMutation.mutate({ id: editUser.id, data: editForm })}
+            >
+              {updateMutation.isPending ? 'Đang lưu...' : 'Lưu thay đổi'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmation dialog */}
+      <Dialog open={!!confirmAction} onOpenChange={() => setConfirmAction(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>
+              {confirmAction?.type === 'delete' ? 'Xóa người dùng' :
+               confirmAction?.type === 'deactivate' ? 'Vô hiệu hóa người dùng' : 'Kích hoạt người dùng'}
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-slate-600 dark:text-slate-300">
+            {confirmAction?.type === 'delete'
+              ? `Bạn có chắc chắn muốn xóa người dùng "${confirmAction?.name}"? Hành động này không thể hoàn tác.`
+              : confirmAction?.type === 'deactivate'
+              ? `Vô hiệu hóa người dùng "${confirmAction?.name}"?`
+              : `Kích hoạt lại người dùng "${confirmAction?.name}"?`}
+          </p>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setConfirmAction(null)} className="cursor-pointer">Hủy</Button>
+            <Button
+              className={cn('cursor-pointer', confirmAction?.type === 'activate' ? 'bg-[#22C55E] hover:bg-[#16A34A] text-white' : 'bg-red-600 hover:bg-red-700 text-white')}
+              disabled={deleteMutation.isPending || deactivateMutation.isPending || activateMutation.isPending}
+              onClick={() => {
+                if (!confirmAction) return
+                if (confirmAction.type === 'delete') deleteMutation.mutate(confirmAction.id)
+                else if (confirmAction.type === 'deactivate') deactivateMutation.mutate(confirmAction.id)
+                else activateMutation.mutate(confirmAction.id)
+              }}
+            >
+              {confirmAction?.type === 'delete' ? 'Xóa' : confirmAction?.type === 'deactivate' ? 'Vô hiệu hóa' : 'Kích hoạt'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
+
+function SessionsList({ userId }: { userId: string }) {
+  const { data: sessions, isLoading } = useQuery({
+    queryKey: ['admin-user-sessions', userId],
+    queryFn: () => adminApi.getActiveSessions(userId),
+  })
+
+  const sessionList = (sessions as Array<{ sessionId: string; ipAddress?: string; userAgent?: string; createdAt: string }>) ?? []
+
+  if (isLoading) return <div className="space-y-2">{Array(3).fill(0).map((_, i) => <div key={i} className="h-10 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />)}</div>
+
+  if (sessionList.length === 0) return <p className="text-center py-6 text-slate-500 text-sm">Không có phiên hoạt động</p>
+
+  return (
+    <div className="space-y-2">
+      {sessionList.map((s, i) => (
+        <div key={s.sessionId ?? i} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 text-sm">
+          <div className="min-w-0 flex-1">
+            <p className="text-slate-700 dark:text-slate-300 truncate text-xs">{s.userAgent ?? 'Unknown device'}</p>
+            <p className="text-slate-400 text-xs mt-0.5">{s.ipAddress} - {formatDate(s.createdAt)}</p>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="cursor-pointer text-red-600 border-red-300 flex-shrink-0 ml-2"
+            onClick={() => {
+              adminApi.forceLogoutSession(userId, s.sessionId)
+              toast.success('Đã đăng xuất phiên')
+            }}
+          >
+            <LogOut className="w-3 h-3" />
+          </Button>
+        </div>
+      ))}
     </div>
   )
 }

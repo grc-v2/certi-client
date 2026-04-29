@@ -30,4 +30,27 @@ export const adminApi = {
     apiClient.delete(`/api/v1/admin/users/${userId}/sessions`).then(r => r.data),
   forceLogoutSession: (userId: string, sessionId: string) =>
     apiClient.delete(`/api/v1/admin/users/${userId}/sessions/${sessionId}`),
+  // Audit
+  getAuditLogs: (params?: Record<string, unknown>) =>
+    apiClient.get<PageDto<AuditLogResponse>>('/api/v1/admin/audit', { params }).then(r => r.data),
+  getAuditLogById: (id: number) =>
+    apiClient.get<AuditLogResponse>(`/api/v1/admin/audit/${id}`).then(r => r.data),
+}
+
+export interface AuditLogResponse {
+  id: number
+  actorId?: number
+  actorUsername?: string
+  action: string
+  resourceType?: string
+  resourceId?: string
+  httpMethod?: string
+  httpPath?: string
+  queryString?: string
+  ipAddress?: string
+  userAgent?: string
+  statusCode?: number
+  durationMs?: number
+  serviceName?: string
+  occurredAt: string
 }

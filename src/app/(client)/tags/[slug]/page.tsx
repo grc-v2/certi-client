@@ -44,7 +44,7 @@ export default function TagPage() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-slate-900 dark:text-white">{tag.name}</h1>
-              <p className="text-sm text-slate-500 mt-0.5">{tag.postCount} bài viết</p>
+              <p className="text-sm text-slate-500 mt-0.5">{tag.postCount ?? 0} bài viết</p>
             </div>
           </CardContent>
         </Card>

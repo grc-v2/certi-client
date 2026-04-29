@@ -20,7 +20,7 @@ export interface PostDetailResponse extends PostResponse {
 }
 
 export interface TagResponse {
-  id: number; name: string; slug: string
+  id: number; name: string; slug: string; postCount?: number
 }
 
 export interface BookmarkResponse {
@@ -90,6 +90,8 @@ export const postsApi = {
     apiClient.get<PageDto<BookmarkResponse>>('/api/v1/bookmarks', { params: { page, size } }).then(r => r.data),
   bookmarkPost: (postId: number) =>
     apiClient.post<BookmarkResponse>(`/api/v1/bookmarks/posts/${postId}`).then(r => r.data),
+  removeBookmark: (postId: number) =>
+    apiClient.post(`/api/v1/bookmarks/posts/${postId}`).then(r => r.data),
   // Tags
   searchTags: (params?: Record<string, unknown>) =>
     apiClient.get<PageDto<TagResponse>>('/api/v1/tags', { params }).then(r => r.data),

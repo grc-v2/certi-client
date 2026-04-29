@@ -161,14 +161,14 @@ export default function ExamHistoryPage() {
       )}
 
       {/* Certification breakdown */}
-      {stats?.certifications?.length > 0 && (
+      {(stats?.certifications?.length ?? 0) > 0 && (
         <Card className="border-slate-200 dark:border-slate-700">
           <CardContent className="p-4">
             <h2 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2 mb-3">
               <GraduationCap className="w-4 h-4 text-[#0A66C2]" />Theo chứng chỉ
             </h2>
             <div className="divide-y divide-slate-100 dark:divide-slate-800">
-              {stats.certifications.map(c => (
+              {stats!.certifications!.map(c => (
                 <div key={c.certificationId} className="flex items-center justify-between py-2.5 text-sm">
                   <span className="text-slate-700 dark:text-slate-300 truncate mr-4">{c.name}</span>
                   <div className="flex items-center gap-3 flex-shrink-0 text-xs text-slate-500">
