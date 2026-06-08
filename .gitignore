@@ -42,5 +42,6 @@ next-env.d.ts
 #.claude
 .idea
 design-system
-.idea
 .husky
+.agent
+.claude

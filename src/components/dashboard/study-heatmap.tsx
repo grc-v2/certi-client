@@ -6,10 +6,10 @@ import type { HeatmapEntry, IntensityLevel } from '@/lib/api/progress'
 
 const INTENSITY_COLOR: Record<IntensityLevel, string> = {
   NONE:      'bg-slate-100 dark:bg-slate-800',
-  LOW:       'bg-[#0A66C2]/20',
-  MEDIUM:    'bg-[#0A66C2]/45',
-  HIGH:      'bg-[#0A66C2]/70',
-  VERY_HIGH: 'bg-[#0A66C2]',
+  LOW:       'bg-primary/20',
+  MEDIUM:    'bg-primary/45',
+  HIGH:      'bg-primary/70',
+  VERY_HIGH: 'bg-primary',
 }
 
 interface StudyHeatmapProps {
@@ -40,7 +40,7 @@ export function StudyHeatmap({ data }: StudyHeatmapProps) {
     <Card className="border-slate-200 dark:border-slate-700">
       <CardHeader className="pb-2">
         <CardTitle className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-          <Activity className="w-4 h-4 text-[#0A66C2]" />
+          <Activity className="w-4 h-4 text-primary" />
           Hoạt động học tập (90 ngày)
         </CardTitle>
       </CardHeader>

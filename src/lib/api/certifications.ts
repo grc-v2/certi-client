@@ -38,6 +38,15 @@ export interface ExamResponse {
   certificationName: string
 }
 
+export interface AdminLessonTemplateResponse {
+  id: number
+  domainId: number
+  title: string
+  estimatedMinutes?: number
+  orderIndex: number
+  status?: string
+}
+
 export interface CertificationDetailResponse extends CertificationResponse {
   domains: CertificationDomainResponse[]
   exams: ExamResponse[]
@@ -54,8 +63,39 @@ export interface PageDto<T> {
   empty: boolean
 }
 
+export interface CertificationSearchParams {
+  keyword?: string
+  provider?: string
+  level?: string
+  difficultyLevel?: string
+  status?: string
+  page?: number
+  size?: number
+  sortBy?: string
+  sortDirection?: 'ASC' | 'DESC'
+}
+
+export interface CertificationRequest {
+  name: string
+  provider: string
+  level: string
+  description?: string
+  passingScore?: number
+  totalQuestions?: number
+  durationMinutes?: number
+  price?: number
+}
+
+export interface CertificationDomainRequest {
+  name: string
+  code: string
+  description?: string
+  weightPercentage: number
+  displayOrder: number
+}
+
 export const certificationsApi = {
-  search: (params?: Record<string, unknown>) =>
+  search: (params?: CertificationSearchParams) =>
     apiClient.get<PageDto<CertificationResponse>>('/api/v1/certifications', { params }).then(r => r.data),
   getBySlug: (slug: string) =>
     apiClient.get<CertificationDetailResponse>(`/api/v1/certifications/${slug}`).then(r => r.data),
@@ -64,13 +104,15 @@ export const certificationsApi = {
   getDomains: (slug: string) =>
     apiClient.get<CertificationDomainResponse[]>(`/api/v1/certifications/${slug}/domains`).then(r => r.data),
   // Admin
-  create: (data: unknown) => apiClient.post('/api/v1/admin/certifications', data).then(r => r.data),
-  update: (id: string | number, data: unknown) => apiClient.put(`/api/v1/admin/certifications/${id}`, data).then(r => r.data),
+  create: (data: CertificationRequest) => apiClient.post<CertificationResponse>('/api/v1/admin/certifications', data).then(r => r.data),
+  update: (id: string | number, data: CertificationRequest) => apiClient.put<CertificationResponse>(`/api/v1/admin/certifications/${id}`, data).then(r => r.data),
   delete: (id: string | number) => apiClient.delete(`/api/v1/admin/certifications/${id}`),
   updateStatus: (id: string | number, status: string) =>
     apiClient.patch(`/api/v1/admin/certifications/${id}/status`, null, { params: { status } }),
-  createDomain: (certificationId: string | number, data: unknown) =>
-    apiClient.post(`/api/v1/admin/certifications/${certificationId}/domains`, data).then(r => r.data),
-  updateDomain: (id: string | number, data: unknown) => apiClient.put(`/api/v1/admin/domains/${id}`, data).then(r => r.data),
+  createDomain: (certificationId: string | number, data: CertificationDomainRequest) =>
+    apiClient.post<CertificationDomainResponse>(`/api/v1/admin/certifications/${certificationId}/domains`, data).then(r => r.data),
+  getAdminDomainLessons: (domainId: string | number) =>
+    apiClient.get<AdminLessonTemplateResponse[]>(`/api/v1/admin/domains/${domainId}/lessons`).then(r => r.data),
+  updateDomain: (id: string | number, data: CertificationDomainRequest) => apiClient.put<CertificationDomainResponse>(`/api/v1/admin/domains/${id}`, data).then(r => r.data),
   deleteDomain: (id: string | number) => apiClient.delete(`/api/v1/admin/domains/${id}`),
 }

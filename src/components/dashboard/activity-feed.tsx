@@ -7,7 +7,7 @@ import { formatDate } from '@/lib/utils'
 
 const ACTIVITY_META: Record<string, { icon: typeof BookOpen; color: string; label: string }> = {
   TASK_COMPLETED:   { icon: CheckCircle2, color: 'text-[#22C55E] bg-green-50 dark:bg-green-950/30',    label: 'Hoàn thành task' },
-  MOCK_COMPLETED:   { icon: FileText,     color: 'text-[#0A66C2] bg-blue-50 dark:bg-blue-950/30',      label: 'Thi thử' },
+  MOCK_COMPLETED:   { icon: FileText,     color: 'text-primary bg-blue-50 dark:bg-blue-950/30',      label: 'Thi thử' },
   STUDY_SESSION:    { icon: BookOpen,     color: 'text-purple-500 bg-purple-50 dark:bg-purple-950/30', label: 'Học tập' },
   PRACTICE_SESSION: { icon: RotateCcw,    color: 'text-orange-500 bg-orange-50 dark:bg-orange-950/30', label: 'Luyện tập' },
   MILESTONE_REACHED:{ icon: Target,       color: 'text-yellow-500 bg-yellow-50 dark:bg-yellow-950/30', label: 'Cột mốc' },
@@ -31,7 +31,7 @@ export function ActivityFeed({ certificationId, activities: propActivities }: Ac
     <Card className="border-slate-200 dark:border-slate-700">
       <CardHeader className="pb-2">
         <CardTitle className="text-base font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-          <Activity className="w-4 h-4 text-[#0A66C2]" />
+          <Activity className="w-4 h-4 text-primary" />
           Hoạt động gần đây
         </CardTitle>
       </CardHeader>

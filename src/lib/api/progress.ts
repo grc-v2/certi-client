@@ -81,33 +81,22 @@ export interface WeeklyReportPage {
 // ── API ────────────────────────────────────────────────────────────────────────
 
 export const progressApi = {
-  getDashboard: (certificationId: number) =>
-    apiClient.get<DashboardResponse>('/api/v1/progress/dashboard', {
-      params: { certificationId },
-    }).then(r => r.data),
-
-  getHeatmap: (certificationId: number, startDate?: string, endDate?: string) =>
-    apiClient.get<HeatmapEntry[]>('/api/v1/progress/heatmap', {
-      params: { certificationId, startDate, endDate },
-    }).then(r => r.data),
-
-  getStreaks: (certificationId: number) =>
-    apiClient.get<StreakInfo[]>('/api/v1/progress/streaks', {
-      params: { certificationId },
-    }).then(r => r.data),
-
-  getReadinessTrend: (certificationId: number, days = 30) =>
-    apiClient.get<ReadinessTrendEntry[]>('/api/v1/progress/trends/readiness', {
-      params: { certificationId, days },
-    }).then(r => r.data),
-
-  getWeeklyReports: (certificationId: number, page = 0, size = 10) =>
-    apiClient.get<WeeklyReportPage>('/api/v1/progress/weekly-reports', {
-      params: { certificationId, page, size },
-    }).then(r => r.data),
-
-  getActivityFeed: (certificationId: number, page = 0, size = 20) =>
-    apiClient.get<DashboardActivity[]>('/api/v1/progress/activity-feed', {
-      params: { certificationId, page, size },
-    }).then(r => r.data),
+  getDashboard: (certificationId: number) => Promise.resolve({
+    planCompletionPct: 0,
+    readinessScore: 0,
+    totalStudyDays: 0,
+    streaks: [],
+    mockSummary: { totalAttempts: 0, latestScore: 0, bestScore: 0, averageScore: 0, trend: 'STABLE' },
+    daysUntilExam: 0,
+    domainProgress: [],
+    todayActivity: [],
+    recentActivities: []
+  } as DashboardResponse),
+  getHeatmap: (certificationId: number, startDate?: string, endDate?: string) => Promise.resolve([] as HeatmapEntry[]),
+  getStreaks: (certificationId: number) => Promise.resolve([] as StreakInfo[]),
+  getReadinessTrend: (certificationId: number, days = 30) => Promise.resolve([] as ReadinessTrendEntry[]),
+  getWeeklyReports: (certificationId: number, page = 0, size = 10) => Promise.resolve({ content: [], totalPages: 0, totalElements: 0, first: true, last: true, number: 0 } as WeeklyReportPage),
+  getActivityFeed: (certificationId: number, page = 0, size = 20) => Promise.resolve([] as DashboardActivity[]),
 }
+
+
