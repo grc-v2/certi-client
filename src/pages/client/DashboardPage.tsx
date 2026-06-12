@@ -1,18 +1,10 @@
-'use client'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import {
-  BarChart3, ChevronRight, Activity, BookOpen, Clock
-} from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { BarChart2, CheckCircle2, XCircle, ChevronRight } from 'lucide-react'
 import { resultsApi } from '@/lib/api/results'
 import { examSessionsApi } from '@/lib/api/exam-sessions'
 import { useAuthStore } from '@/store/auth-store'
-import { cn } from '@/lib/utils'
 
-// Import new dashboard components
 import { CertHero } from '@/components/dashboard/cert-hero'
 import { QuickStats } from '@/components/dashboard/quick-stats'
 import { DomainsBreakdown } from '@/components/dashboard/domains-breakdown'
@@ -22,7 +14,6 @@ import { RecommendedNext } from '@/components/dashboard/recommended-next'
 export default function DashboardPage() {
   const { user } = useAuthStore()
 
-  // Fetch real user history & aggregated test prep statistics
   const { data: historyData, isLoading: isHistoryLoading } = useQuery({
     queryKey: ['results-history', user?.id],
     queryFn: () => resultsApi.getHistory(user!.id, { size: 10 }),
@@ -31,194 +22,200 @@ export default function DashboardPage() {
   const history = historyData?.results ?? []
   const stats = historyData?.statistics
 
-  // Fetch active test sessions
-  const { data: activeSessions, isLoading: isActiveLoading } = useQuery({
+  const { data: activeSessions } = useQuery({
     queryKey: ['active-sessions'],
     queryFn: () => examSessionsApi.getActive(),
     enabled: !!user?.id,
   })
 
-  // Format seconds to readable format
-  const formatTime = (secs: number) => {
-    const mins = Math.floor(secs / 60)
-    if (mins < 60) return `${mins} phút`
-    const hrs = Math.floor(mins / 60)
-    const remMins = mins % 60
-    return `${hrs} giờ ${remMins} phút`
-  }
-
   return (
-    <div className="space-y-6">
-      {/* 1. Hero Certification */}
-      <CertHero userName={user?.fullName || 'Học viên'} progress={65} certName="AWS Certified Solutions Architect" />
+    <div className="col" style={{ gap: 20 }}>
+      {/* Page header */}
+      <div>
+        <span className="eyebrow">Bảng điều khiển</span>
+        <h1 style={{ fontSize: 25, fontWeight: 800, marginTop: 6, color: 'var(--ink)' }}>
+          Chào {user?.fullName || 'bạn'} 👋
+        </h1>
+      </div>
 
-      {/* 2. Quick Stats */}
-      <QuickStats 
-        streak={12} 
-        xp={2450} 
-        accuracy={stats?.passRate ? Math.round(Number(stats.passRate) * 100) : 78} 
-        timeSpent="14h 30m" 
-        isLoading={isHistoryLoading} 
+      {/* Hero */}
+      <CertHero
+        userName={user?.fullName?.split(' ').pop() || 'bạn'}
+        progress={65}
+        certName="AWS Certified Solutions Architect – Associate"
+        certCode="SAA-C03"
       />
 
-      {/* Main columns */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Left main Column (col-span-2) */}
-        <div className="lg:col-span-2 space-y-6">
-          
-          {/* 5. Recommended Next */}
-          <RecommendedNext />
+      {/* Quick stats */}
+      <QuickStats
+        streak={12}
+        xp={2450}
+        accuracy={stats?.passRate ? Math.round(Number(stats.passRate) * 100) : 78}
+        timeSpent="14h 30m"
+        isLoading={isHistoryLoading}
+      />
 
-          {/* 4. Practice Modes */}
+      {/* Main two-column grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1.55fr 1fr', gap: 18 }} className="main-grid">
+
+        {/* Left column */}
+        <div className="col" style={{ gap: 18 }}>
+          <RecommendedNext />
           <PracticeModes />
 
-          {/* 6. Activity Feed / Recent Exam History Widget */}
-          <Card className="border-slate-200/60 dark:border-slate-800">
-            <CardHeader className="pb-3 flex flex-row items-center justify-between">
-              <CardTitle className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <BarChart3 className="w-4.5 h-4.5 text-purple-500" />
-                Lịch sử thi & luyện tập gần đây
-              </CardTitle>
-              <Link to="/learn" className="text-xs text-primary font-semibold flex items-center hover:underline">
-                Xem tất cả
-                <ChevronRight className="w-3 h-3 ml-0.5" />
+          {/* Activity feed */}
+          <div className="card enter enter-3" style={{ padding: 0, overflow: 'hidden' }}>
+            <div className="row" style={{ justifyContent: 'space-between', alignItems: 'center', padding: '18px 20px 12px' }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--ink)', margin: 0 }}>
+                Hoạt động gần đây
+              </h3>
+              <Link
+                to="/certifications/exam-history"
+                className="row"
+                style={{ gap: 4, fontSize: 13, color: 'var(--brand-deep)', fontWeight: 600, alignItems: 'center' }}
+              >
+                Xem tất cả <ChevronRight size={14} />
               </Link>
-            </CardHeader>
-            <CardContent className="p-0 sm:p-6 sm:pt-0">
-              {isHistoryLoading ? (
-                <div className="p-6 space-y-3">
-                  {[1, 2, 3].map((n) => (
-                    <div key={n} className="h-14 bg-slate-200 dark:bg-slate-800 rounded-xl animate-pulse" />
-                  ))}
-                </div>
-              ) : history.length > 0 ? (
-                <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {history.map((result) => {
-                    const isPassed = result.status === 'PASSED'
-                    const date = new Date(result.completedAt).toLocaleDateString('vi-VN', {
-                      month: 'short',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })
-                    return (
-                      <div key={result.resultId} className="flex items-center justify-between p-4 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 first:rounded-t-xl last:rounded-b-xl transition-colors">
-                        <div className="min-w-0 pr-4">
-                          <h4 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white truncate">{result.examTitle}</h4>
-                          <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-slate-500">
-                            <span className="font-semibold text-slate-600 dark:text-slate-400">{result.certificationName}</span>
-                            <span>•</span>
-                            <span>{date}</span>
-                            <span>•</span>
-                            <span>Đúng: {result.correctAnswers}/{result.totalQuestions} câu</span>
-                          </div>
+            </div>
+
+            {isHistoryLoading ? (
+              <div style={{ padding: '0 20px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {[1, 2, 3].map(n => (
+                  <div key={n} style={{ height: 56, background: 'var(--surface-2)', borderRadius: 12, animation: 'pulse 1.5s ease-in-out infinite' }} />
+                ))}
+              </div>
+            ) : history.length > 0 ? (
+              <div>
+                {history.slice(0, 5).map((result) => {
+                  const isPassed = result.status === 'PASSED'
+                  const date = new Date(result.completedAt).toLocaleDateString('vi-VN', {
+                    month: 'short', day: 'numeric',
+                  })
+                  return (
+                    <Link
+                      key={result.resultId}
+                      to={`/certifications/results/${result.resultId}`}
+                      className="row"
+                      style={{
+                        padding: '12px 20px', gap: 12, alignItems: 'center',
+                        borderTop: '1px solid var(--border)', cursor: 'pointer',
+                        transition: 'background .15s', textDecoration: 'none',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-2)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                    >
+                      <div className="itile" style={{
+                        width: 36, height: 36, flexShrink: 0,
+                        background: isPassed ? 'var(--easy-soft)' : 'var(--hard-soft)',
+                      }}>
+                        {isPassed
+                          ? <CheckCircle2 size={19} style={{ color: 'var(--easy)' }} />
+                          : <XCircle size={19} style={{ color: 'var(--hard)' }} />
+                        }
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {result.examTitle}
                         </div>
-                        <div className="flex items-center gap-3 flex-shrink-0">
-                          <div className="text-right">
-                            <p className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white">{Math.round(Number(result.percentage))}%</p>
-                            <Badge className={cn(
-                              'text-[10px] font-semibold px-2 py-0.5 mt-0.5 rounded-full border-0 uppercase tracking-wider',
-                              isPassed 
-                                ? 'bg-success/10 text-success dark:bg-success/20' 
-                                : 'bg-danger/10 text-danger dark:bg-danger/20'
-                            )}>
-                              {isPassed ? 'Đạt' : 'Trượt'}
-                            </Badge>
-                          </div>
-                          <Link to={`/certifications/results/${result.resultId}`}>
-                            <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800">
-                              <ChevronRight className="w-5 h-5" />
-                            </Button>
-                          </Link>
+                        <div className="row" style={{ gap: 7, fontSize: 11.5, color: 'var(--ink-3)', marginTop: 2 }}>
+                          <span className="mono">{result.correctAnswers}/{result.totalQuestions}</span>
+                          <span>·</span>
+                          <span>{date}</span>
                         </div>
                       </div>
-                    )
-                  })}
-                </div>
-              ) : (
-                <div className="text-center py-12 px-4 text-slate-500">
-                  <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-25" />
-                  <p className="font-medium text-sm">Chưa có kết quả thi nào</p>
-                  <p className="text-xs text-slate-400 mt-1">Các lượt làm đề luyện tập hoặc thi thử sẽ xuất hiện ở đây.</p>
-                  <Link to="/certifications" className="inline-block mt-4">
-                    <Button size="sm" className="bg-primary text-white">Luyện thi ngay</Button>
-                  </Link>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
+                      <div className="col" style={{ alignItems: 'flex-end' }}>
+                        <span className="mono tnum" style={{ fontSize: 16, fontWeight: 700, color: isPassed ? 'var(--brand-deep)' : 'var(--hard)' }}>
+                          {Math.round(Number(result.percentage))}%
+                        </span>
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+            ) : (
+              <div style={{ padding: '32px 20px', textAlign: 'center', color: 'var(--ink-3)' }}>
+                <BarChart2 size={32} style={{ marginBottom: 10, opacity: .4 }} />
+                <p style={{ fontWeight: 600, color: 'var(--ink-2)', fontSize: 13 }}>Chưa có kết quả thi nào</p>
+                <Link to="/certifications">
+                  <button className="btn-3d" style={{ marginTop: 14, padding: '10px 18px', fontSize: 13 }}>
+                    Luyện thi ngay
+                  </button>
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Right side Column (col-span-1) */}
-        <div className="space-y-6">
-
-          {/* 3. Domains Breakdown */}
+        {/* Right column */}
+        <div className="col" style={{ gap: 18 }}>
           <DomainsBreakdown />
 
-          {/* Active test sessions widget */}
+          {/* Active sessions */}
           {activeSessions && activeSessions.length > 0 && (
-            <Card className="border-primary/20 dark:border-primary/30 bg-gradient-to-br from-white to-slate-50/50 dark:from-slate-900 dark:to-slate-900/60 shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-1.5 h-full bg-primary" />
-              <CardHeader className="pb-3 flex flex-row items-center justify-between">
-                <CardTitle className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Activity className="w-4.5 h-4.5 text-primary animate-pulse" />
-                  Đang ôn luyện
-                </CardTitle>
-                <Badge variant="outline" className="bg-slate-100 text-primary border-slate-200 dark:bg-slate-800 dark:border-slate-700">
-                  {activeSessions.length} phiên
-                </Badge>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {activeSessions.map((session) => (
-                  <div key={session.id} className="flex flex-col gap-2 p-4 bg-slate-100/50 dark:bg-slate-800/40 rounded-xl border border-slate-200/50 dark:border-slate-800/40 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors">
+            <div className="card enter enter-2" style={{ padding: 0, overflow: 'hidden', borderColor: 'color-mix(in srgb, var(--brand) 40%, var(--border))' }}>
+              <div style={{ height: 4, background: 'var(--brand)' }} />
+              <div style={{ padding: '18px 20px' }}>
+                <div className="row" style={{ gap: 9, alignItems: 'center', marginBottom: 14 }}>
+                  <span className="pill brand" style={{ padding: '3px 9px', fontSize: 11 }}>
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--brand)', display: 'inline-block' }} />
+                    Đang làm · {activeSessions.length} phiên
+                  </span>
+                </div>
+                {activeSessions.slice(0, 2).map(session => (
+                  <div key={session.id} className="col" style={{ gap: 10, padding: '12px 14px', background: 'var(--surface-2)', borderRadius: 'var(--radius-sm)', marginBottom: 8 }}>
                     <div>
-                      <h4 className="font-bold text-slate-900 dark:text-white text-sm">{session.examTitle}</h4>
-                      <div className="flex flex-col gap-1 mt-1.5 text-xs text-slate-500">
-                        <span className="font-medium text-slate-600 dark:text-slate-400">{session.certificationName}</span>
-                        <div className="flex items-center gap-2 text-[11px]">
-                          <span className="flex items-center"><Clock className="w-3 h-3 mr-1"/> {formatTime(session.timeSpentSeconds)}</span>
-                          <span>•</span>
-                          <span>{session.answeredCount}/{session.totalQuestions} câu</span>
-                        </div>
-                      </div>
+                      <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--ink)' }}>{session.examTitle}</div>
+                      <div style={{ fontSize: 11.5, color: 'var(--ink-3)', marginTop: 2 }}>{session.certificationName}</div>
                     </div>
-                    <Link to={`/exam/${session.id}`} className="mt-1">
-                      <Button size="sm" className="w-full bg-primary hover:bg-slate-800 text-white font-semibold cursor-pointer rounded-lg shadow-sm">
-                        Làm tiếp
-                        <ChevronRight className="w-4 h-4 ml-1" />
-                      </Button>
+                    <div className="row" style={{ gap: 8, alignItems: 'center' }}>
+                      <div className="ch-track" style={{ flex: 1, height: 7 }}>
+                        <i style={{ width: `${session.totalQuestions > 0 ? Math.round((session.answeredCount / session.totalQuestions) * 100) : 0}%` }} />
+                      </div>
+                      <span className="mono" style={{ fontSize: 11, color: 'var(--ink-3)' }}>
+                        {session.answeredCount}/{session.totalQuestions}
+                      </span>
+                    </div>
+                    <Link to={`/exam/${session.id}`}>
+                      <button className="btn-3d" style={{ width: '100%', padding: '9px 14px', fontSize: 13 }}>
+                        Tiếp tục
+                      </button>
                     </Link>
                   </div>
                 ))}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
-          {/* Quick actions panel */}
-          <Card className="border-slate-200/60 dark:border-slate-800 bg-gradient-to-br from-white to-slate-50/50 dark:from-slate-900 dark:to-slate-900/30">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Lối tắt nhanh</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Link to="/certifications" className="flex items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/30 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-semibold transition-all group cursor-pointer">
-                <span>Tra cứu chứng chỉ học</span>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-              <Link to="/community" className="flex items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/30 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-semibold transition-all group cursor-pointer">
-                <span>Cộng đồng & Chia sẻ</span>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-              <Link to="/profile/me" className="flex items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/30 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-semibold transition-all group cursor-pointer">
-                <span>Thiết lập mục tiêu</span>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-            </CardContent>
-          </Card>
-
+          {/* Quick links */}
+          <div className="card enter enter-4" style={{ padding: '18px 20px' }}>
+            <span className="eyebrow" style={{ marginBottom: 12, display: 'block' }}>Lối tắt nhanh</span>
+            <div className="col" style={{ gap: 4 }}>
+              {[
+                { href: '/certifications', label: 'Tra cứu chứng chỉ' },
+                { href: '/community',     label: 'Cộng đồng & Chia sẻ' },
+                { href: '/profile/me',    label: 'Thiết lập mục tiêu' },
+              ].map(link => (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className="row"
+                  style={{
+                    padding: '10px 12px', borderRadius: 'var(--radius-sm)',
+                    justifyContent: 'space-between', alignItems: 'center',
+                    fontSize: 13.5, fontWeight: 600, color: 'var(--ink-2)',
+                    background: 'var(--surface-2)', transition: 'background .15s',
+                    textDecoration: 'none',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-3)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'var(--surface-2)')}
+                >
+                  {link.label}
+                  <ChevronRight size={16} style={{ color: 'var(--ink-3)' }} />
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
-        
       </div>
     </div>
   )

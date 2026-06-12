@@ -1,93 +1,122 @@
 import { Link } from 'react-router-dom'
-import { BookOpen, Users, Clock, ArrowRight } from 'lucide-react'
-import { Card, CardContent, CardFooter } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
-import { Badge } from '@/components/ui/badge'
+import { BookOpen, Clock, Users, ArrowRight, CheckCircle2 } from 'lucide-react'
 import { type CourseResponse, type CourseEnrollmentResponse } from '@/lib/api/courses'
 
 interface CourseCardProps {
   course: CourseResponse
   enrollment?: CourseEnrollmentResponse
+  index?: number
 }
 
-export function CourseCard({ course, enrollment }: CourseCardProps) {
+export function CourseCard({ course, enrollment, index = 0 }: CourseCardProps) {
   const isEnrolled = !!enrollment
-  
-  return (
-    <Link to={`/courses/${course.id}`} className="block h-full group">
-      <Card className="flex flex-col h-full overflow-hidden border-slate-200 dark:border-slate-800 hover:border-primary/40 hover:shadow-lg transition-all duration-300 bg-white dark:bg-slate-900/80 group-hover:-translate-y-1">
-        {/* Thumbnail Image */}
-        <div className="relative h-48 w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
-          {course.thumbnailUrl ? (
-            <img 
-              src={course.thumbnailUrl} 
-              alt={course.name} 
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-slate-300">
-              <BookOpen className="w-12 h-12" />
-            </div>
-          )}
-          
-          {isEnrolled && (
-            <div className="absolute top-3 left-3">
-              <Badge className="bg-[#22C55E]/90 hover:bg-[#22C55E] text-white border-0 shadow-sm backdrop-blur-sm">
-                Đang học
-              </Badge>
-            </div>
-          )}
-        </div>
+  const enterClass = `enter enter-${Math.min(index + 1, 5)}`
 
-        <CardContent className="flex-1 p-5">
-          <div className="mb-2">
-            <span className="text-xs font-medium text-primary dark:text-[#3B82F6]">
-              {course.certificationName}
+  return (
+    <Link
+      to={`/courses/${course.id}`}
+      className={`card ${enterClass}`}
+      style={{
+        display: 'flex', flexDirection: 'column', overflow: 'hidden',
+        textDecoration: 'none', transition: 'transform .12s, box-shadow .12s',
+      }}
+      onMouseEnter={e => {
+        (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)'
+        ;(e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-lg)'
+      }}
+      onMouseLeave={e => {
+        (e.currentTarget as HTMLElement).style.transform = 'none'
+        ;(e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-sm)'
+      }}
+    >
+      {/* Thumbnail */}
+      <div style={{ position: 'relative', height: 160, background: 'var(--surface-3)', overflow: 'hidden', flexShrink: 0 }}>
+        {course.thumbnailUrl ? (
+          <img
+            src={course.thumbnailUrl}
+            alt={course.name}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform .5s', display: 'block' }}
+          />
+        ) : (
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <BookOpen size={40} style={{ color: 'var(--ink-3)' }} />
+          </div>
+        )}
+
+        {/* Gradient overlay */}
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,.5), transparent)' }} />
+
+        {isEnrolled && (
+          <div style={{ position: 'absolute', top: 10, left: 10 }}>
+            <span className="pill brand" style={{ padding: '3px 9px', fontSize: 10.5 }}>
+              <CheckCircle2 size={11} strokeWidth={3} /> Đang học
             </span>
           </div>
-          
-          <h3 className="font-bold text-slate-900 dark:text-white text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
-            {course.name}
-          </h3>
-          
-          <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mb-4">
+        )}
+      </div>
+
+      {/* Body */}
+      <div style={{ flex: 1, padding: '16px 18px 0' }}>
+        <div style={{ marginBottom: 8 }}>
+          <span className="codechip" style={{ fontSize: 11 }}>{course.certificationName}</span>
+        </div>
+        <h3 style={{
+          fontSize: 16, fontWeight: 700, color: 'var(--ink)', lineHeight: 1.35,
+          marginBottom: 8, display: '-webkit-box', WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical', overflow: 'hidden',
+        }}>
+          {course.name}
+        </h3>
+        {course.description && (
+          <p style={{
+            fontSize: 13, color: 'var(--ink-3)', lineHeight: 1.5, marginBottom: 12,
+            display: '-webkit-box', WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical', overflow: 'hidden',
+          }}>
             {course.description}
           </p>
-          
-          <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400 mt-auto">
-            <div className="flex items-center gap-1.5">
-              <BookOpen className="w-4 h-4" />
-              <span>{course.totalLessons} bài học</span>
+        )}
+        <div className="row" style={{ gap: 13, flexWrap: 'wrap' }}>
+          <span className="row" style={{ gap: 5, alignItems: 'center', fontSize: 12, color: 'var(--ink-3)' }}>
+            <BookOpen size={13} />
+            <span className="mono">{course.totalLessons}</span> bài học
+          </span>
+          <span className="row" style={{ gap: 5, alignItems: 'center', fontSize: 12, color: 'var(--ink-3)' }}>
+            <Clock size={13} />
+            <span className="mono">{Math.round(course.durationMinutes / 60)}</span> giờ
+          </span>
+          {!isEnrolled && (
+            <span className="row" style={{ gap: 5, alignItems: 'center', fontSize: 12, color: 'var(--ink-3)' }}>
+              <Users size={13} />
+              <span className="mono">{course.enrolledCount}</span>
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="row" style={{
+        padding: '13px 18px', marginTop: 14, alignItems: 'center', justifyContent: 'space-between',
+        gap: 10, borderTop: '1px solid var(--border)', background: 'var(--surface-2)',
+      }}>
+        {isEnrolled ? (
+          <div className="col" style={{ gap: 6, flex: 1 }}>
+            <div className="row" style={{ justifyContent: 'space-between', fontSize: 11, color: 'var(--ink-3)' }}>
+              <span>Tiến độ</span>
+              <span className="mono" style={{ fontWeight: 700, color: 'var(--brand-deep)' }}>
+                {enrollment.progressPercentage}%
+              </span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Clock className="w-4 h-4" />
-              <span>{Math.round(course.durationMinutes / 60)} giờ</span>
+            <div className="ch-track" style={{ height: 7 }}>
+              <i style={{ width: `${enrollment.progressPercentage}%` }} />
             </div>
           </div>
-        </CardContent>
-
-        <CardFooter className="p-5 pt-0 border-t border-slate-100 dark:border-slate-800/50 mt-4 flex flex-col items-stretch gap-3">
-          {isEnrolled ? (
-            <div className="space-y-1.5 w-full pt-3">
-              <div className="flex justify-between text-xs">
-                <span className="font-medium text-slate-700 dark:text-slate-300">Tiến độ</span>
-                <span className="font-bold text-primary">{enrollment.progressPercentage}%</span>
-              </div>
-              <Progress value={enrollment.progressPercentage} className="h-1.5" />
-            </div>
-          ) : (
-            <div className="flex items-center justify-between w-full pt-3">
-              <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                <Users className="w-4 h-4" />
-                <span>{course.enrolledCount} học viên</span>
-              </div>
-              <div className="flex items-center text-sm font-medium text-primary group-hover:translate-x-1 transition-transform">
-                Chi tiết <ArrowRight className="w-4 h-4 ml-1" />
-              </div>
-            </div>
-          )}
-        </CardFooter>
-      </Card>
+        ) : (
+          <button className="btn3d sm" style={{ flex: 1 }}>
+            Xem khoá học <ArrowRight size={14} strokeWidth={2.4} />
+          </button>
+        )}
+      </div>
     </Link>
   )
 }

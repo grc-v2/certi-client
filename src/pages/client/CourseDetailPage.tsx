@@ -1,12 +1,10 @@
-'use client'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, BookOpen, Clock, PlayCircle, Lock, CheckCircle2, AlertCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
-import { Badge } from '@/components/ui/badge'
+import {
+  ArrowLeft, BookOpen, Clock, PlayCircle, Lock,
+  CheckCircle2, AlertCircle, ChevronRight,
+} from 'lucide-react'
 import { toast } from 'sonner'
-import { cn } from '@/lib/utils'
 import { coursesApi } from '@/lib/api/courses'
 
 export default function CourseDetailPage() {
@@ -15,7 +13,7 @@ export default function CourseDetailPage() {
   const queryClient = useQueryClient()
   const courseId = Number(id)
 
-  const { data: course, isLoading: isLoadingCourse } = useQuery({
+  const { data: course, isLoading } = useQuery({
     queryKey: ['course', courseId],
     queryFn: () => coursesApi.getCourseById(courseId),
     enabled: !!courseId,
@@ -36,177 +34,200 @@ export default function CourseDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['my-enrollments'] })
       queryClient.invalidateQueries({ queryKey: ['course', courseId] })
     },
-    onError: () => {
-      toast.error('Có lỗi xảy ra, vui lòng thử lại sau.')
-    }
+    onError: () => toast.error('Có lỗi xảy ra, vui lòng thử lại sau.'),
   })
 
-  if (isLoadingCourse) {
+  if (isLoading) {
     return (
-      <div className="space-y-6">
-        <div className="h-64 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-xl" />
-        <div className="h-10 w-1/3 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-lg" />
-        <div className="space-y-2">
-          <div className="h-4 w-full bg-slate-200 dark:bg-slate-800 animate-pulse rounded" />
-          <div className="h-4 w-5/6 bg-slate-200 dark:bg-slate-800 animate-pulse rounded" />
-        </div>
+      <div className="col" style={{ gap: 18 }}>
+        <div style={{ height: 280, background: 'var(--surface-2)', borderRadius: 'var(--radius-lg)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+        <div style={{ height: 28, width: '40%', background: 'var(--surface-2)', borderRadius: 8, animation: 'pulse 1.5s ease-in-out infinite' }} />
+        <div style={{ height: 16, width: '70%', background: 'var(--surface-2)', borderRadius: 6, animation: 'pulse 1.5s ease-in-out infinite' }} />
       </div>
     )
   }
 
   if (!course) {
     return (
-      <div className="text-center py-20">
-        <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-        <h2 className="text-xl font-bold text-slate-900 dark:text-white">Không tìm thấy khoá học</h2>
-        <Button onClick={() => navigate('/courses')} className="mt-4 cursor-pointer">Quay lại danh sách</Button>
+      <div className="card" style={{ padding: 56, textAlign: 'center' }}>
+        <AlertCircle size={40} style={{ color: 'var(--hard)', margin: '0 auto 14px' }} />
+        <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--ink)', marginBottom: 12 }}>
+          Không tìm thấy khoá học
+        </h2>
+        <button className="btn3d" onClick={() => navigate('/courses')}>
+          Quay lại danh sách
+        </button>
       </div>
     )
   }
 
   const orderedLessons = course.modules
-    .slice()
-    .sort((a, b) => a.orderIndex - b.orderIndex)
-    .flatMap(module => module.lessons.slice().sort((a, b) => a.orderIndex - b.orderIndex))
-  const continueLessonId = orderedLessons.find(lesson => !lesson.isCompleted)?.id ?? orderedLessons[0]?.id
+    .slice().sort((a, b) => a.orderIndex - b.orderIndex)
+    .flatMap(m => m.lessons.slice().sort((a, b) => a.orderIndex - b.orderIndex))
+  const continueLessonId = orderedLessons.find(l => !l.isCompleted)?.id ?? orderedLessons[0]?.id
 
   return (
-    <div className="space-y-8 pb-10">
-      {/* Back button */}
-      <Link to="/courses" className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors">
-        <ArrowLeft className="w-4 h-4 mr-2" /> Quay lại Khoá học
+    <div className="col" style={{ gap: 22, paddingBottom: 32 }}>
+      {/* Back */}
+      <Link
+        to="/courses"
+        className="row"
+        style={{ gap: 8, alignItems: 'center', fontSize: 13.5, fontWeight: 600, color: 'var(--ink-3)', textDecoration: 'none', width: 'fit-content' }}
+        onMouseEnter={e => (e.currentTarget.style.color = 'var(--ink)')}
+        onMouseLeave={e => (e.currentTarget.style.color = 'var(--ink-3)')}
+      >
+        <ArrowLeft size={16} /> Quay lại Khoá học
       </Link>
 
-      {/* Hero Section */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm">
-        <div className="h-48 md:h-64 relative bg-slate-100 dark:bg-slate-800">
+      {/* Hero */}
+      <div className="card enter" style={{ padding: 0, overflow: 'hidden' }}>
+        {/* Thumbnail */}
+        <div style={{ height: 220, position: 'relative', background: 'var(--surface-3)', overflow: 'hidden' }}>
           {course.thumbnailUrl ? (
-            <img src={course.thumbnailUrl} alt={course.name} className="w-full h-full object-cover" />
+            <img src={course.thumbnailUrl} alt={course.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <BookOpen className="w-16 h-16 text-slate-300 dark:text-slate-700" />
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <BookOpen size={48} style={{ color: 'var(--ink-3)' }} />
             </div>
           )}
-          {/* Overlay gradient */}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent" />
-          
-          <div className="absolute bottom-6 left-6 right-6">
-            <Badge className="bg-primary hover:bg-slate-800 text-white border-0 mb-3">
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,.75) 0%, transparent 60%)' }} />
+
+          <div style={{ position: 'absolute', bottom: 22, left: 26, right: 26 }}>
+            <span className="codechip" style={{ marginBottom: 10, display: 'inline-block', background: 'rgba(255,255,255,.15)', color: '#fff', borderColor: 'rgba(255,255,255,.3)' }}>
               {course.certificationName}
-            </Badge>
-            <h1 className="text-2xl md:text-4xl font-bold text-white mb-2">{course.name}</h1>
-            <p className="text-slate-200 text-sm md:text-base max-w-2xl">{course.description}</p>
-          </div>
-        </div>
-        
-        <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-center gap-6 text-sm text-slate-600 dark:text-slate-300">
-            <div className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-primary" />
-              <span className="font-medium">{Math.round(course.durationMinutes / 60)} giờ học</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-primary" />
-              <span className="font-medium">{course.totalLessons} bài học</span>
-            </div>
-          </div>
-          
-          <div>
-            {isEnrolled ? (
-              <div className="flex items-center gap-4 min-w-[200px]">
-                <div className="flex-1">
-                  <div className="flex justify-between text-xs mb-1">
-                    <span className="font-medium text-slate-700 dark:text-slate-300">Tiến độ của bạn</span>
-                    <span className="font-bold text-primary">{enrollment.progressPercentage}%</span>
-                  </div>
-                  <Progress value={enrollment.progressPercentage} className="h-2" />
-                </div>
-                <Button
-                  onClick={() => continueLessonId && navigate(`/courses/${courseId}/learn/${continueLessonId}`)}
-                  disabled={!continueLessonId}
-                  className="bg-primary hover:bg-slate-800 text-white cursor-pointer flex-shrink-0"
-                >
-                  Tiếp tục học
-                </Button>
-              </div>
-            ) : (
-              <Button 
-                onClick={() => enrollMutation.mutate(course.id)}
-                disabled={enrollMutation.isPending}
-                className="bg-[#22C55E] hover:bg-[#16a34a] text-white cursor-pointer w-full md:w-auto px-8"
-              >
-                {enrollMutation.isPending ? 'Đang xử lý...' : 'Đăng ký học ngay'}
-              </Button>
+            </span>
+            <h1 style={{ fontSize: 26, fontWeight: 800, color: '#fff', lineHeight: 1.2, marginBottom: 6 }}>
+              {course.name}
+            </h1>
+            {course.description && (
+              <p style={{ fontSize: 13.5, color: 'rgba(255,255,255,.8)', lineHeight: 1.5, maxWidth: 600 }}>
+                {course.description}
+              </p>
             )}
           </div>
         </div>
-      </div>
 
-      {/* Curriculum Section */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-bold text-slate-900 dark:text-white">Nội dung khoá học</h2>
-        
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800/50">
-          {course.modules.sort((a, b) => a.orderIndex - b.orderIndex).map((module, idx) => (
-            <div key={module.id} className="p-5">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="text-xs font-semibold text-primary mb-1 uppercase tracking-wider">
-                    Phần {idx + 1}
-                  </div>
-                  <h3 className="font-bold text-slate-900 dark:text-white text-lg">{module.title}</h3>
-                  {module.description && (
-                    <p className="text-sm text-slate-500 mt-1">{module.description}</p>
-                  )}
+        {/* Stats + CTA */}
+        <div className="row" style={{ padding: '20px 26px', alignItems: 'center', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
+          <div className="row" style={{ gap: 22, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span className="row" style={{ gap: 7, alignItems: 'center', fontSize: 13.5, color: 'var(--ink-2)' }}>
+              <BookOpen size={17} style={{ color: 'var(--brand)' }} />
+              <strong style={{ color: 'var(--ink)' }} className="mono">{course.totalLessons}</strong> bài học
+            </span>
+            <span className="row" style={{ gap: 7, alignItems: 'center', fontSize: 13.5, color: 'var(--ink-2)' }}>
+              <Clock size={17} style={{ color: 'var(--brand)' }} />
+              <strong style={{ color: 'var(--ink)' }} className="mono">{Math.round(course.durationMinutes / 60)}</strong> giờ
+            </span>
+          </div>
+
+          {isEnrolled ? (
+            <div className="row" style={{ gap: 14, alignItems: 'center', flex: '1 1 240px', minWidth: 0 }}>
+              <div className="col" style={{ flex: 1, gap: 6 }}>
+                <div className="row" style={{ justifyContent: 'space-between', fontSize: 12, color: 'var(--ink-3)' }}>
+                  <span>Tiến độ của bạn</span>
+                  <span className="mono" style={{ fontWeight: 700, color: 'var(--brand-deep)' }}>{enrollment.progressPercentage}%</span>
                 </div>
-                <div className="text-sm text-slate-500 font-medium bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-lg">
-                  {module.lessonsCount} bài học
+                <div className="ch-track" style={{ height: 8 }}>
+                  <i style={{ width: `${enrollment.progressPercentage}%` }} />
                 </div>
               </div>
-              
-              <div className="mt-4 space-y-2 pl-4 border-l-2 border-slate-100 dark:border-slate-800">
-                {module.lessons && module.lessons.length > 0 ? (
-                  module.lessons.sort((a, b) => a.orderIndex - b.orderIndex).map((l, i) => (
-                    <div key={l.id} className="group relative">
-                      {isEnrolled ? (
-                        <Link 
-                          to={`/courses/${course.id}/learn/${l.id}`}
-                          className="flex items-center justify-between py-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg px-2 -ml-2 cursor-pointer transition-colors"
-                        >
-                          <div className="flex items-center gap-3 min-w-0 pr-2">
-                            {l.isCompleted ? (
-                              <CheckCircle2 className="w-4 h-4 text-[#22C55E] shrink-0" />
-                            ) : l.type === 'VIDEO' ? (
-                              <PlayCircle className="w-4 h-4 text-slate-400 group-hover:text-primary shrink-0" />
-                            ) : (
-                              <BookOpen className="w-4 h-4 text-slate-400 group-hover:text-primary shrink-0" />
-                            )}
-                            <span className={cn("text-sm font-medium truncate", l.isCompleted ? "text-slate-500" : "text-slate-700 dark:text-slate-300 group-hover:text-primary")}>
-                              Bài {i + 1}: {l.title}
-                            </span>
-                          </div>
-                          <span className="text-xs text-slate-400 shrink-0">{l.durationMinutes} phút</span>
-                        </Link>
-                      ) : (
-                        <div className="flex items-center justify-between py-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg px-2 -ml-2 transition-colors">
-                          <div className="flex items-center gap-3 min-w-0 pr-2">
-                            <PlayCircle className="w-4 h-4 text-slate-300 shrink-0" />
-                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">
-                              Bài {i + 1}: {l.title}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-3 shrink-0">
-                            <span className="text-xs text-slate-400">{l.durationMinutes} phút</span>
-                            <Lock className="w-3.5 h-3.5 text-slate-300" />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-sm text-slate-400 italic py-2">
-                    Chưa có bài học nào trong phần này.
+              <button
+                className="btn3d"
+                onClick={() => continueLessonId && navigate(`/courses/${courseId}/learn/${continueLessonId}`)}
+                disabled={!continueLessonId}
+                style={{ flexShrink: 0 }}
+              >
+                Tiếp tục học <ChevronRight size={16} />
+              </button>
+            </div>
+          ) : (
+            <button
+              className="btn3d"
+              onClick={() => enrollMutation.mutate(course.id)}
+              disabled={enrollMutation.isPending}
+            >
+              {enrollMutation.isPending ? 'Đang xử lý...' : 'Đăng ký học ngay'}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Curriculum */}
+      <div className="col" style={{ gap: 12 }}>
+        <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--ink)' }}>Nội dung khoá học</h2>
+
+        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+          {course.modules.slice().sort((a, b) => a.orderIndex - b.orderIndex).map((module, mIdx) => (
+            <div key={module.id} style={{ borderTop: mIdx > 0 ? '1px solid var(--border)' : 'none' }}>
+              {/* Module header */}
+              <div style={{ padding: '16px 22px 12px', background: 'var(--surface-2)' }}>
+                <div className="row" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <span className="eyebrow" style={{ marginBottom: 4, display: 'block' }}>Phần {mIdx + 1}</span>
+                    <h3 style={{ fontSize: 15, fontWeight: 700, color: 'var(--ink)' }}>{module.title}</h3>
+                    {module.description && (
+                      <p style={{ fontSize: 12.5, color: 'var(--ink-3)', marginTop: 3 }}>{module.description}</p>
+                    )}
                   </div>
+                  <span className="codechip">{module.lessonsCount} bài</span>
+                </div>
+              </div>
+
+              {/* Lessons list */}
+              <div style={{ paddingLeft: 22, paddingRight: 22 }}>
+                {module.lessons && module.lessons.length > 0 ? (
+                  module.lessons.slice().sort((a, b) => a.orderIndex - b.orderIndex).map((l, lIdx) => {
+                    const content = (
+                      <div
+                        className="row"
+                        style={{
+                          padding: '11px 0', alignItems: 'center', gap: 12,
+                          borderTop: lIdx > 0 ? '1px solid var(--border)' : 'none',
+                          cursor: isEnrolled ? 'pointer' : 'default',
+                          transition: 'background .12s',
+                        }}
+                      >
+                        <div style={{ flexShrink: 0 }}>
+                          {l.isCompleted ? (
+                            <CheckCircle2 size={17} style={{ color: 'var(--brand)' }} />
+                          ) : l.type === 'VIDEO' ? (
+                            <PlayCircle size={17} style={{ color: isEnrolled ? 'var(--ink-3)' : 'var(--border-2)' }} />
+                          ) : (
+                            <BookOpen size={17} style={{ color: isEnrolled ? 'var(--ink-3)' : 'var(--border-2)' }} />
+                          )}
+                        </div>
+                        <span style={{
+                          flex: 1, fontSize: 13.5, fontWeight: 500,
+                          color: l.isCompleted ? 'var(--ink-3)' : isEnrolled ? 'var(--ink)' : 'var(--ink-2)',
+                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                        }}>
+                          Bài {lIdx + 1}: {l.title}
+                        </span>
+                        <div className="row" style={{ gap: 8, alignItems: 'center', flexShrink: 0 }}>
+                          <span className="mono" style={{ fontSize: 12, color: 'var(--ink-3)' }}>{l.durationMinutes}ph</span>
+                          {!isEnrolled && <Lock size={14} style={{ color: 'var(--border-2)' }} />}
+                        </div>
+                      </div>
+                    )
+
+                    return isEnrolled ? (
+                      <Link
+                        key={l.id}
+                        to={`/courses/${courseId}/learn/${l.id}`}
+                        style={{ display: 'block', textDecoration: 'none' }}
+                        onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'var(--surface-2)')}
+                        onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'transparent')}
+                      >
+                        {content}
+                      </Link>
+                    ) : (
+                      <div key={l.id}>{content}</div>
+                    )
+                  })
+                ) : (
+                  <p style={{ fontSize: 13, color: 'var(--ink-3)', padding: '12px 0', fontStyle: 'italic' }}>
+                    Chưa có bài học nào trong phần này.
+                  </p>
                 )}
               </div>
             </div>

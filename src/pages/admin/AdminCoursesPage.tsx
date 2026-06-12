@@ -11,11 +11,13 @@ import {
   ChevronUp,
   Layers,
   Pencil,
+  PlayCircle,
   Plus,
   Trash2,
   UploadCloud,
   X,
 } from 'lucide-react'
+import { CoursePreviewDialog } from '@/components/admin/CoursePreviewDialog'
 import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -155,6 +157,7 @@ export default function AdminCoursesPage() {
   const queryClient = useQueryClient()
 
   const [expandedCourseIds, setExpandedCourseIds] = useState<Set<number>>(new Set())
+  const [previewCourseId, setPreviewCourseId] = useState<number | null>(null)
 
   const [courseDialog, setCourseDialog] = useState<{
     open: boolean
@@ -449,27 +452,39 @@ export default function AdminCoursesPage() {
       form: EMPTY_LESSON_FORM,
     })
 
-  const openEditLesson = (
+  const [loadingLessonId, setLoadingLessonId] = useState<number | null>(null)
+
+  const openEditLesson = async (
     courseId: number,
     moduleId: number,
     lesson: CourseLessonSummary
-  ) =>
-    setLessonDialog({
-      open: true,
-      mode: 'edit',
-      courseId,
-      moduleId,
-      lessonId: lesson.id,
-      form: {
-        title: lesson.title ?? '',
-        description: '',
-        content: '',
-        videoUrl: '',
-        durationMinutes: lesson.durationMinutes != null ? String(lesson.durationMinutes) : '',
-        orderIndex: lesson.orderIndex != null ? String(lesson.orderIndex) : '',
-        lessonType: (lesson.type as AdminCourseLessonType) ?? 'ARTICLE',
-      },
-    })
+  ) => {
+    setLoadingLessonId(lesson.id)
+    try {
+      const detail = await adminCoursesApi.getLessonDetail(courseId, moduleId, lesson.id)
+      setLessonDialog({
+        open: true,
+        mode: 'edit',
+        courseId,
+        moduleId,
+        lessonId: lesson.id,
+        form: {
+          title: detail.title ?? '',
+          description: detail.description ?? '',
+          content: detail.content ?? '',
+          videoUrl: detail.videoUrl ?? '',
+          durationMinutes:
+            detail.durationMinutes != null ? String(detail.durationMinutes) : '',
+          orderIndex: detail.orderIndex != null ? String(detail.orderIndex) : '',
+          lessonType: (detail.type as AdminCourseLessonType) ?? 'ARTICLE',
+        },
+      })
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Không thể tải nội dung bài học')
+    } finally {
+      setLoadingLessonId(null)
+    }
+  }
 
   const submitLessonDialog = () => {
     if (
@@ -591,69 +606,75 @@ export default function AdminCoursesPage() {
                     </Badge>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
+                  <div className="row" style={{ alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                    <button
                       onClick={() => toggleExpand(course.id)}
-                      className="cursor-pointer"
+                      className="btn3d sm"
+                      title={expanded ? 'Thu gọn' : 'Sửa nội dung (modules & bài học)'}
                     >
-                      {expanded ? (
-                        <>
-                          <ChevronUp className="mr-1 h-3.5 w-3.5" />
-                          Thu gọn
-                        </>
-                      ) : (
-                        <>
-                          <ChevronDown className="mr-1 h-3.5 w-3.5" />
-                          Modules & lessons
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
+                      {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                      {expanded ? 'Thu gọn nội dung' : 'Sửa nội dung'}
+                    </button>
+                    <button
+                      onClick={() => setPreviewCourseId(course.id)}
+                      className="iconbtn"
+                      style={{ width: 32, height: 32, color: 'var(--brand)' }}
+                      title="Xem trước"
+                    >
+                      <PlayCircle size={14} />
+                    </button>
+                    <button
                       onClick={() => openEditCourse(course)}
-                      className="cursor-pointer"
+                      className="iconbtn"
+                      style={{ width: 32, height: 32 }}
+                      title="Sửa metadata"
                     >
-                      <Pencil className="mr-1 h-3.5 w-3.5" />
-                      Sửa
-                    </Button>
+                      <Pencil size={14} />
+                    </button>
                     {course.published ? (
-                      <Button
-                        size="sm"
-                        variant="outline"
+                      <button
                         onClick={() => unpublishCourse.mutate(course.id)}
                         disabled={unpublishCourse.isPending}
-                        className="cursor-pointer"
+                        className="iconbtn"
+                        style={{
+                          width: 32,
+                          height: 32,
+                          color: 'var(--ink-3)',
+                          opacity: unpublishCourse.isPending ? 0.5 : 1,
+                        }}
+                        title="Unpublish"
                       >
-                        Unpublish
-                      </Button>
+                        <UploadCloud size={14} />
+                      </button>
                     ) : (
-                      <Button
-                        size="sm"
+                      <button
                         onClick={() => publishCourse.mutate(course.id)}
                         disabled={publishCourse.isPending}
-                        className="cursor-pointer bg-primary text-white hover:bg-slate-800"
+                        className="iconbtn"
+                        style={{
+                          width: 32,
+                          height: 32,
+                          color: 'var(--brand)',
+                          opacity: publishCourse.isPending ? 0.5 : 1,
+                        }}
+                        title="Publish"
                       >
-                        <UploadCloud className="mr-1 h-3.5 w-3.5" />
-                        Publish
-                      </Button>
+                        <UploadCloud size={14} />
+                      </button>
                     )}
-                    <Button
-                      size="sm"
-                      variant="outline"
+                    <button
                       onClick={() => {
                         if (window.confirm(`Xoá khoá học "${course.name}"?`)) {
                           removeCourse.mutate(course.id)
                         }
                       }}
                       disabled={removeCourse.isPending}
-                      className="cursor-pointer text-red-600 hover:text-red-700"
+                      className="iconbtn"
+                      style={{ width: 32, height: 32, color: 'var(--hard)' }}
+                      title="Xoá"
                     >
-                      <Trash2 className="mr-1 h-3.5 w-3.5" />
-                      Xoá
-                    </Button>
+                      <Trash2 size={14} />
+                    </button>
                   </div>
 
                   {expanded && (
@@ -760,6 +781,7 @@ export default function AdminCoursesPage() {
                                         onClick={() =>
                                           openEditLesson(course.id, module.id, lesson)
                                         }
+                                        disabled={loadingLessonId === lesson.id}
                                         className="cursor-pointer h-7 px-2"
                                       >
                                         <Pencil className="h-3 w-3" />
@@ -1125,6 +1147,12 @@ export default function AdminCoursesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <CoursePreviewDialog
+        open={previewCourseId != null}
+        onOpenChange={open => !open && setPreviewCourseId(null)}
+        courseId={previewCourseId}
+      />
     </div>
   )
 }

@@ -1,19 +1,10 @@
-'use client'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import {
-  Trophy, Clock, Target, TrendingUp, CheckCircle2, XCircle,
-  ChevronLeft, ChevronRight, Filter, GraduationCap,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Progress } from '@/components/ui/progress'
+import { Trophy, Clock, Target, TrendingUp, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Search } from 'lucide-react'
 import { resultsApi, type HistoryResultItem, type HistoryParams } from '@/lib/api/results'
 import { useAuthStore } from '@/store/auth-store'
-import { formatDate, cn } from '@/lib/utils'
+import { formatDate } from '@/lib/utils'
 
 const PAGE_SIZE = 10
 
@@ -24,98 +15,14 @@ function formatSeconds(s: number) {
   return `${m}ph`
 }
 
-function StatCard({ icon: Icon, label, value, sub, color }: {
-  icon: React.ElementType; label: string; value: string; sub?: string; color: string
-}) {
-  return (
-    <Card className="border-slate-200 dark:border-slate-700">
-      <CardContent className="p-4">
-        <div className="flex items-center gap-3">
-          <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0', color)}>
-            <Icon className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500">{label}</p>
-            <p className="text-xl font-bold text-slate-900 dark:text-white leading-tight">{value}</p>
-            {sub && <p className="text-xs text-slate-400">{sub}</p>}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-function HistoryCard({ item }: { item: HistoryResultItem }) {
-  const passed = item.status === 'PASSED'
-  return (
-    <Link to={`/certifications/results/${item.resultId}`} className="block cursor-pointer group">
-      <Card className="border-slate-200 dark:border-slate-700 hover:border-primary/40 hover:shadow-sm transition-all duration-200">
-        <CardContent className="p-4">
-          <div className="flex items-start gap-4">
-            <div className={cn(
-              'w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0',
-              passed ? 'bg-[#22C55E]/10' : 'bg-red-500/10',
-            )}>
-              {passed
-                ? <CheckCircle2 className="w-5 h-5 text-[#22C55E]" />
-                : <XCircle className="w-5 h-5 text-red-500" />}
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="font-semibold text-slate-900 dark:text-white text-sm group-hover:text-primary transition-colors truncate">
-                    {item.examTitle}
-                  </p>
-                  <p className="text-xs text-slate-500 mt-0.5 truncate">{item.certificationName}</p>
-                </div>
-                <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                  <span className={cn(
-                    'text-xl font-bold leading-tight',
-                    passed ? 'text-[#22C55E]' : 'text-red-500',
-                  )}>
-                    {item.percentage.toFixed(0)}%
-                  </span>
-                  <Badge className={cn(
-                    'text-xs',
-                    passed
-                      ? 'bg-[#22C55E]/10 text-[#22C55E] border-[#22C55E]/20'
-                      : 'bg-red-500/10 text-red-500 border-red-500/20',
-                  )}>
-                    {passed ? 'Đỗ' : 'Trượt'}
-                  </Badge>
-                </div>
-              </div>
-
-              <Progress
-                value={item.percentage}
-                className="mt-2"
-                strokeColor={passed ? '#22C55E' : '#EF4444'}
-              />
-
-              <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-xs text-slate-400">
-                <span className="flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3 text-[#22C55E]" />
-                  {item.correctAnswers}/{item.totalQuestions} câu đúng
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />{formatSeconds(item.timeSpent)}
-                </span>
-                <span>Lần {item.attemptNumber}</span>
-                <span>{formatDate(item.completedAt)}</span>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
-  )
-}
+const scoreColor = (s: number) =>
+  s >= 72 ? 'var(--brand-deep)' : s >= 60 ? 'var(--medium)' : 'var(--hard)'
 
 export default function ExamHistoryPage() {
   const { user } = useAuthStore()
   const [page, setPage] = useState(0)
   const [status, setStatus] = useState<'PASSED' | 'FAILED' | ''>('')
+  const [q, setQ] = useState('')
 
   const params: HistoryParams = {
     page,
@@ -130,128 +37,211 @@ export default function ExamHistoryPage() {
     enabled: !!user?.id,
   })
 
-  const stats    = data?.statistics
-  const results  = data?.results ?? []
+  const stats = data?.statistics
+  const results = data?.results ?? []
   const pagination = data?.pagination
 
+  const FILTERS = [['', 'Tất cả'], ['PASSED', 'Đã đạt'], ['FAILED', 'Chưa đạt']] as const
+
+  const filtered = q.trim()
+    ? results.filter(r =>
+        r.examTitle.toLowerCase().includes(q.toLowerCase()) ||
+        r.certificationName.toLowerCase().includes(q.toLowerCase())
+      )
+    : results
+
+  const summary = stats ? [
+    { label: 'Lượt thi',   value: String(stats.totalExams),          icon: Trophy,     tone: 'brand' },
+    { label: 'Tỷ lệ đạt', value: `${stats.passRate.toFixed(0)}%`,    icon: CheckCircle2, tone: 'brand' },
+    { label: 'Điểm TB',   value: `${stats.averageScore.toFixed(0)}%`, icon: TrendingUp, tone: 'violet' },
+    { label: 'Thời gian', value: formatSeconds(stats.totalTimeSpent), icon: Clock,      tone: 'gold'  },
+  ] : []
+
   return (
-    <div className="space-y-6">
+    <div className="col" style={{ gap: 20 }}>
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Trophy className="w-6 h-6 text-primary" />
-            Lịch sử thi
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm">
-            {stats ? `${stats.totalExams} lần thi` : 'Đang tải...'}
-          </p>
-        </div>
+      <div>
+        <span className="eyebrow">Kết quả</span>
+        <h1 style={{ fontSize: 25, fontWeight: 800, color: 'var(--ink)', marginTop: 6 }}>
+          Lịch sử thi &amp; luyện tập
+        </h1>
       </div>
 
-      {/* Stats */}
-      {stats && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <StatCard icon={Target}     label="Tổng số lần thi" value={String(stats.totalExams)}          color="bg-primary" />
-          <StatCard icon={TrendingUp} label="Tỉ lệ đỗ"        value={`${stats.passRate.toFixed(0)}%`}  color="bg-[#22C55E]"
-            sub={`${stats.totalPassed}/${stats.totalExams}`} />
-          <StatCard icon={Trophy}     label="Điểm TB"          value={`${stats.averageScore.toFixed(0)}%`} color="bg-purple-500"
-            sub={`Cao nhất: ${stats.bestScore.toFixed(0)}%`} />
-          <StatCard icon={Clock}      label="Tổng thời gian"   value={formatSeconds(stats.totalTimeSpent)} color="bg-orange-500" />
-        </div>
-      )}
-
-      {/* Certification breakdown */}
-      {(stats?.certifications?.length ?? 0) > 0 && (
-        <Card className="border-slate-200 dark:border-slate-700">
-          <CardContent className="p-4">
-            <h2 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2 mb-3">
-              <GraduationCap className="w-4 h-4 text-primary" />Theo chứng chỉ
-            </h2>
-            <div className="divide-y divide-slate-100 dark:divide-slate-800">
-              {stats!.certifications!.map(c => (
-                <div key={c.certificationId} className="flex items-center justify-between py-2.5 text-sm">
-                  <span className="text-slate-700 dark:text-slate-300 truncate mr-4">{c.name}</span>
-                  <div className="flex items-center gap-3 flex-shrink-0 text-xs text-slate-500">
-                    <span>{c.exams} lần</span>
-                    <span className="font-semibold text-primary">{c.averageScore.toFixed(0)}% TB</span>
-                  </div>
-                </div>
-              ))}
+      {/* Summary stats */}
+      {summary.length > 0 && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }} className="stat-grid">
+          {summary.map((s, i) => (
+            <div key={i} className={`card enter enter-${i + 1}`} style={{ padding: '15px 17px' }}>
+              <div className="row" style={{ justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <span className="eyebrow">{s.label}</span>
+                <s.icon size={16} style={{ color: `var(--${s.tone})` }} />
+              </div>
+              <span className="mono tnum" style={{ fontSize: 26, fontWeight: 700, color: 'var(--ink)' }}>
+                {s.value}
+              </span>
             </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-2">
-        <Filter className="w-4 h-4 text-slate-400 flex-shrink-0" />
-        <Select value={status} onValueChange={(v) => { setStatus((v ?? '') as typeof status); setPage(0) }}>
-          <SelectTrigger className="w-full sm:w-40 cursor-pointer">
-            <SelectValue placeholder="Tất cả kết quả" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="">Tất cả</SelectItem>
-            <SelectItem value="PASSED">Đỗ</SelectItem>
-            <SelectItem value="FAILED">Trượt</SelectItem>
-          </SelectContent>
-        </Select>
-        {pagination && (
-          <p className="text-xs text-slate-500 ml-auto">
-            {pagination.totalElements} kết quả
-          </p>
-        )}
-      </div>
-
-      {/* Results list */}
-      {isLoading ? (
-        <div className="space-y-3">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-24 bg-slate-200 dark:bg-slate-700 rounded-xl animate-pulse" />
           ))}
         </div>
-      ) : results.length > 0 ? (
-        <div className="space-y-3">
-          {results.map(item => <HistoryCard key={item.resultId} item={item} />)}
-        </div>
-      ) : (
-        <Card className="border-slate-200 dark:border-slate-700">
-          <CardContent className="py-12 text-center">
-            <Trophy className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-500 text-sm">Chưa có lịch sử thi nào</p>
-            <Link to="/certifications" className="mt-3 inline-block">
-              <Button size="sm" className="bg-primary hover:bg-slate-800 text-white cursor-pointer mt-3">
-                Bắt đầu thi thử
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
       )}
+
+      {/* Table */}
+      <div className="card enter enter-2" style={{ padding: 0, overflow: 'hidden' }}>
+        {/* Toolbar */}
+        <div className="row" style={{ padding: '14px 16px', gap: 10, alignItems: 'center', flexWrap: 'wrap', borderBottom: '1px solid var(--border)' }}>
+          {/* Search */}
+          <div className="row" style={{
+            alignItems: 'center', gap: 9, padding: '0 13px', height: 40,
+            borderRadius: 'var(--radius-sm)', background: 'var(--surface-2)',
+            border: '1px solid var(--border)', flex: '1 1 200px',
+          }}>
+            <Search size={16} style={{ color: 'var(--ink-3)' }} />
+            <input
+              value={q}
+              onChange={e => setQ(e.target.value)}
+              placeholder="Tìm theo đề thi, chứng chỉ…"
+              style={{
+                border: 'none', background: 'transparent', outline: 'none',
+                color: 'var(--ink)', fontSize: 13.5, width: '100%',
+                fontFamily: 'var(--font-body)',
+              }}
+            />
+          </div>
+
+          {/* Status filter */}
+          <div className="row" style={{ gap: 4, padding: 4, borderRadius: 'var(--radius-sm)', background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
+            {FILTERS.map(([k, l]) => (
+              <button
+                key={k}
+                onClick={() => { setStatus(k as typeof status); setPage(0) }}
+                style={{
+                  padding: '7px 13px', borderRadius: 9, border: 'none', cursor: 'pointer',
+                  fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12.5, transition: 'all .12s',
+                  background: status === k ? 'var(--surface)' : 'transparent',
+                  color: status === k ? 'var(--ink)' : 'var(--ink-3)',
+                  boxShadow: status === k ? 'var(--shadow-sm)' : 'none',
+                }}
+              >
+                {l}
+              </button>
+            ))}
+          </div>
+
+          {pagination && (
+            <span className="mono" style={{ fontSize: 11.5, color: 'var(--ink-3)', marginLeft: 'auto' }}>
+              {pagination.totalElements} kết quả
+            </span>
+          )}
+        </div>
+
+        {/* Scroll wrapper */}
+        <div className="scroll-area" style={{ overflowX: 'auto' }}>
+          <div style={{ minWidth: 700 }}>
+            {/* Table header */}
+            <div className="row" style={{
+              padding: '10px 18px', gap: 12, fontSize: 11, fontWeight: 800, letterSpacing: '.07em',
+              textTransform: 'uppercase', color: 'var(--ink-3)', background: 'var(--surface-2)',
+              borderBottom: '1px solid var(--border)',
+            }}>
+              <span style={{ width: 90 }}>Ngày</span>
+              <span style={{ flex: 1 }}>Bài thi</span>
+              <span style={{ width: 78, textAlign: 'center' }}>Đúng</span>
+              <span style={{ width: 84, textAlign: 'right' }}>Thời gian</span>
+              <span style={{ width: 96, textAlign: 'right' }}>Điểm</span>
+            </div>
+
+            {isLoading ? (
+              <div className="col" style={{ gap: 0 }}>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} style={{ height: 62, background: i % 2 ? 'var(--surface)' : 'var(--surface-2)', borderBottom: '1px solid var(--border)' }} />
+                ))}
+              </div>
+            ) : filtered.length > 0 ? (
+              filtered.map((r, i) => {
+                const passed = r.status === 'PASSED'
+                const score = Math.round(Number(r.percentage))
+                return (
+                  <Link
+                    key={r.resultId}
+                    to={`/certifications/results/${r.resultId}`}
+                    className="row"
+                    style={{
+                      padding: '13px 18px', gap: 12, alignItems: 'center',
+                      borderBottom: i < filtered.length - 1 ? '1px solid var(--border)' : 'none',
+                      cursor: 'pointer', transition: 'background .12s', textDecoration: 'none',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-2)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    <div style={{ width: 90 }}>
+                      <div className="mono" style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--ink)' }}>
+                        {formatDate(r.completedAt)}
+                      </div>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {r.examTitle}
+                      </div>
+                      <span className="codechip" style={{ marginTop: 3, display: 'inline-block', fontSize: 10.5 }}>
+                        {r.certificationName}
+                      </span>
+                    </div>
+                    <span className="mono tnum" style={{ width: 78, textAlign: 'center', fontSize: 13, color: 'var(--ink-2)' }}>
+                      {r.correctAnswers}/{r.totalQuestions}
+                    </span>
+                    <span className="mono tnum" style={{ width: 84, textAlign: 'right', fontSize: 13, color: 'var(--ink-2)' }}>
+                      {formatSeconds(r.timeSpent)}
+                    </span>
+                    <div style={{ width: 96, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8 }}>
+                      <span className="mono tnum" style={{ fontSize: 15, fontWeight: 700, color: scoreColor(score) }}>
+                        {score}%
+                      </span>
+                      {passed
+                        ? <CheckCircle2 size={17} style={{ color: 'var(--brand)' }} />
+                        : <XCircle size={17} style={{ color: 'var(--hard)' }} />
+                      }
+                    </div>
+                  </Link>
+                )
+              })
+            ) : (
+              <div style={{ padding: 48, textAlign: 'center', color: 'var(--ink-3)' }}>
+                <Trophy size={28} style={{ marginBottom: 10 }} />
+                <p style={{ fontWeight: 600, color: 'var(--ink-2)' }}>
+                  {q ? 'Không có kết quả phù hợp' : 'Chưa có lịch sử thi nào'}
+                </p>
+                {!q && (
+                  <Link to="/certifications">
+                    <button className="btn3d" style={{ marginTop: 16, padding: '10px 18px', fontSize: 13 }}>
+                      Bắt đầu thi thử
+                    </button>
+                  </Link>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
 
       {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <Button
-            variant="outline"
-            size="sm"
+        <div className="row" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+          <button
+            className="btn3d ghost sm"
             onClick={() => setPage(p => Math.max(0, p - 1))}
             disabled={pagination.first}
-            className="cursor-pointer"
           >
-            <ChevronLeft className="w-4 h-4 mr-1" />Trước
-          </Button>
-          <span className="text-sm text-slate-500">
+            <ChevronLeft size={16} /> Trước
+          </button>
+          <span className="mono" style={{ fontSize: 13, color: 'var(--ink-2)' }}>
             Trang {pagination.pageNumber + 1} / {pagination.totalPages}
           </span>
-          <Button
-            variant="outline"
-            size="sm"
+          <button
+            className="btn3d ghost sm"
             onClick={() => setPage(p => p + 1)}
             disabled={pagination.last}
-            className="cursor-pointer"
           >
-            Sau<ChevronRight className="w-4 h-4 ml-1" />
-          </Button>
+            Sau <ChevronRight size={16} />
+          </button>
         </div>
       )}
     </div>

@@ -1,27 +1,61 @@
 'use client'
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useParams } from 'react-router-dom'
-import { Link } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import {
-  GraduationCap, ChevronLeft, Plus, Edit2, Trash2, Layers, AlertCircle, BookOpen,
+  GraduationCap,
+  ChevronLeft,
+  Plus,
+  Edit2,
+  Trash2,
+  Layers,
+  AlertCircle,
+  BookOpen,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Progress } from '@/components/ui/progress'
+import { Button } from '@/components/ui/button'
 import {
-  certificationsApi, type CertificationDomainResponse,
+  certificationsApi,
+  type CertificationDomainResponse,
 } from '@/lib/api/certifications'
-import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { useForm } from 'react-hook-form'
 
-type DomainForm = { name: string; code: string; description: string; weightPercentage: number; displayOrder: number }
+type DomainForm = {
+  name: string
+  code: string
+  description: string
+  weightPercentage: number
+  displayOrder: number
+}
+
+function CertStatusPill({ status }: { status: string }) {
+  if (status === 'ACTIVE') return <span className="pill brand">Active</span>
+  if (status === 'DRAFT') return <span className="pill gold">Draft</span>
+  return (
+    <span
+      className="pill"
+      style={{ background: 'var(--surface-3)', color: 'var(--ink-3)' }}
+    >
+      {status}
+    </span>
+  )
+}
+
+function ExamStatusPill({ status }: { status: string }) {
+  if (status === 'ACTIVE') return <span className="pill brand" style={{ fontSize: 11 }}>Active</span>
+  return (
+    <span
+      className="pill"
+      style={{ background: 'var(--surface-3)', color: 'var(--ink-3)', fontSize: 11 }}
+    >
+      {status}
+    </span>
+  )
+}
 
 export default function CertificationDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -41,17 +75,30 @@ export default function CertificationDetailPage() {
 
   const createDomainMutation = useMutation({
     mutationFn: (data: DomainForm) => certificationsApi.createDomain(id, data),
-    onSuccess: () => { toast.success('Đã thêm domain'); closeDomainDialog(); queryClient.invalidateQueries({ queryKey: ['admin-certification-detail', id] }) },
+    onSuccess: () => {
+      toast.success('Đã thêm domain')
+      closeDomainDialog()
+      queryClient.invalidateQueries({ queryKey: ['admin-certification-detail', id] })
+    },
     onError: () => toast.error('Không thể thêm domain'),
   })
   const updateDomainMutation = useMutation({
-    mutationFn: ({ domainId, data }: { domainId: number; data: DomainForm }) => certificationsApi.updateDomain(domainId, data),
-    onSuccess: () => { toast.success('Đã cập nhật domain'); closeDomainDialog(); queryClient.invalidateQueries({ queryKey: ['admin-certification-detail', id] }) },
+    mutationFn: ({ domainId, data }: { domainId: number; data: DomainForm }) =>
+      certificationsApi.updateDomain(domainId, data),
+    onSuccess: () => {
+      toast.success('Đã cập nhật domain')
+      closeDomainDialog()
+      queryClient.invalidateQueries({ queryKey: ['admin-certification-detail', id] })
+    },
     onError: () => toast.error('Không thể cập nhật'),
   })
   const deleteDomainMutation = useMutation({
     mutationFn: (domainId: number) => certificationsApi.deleteDomain(domainId),
-    onSuccess: () => { toast.success('Đã xóa domain'); setConfirmDeleteDomain(null); queryClient.invalidateQueries({ queryKey: ['admin-certification-detail', id] }) },
+    onSuccess: () => {
+      toast.success('Đã xóa domain')
+      setConfirmDeleteDomain(null)
+      queryClient.invalidateQueries({ queryKey: ['admin-certification-detail', id] })
+    },
   })
 
   const domains = cert?.domains ?? []
@@ -67,8 +114,11 @@ export default function CertificationDetailPage() {
   function openEditDomain(domain: CertificationDomainResponse) {
     setEditingDomain(domain)
     form.reset({
-      name: domain.name, code: domain.code, description: domain.description ?? '',
-      weightPercentage: domain.weightPercentage, displayOrder: domain.displayOrder,
+      name: domain.name,
+      code: domain.code,
+      description: domain.description ?? '',
+      weightPercentage: domain.weightPercentage,
+      displayOrder: domain.displayOrder,
     })
     setDomainDialogOpen(true)
   }
@@ -86,182 +136,462 @@ export default function CertificationDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <div className="h-8 w-48 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
-        <div className="h-32 bg-slate-200 dark:bg-slate-700 rounded-xl animate-pulse" />
-        <div className="h-64 bg-slate-200 dark:bg-slate-700 rounded-xl animate-pulse" />
+      <div className="col" style={{ gap: 16 }}>
+        <div style={{ height: 28, width: 220, background: 'var(--surface-3)', borderRadius: 8 }} />
+        <div style={{ height: 120, background: 'var(--surface-3)', borderRadius: 12 }} />
+        <div style={{ height: 220, background: 'var(--surface-3)', borderRadius: 12 }} />
       </div>
     )
   }
 
-  if (!cert) return <p className="text-center py-12 text-slate-500">Không tìm thấy chứng chỉ</p>
-
-  const STATUS_COLORS: Record<string, string> = {
-    ACTIVE: 'bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400',
-    INACTIVE: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
-    DRAFT: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/50 dark:text-yellow-400',
+  if (!cert) {
+    return (
+      <p style={{ textAlign: 'center', padding: '40px 0', color: 'var(--ink-3)' }}>
+        Không tìm thấy chứng chỉ
+      </p>
+    )
   }
 
   return (
-    <div className="space-y-6">
+    <div className="col" style={{ gap: 20 }}>
       {/* Header */}
-      <div className="flex items-center gap-3">
+      <div
+        className="row enter"
+        style={{ alignItems: 'center', gap: 10, flexWrap: 'wrap' }}
+      >
         <Link to="/admin/certifications">
-          <Button variant="outline" size="sm" className="cursor-pointer"><ChevronLeft className="w-4 h-4 mr-1" />Quay lại</Button>
+          <button
+            className="btn3d ghost sm"
+            style={{ padding: '6px 10px', fontSize: 12.5 }}
+          >
+            <ChevronLeft size={14} />
+            Quay lại
+          </button>
         </Link>
         <Link to={`/admin/certifications/${id}/courses`}>
-          <Button size="sm" className="cursor-pointer bg-primary text-white hover:bg-slate-800">
-            <BookOpen className="mr-1 h-4 w-4" />
+          <button className="btn3d sm" style={{ fontSize: 12.5 }}>
+            <BookOpen size={14} />
             Khoá học
-          </Button>
+          </button>
         </Link>
       </div>
 
       {/* Cert info */}
-      <Card className="border-slate-200 dark:border-slate-700">
-        <CardContent className="p-6">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <GraduationCap className="w-6 h-6 text-primary" />
+      <div className="card enter enter-1" style={{ padding: 20 }}>
+        <div className="row" style={{ alignItems: 'flex-start', gap: 14 }}>
+          <div
+            className="itile"
+            style={{ width: 48, height: 48, background: 'var(--gold-soft)', color: 'var(--gold)', flexShrink: 0 }}
+          >
+            <GraduationCap size={22} />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="row" style={{ alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <h1 style={{ fontSize: 20, fontWeight: 800, color: 'var(--ink)', margin: 0 }}>
+                {cert.name}
+              </h1>
+              <CertStatusPill status={cert.status} />
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-xl font-bold text-slate-900 dark:text-white">{cert.name}</h1>
-                <Badge className={cn('text-xs', STATUS_COLORS[cert.status])}>{cert.status}</Badge>
-              </div>
-              <p className="text-sm text-slate-500 mt-1">{cert.provider} - {cert.code}</p>
-              {cert.description && <p className="text-sm text-slate-600 dark:text-slate-300 mt-2">{cert.description}</p>}
-              <div className="flex flex-wrap gap-4 mt-3 text-xs text-slate-500">
-                {cert.totalQuestions && <span>Câu hỏi: <strong className="text-slate-700 dark:text-slate-300">{cert.totalQuestions}</strong></span>}
-                {cert.durationMinutes && <span>Thời gian: <strong className="text-slate-700 dark:text-slate-300">{cert.durationMinutes} phút</strong></span>}
-                {cert.passingScore && <span>Điểm đạt: <strong className="text-slate-700 dark:text-slate-300">{cert.passingScore}%</strong></span>}
-                {cert.price != null && <span>Giá: <strong className="text-slate-700 dark:text-slate-300">${cert.price}</strong></span>}
-              </div>
+            <p style={{ fontSize: 13, color: 'var(--ink-3)', margin: '4px 0 0' }}>
+              {cert.provider} · {cert.code}
+            </p>
+            {cert.description && (
+              <p
+                style={{
+                  fontSize: 13.5,
+                  color: 'var(--ink-2)',
+                  margin: '8px 0 0',
+                  lineHeight: 1.55,
+                }}
+              >
+                {cert.description}
+              </p>
+            )}
+            <div
+              className="row"
+              style={{ gap: 16, marginTop: 10, flexWrap: 'wrap', fontSize: 12.5, color: 'var(--ink-3)' }}
+            >
+              {cert.totalQuestions != null && (
+                <span>
+                  Câu hỏi:{' '}
+                  <strong style={{ color: 'var(--ink-2)' }}>{cert.totalQuestions}</strong>
+                </span>
+              )}
+              {cert.durationMinutes != null && (
+                <span>
+                  Thời gian:{' '}
+                  <strong style={{ color: 'var(--ink-2)' }}>{cert.durationMinutes} phút</strong>
+                </span>
+              )}
+              {cert.passingScore != null && (
+                <span>
+                  Điểm đạt:{' '}
+                  <strong style={{ color: 'var(--ink-2)' }}>{cert.passingScore}%</strong>
+                </span>
+              )}
+              {cert.price != null && (
+                <span>
+                  Giá:{' '}
+                  <strong style={{ color: 'var(--ink-2)' }}>${cert.price}</strong>
+                </span>
+              )}
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Domains */}
-      <Card className="border-slate-200 dark:border-slate-700">
-        <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <Layers className="w-4 h-4 text-primary" />Domains ({domains.length})
-          </CardTitle>
-          <Button size="sm" onClick={openCreateDomain} className="bg-primary hover:bg-slate-800 text-white cursor-pointer">
-            <Plus className="w-3.5 h-3.5 mr-1.5" />Thêm domain
-          </Button>
-        </CardHeader>
-        <CardContent className="pt-0">
+      <div className="card enter enter-2" style={{ padding: 0, overflow: 'hidden' }}>
+        <div
+          className="row"
+          style={{
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '14px 18px',
+            borderBottom: '1px solid var(--border)',
+          }}
+        >
+          <div className="row" style={{ alignItems: 'center', gap: 8 }}>
+            <Layers size={16} style={{ color: 'var(--brand)' }} />
+            <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--ink)' }}>
+              Domains ({domains.length})
+            </span>
+          </div>
+          <button className="btn3d sm" onClick={openCreateDomain}>
+            <Plus size={14} />
+            Thêm domain
+          </button>
+        </div>
+
+        <div style={{ padding: 14 }}>
           {/* Weight indicator */}
-          <div className="mb-4">
-            <div className="flex items-center justify-between text-xs mb-1">
-              <span className="text-slate-500">Tổng trọng số</span>
-              <span className={cn('font-medium', weightValid ? 'text-green-600' : 'text-red-600')}>{totalWeight}%</span>
+          <div style={{ marginBottom: 12 }}>
+            <div
+              className="row"
+              style={{ justifyContent: 'space-between', marginBottom: 4 }}
+            >
+              <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>Tổng trọng số</span>
+              <span
+                className="mono tnum"
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: weightValid ? 'var(--brand)' : 'var(--hard)',
+                }}
+              >
+                {totalWeight}%
+              </span>
             </div>
-            <Progress value={totalWeight} className="h-2" />
+            <div className="track">
+              <i
+                style={{
+                  width: `${Math.min(totalWeight, 100)}%`,
+                  background: weightValid ? 'var(--brand)' : 'var(--gold)',
+                }}
+              />
+            </div>
             {!weightValid && totalWeight > 0 && (
-              <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
-                <AlertCircle className="w-3 h-3" />Tổng trọng số phải bằng 100%
+              <p
+                className="row"
+                style={{
+                  alignItems: 'center',
+                  gap: 4,
+                  fontSize: 11.5,
+                  color: 'var(--hard)',
+                  marginTop: 6,
+                }}
+              >
+                <AlertCircle size={12} />
+                Tổng trọng số phải bằng 100%
               </p>
             )}
           </div>
 
           {domains.length === 0 ? (
-            <p className="text-center py-8 text-slate-500 text-sm">Chưa có domain nào</p>
+            <p
+              style={{
+                textAlign: 'center',
+                padding: '30px 0',
+                color: 'var(--ink-3)',
+                fontSize: 13,
+              }}
+            >
+              Chưa có domain nào
+            </p>
           ) : (
-            <div className="space-y-2">
-              {domains.sort((a, b) => a.displayOrder - b.displayOrder).map(domain => (
-                <div key={domain.id} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 group">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-slate-400 w-6">#{domain.displayOrder}</span>
-                      <p className="font-medium text-sm text-slate-900 dark:text-white">{domain.name}</p>
-                      <Badge variant="secondary" className="text-xs">{domain.code}</Badge>
-                      <Badge variant="secondary" className="text-xs">{domain.weightPercentage}%</Badge>
-                    </div>
-                    {domain.description && <p className="text-xs text-slate-500 mt-0.5 ml-8">{domain.description}</p>}
-                  </div>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => openEditDomain(domain)} className="p-1.5 text-slate-400 hover:text-primary cursor-pointer transition-colors rounded hover:bg-primary/10">
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-                    <button onClick={() => setConfirmDeleteDomain(domain)} className="p-1.5 text-slate-400 hover:text-red-500 cursor-pointer transition-colors rounded hover:bg-red-50 dark:hover:bg-red-950/20">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              ))}
+            <div className="col" style={{ gap: 6 }}>
+              {[...domains]
+                .sort((a, b) => a.displayOrder - b.displayOrder)
+                .map(domain => (
+                  <DomainRow
+                    key={domain.id}
+                    domain={domain}
+                    onEdit={() => openEditDomain(domain)}
+                    onDelete={() => setConfirmDeleteDomain(domain)}
+                  />
+                ))}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Exams */}
-      <Card className="border-slate-200 dark:border-slate-700">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <BookOpen className="w-4 h-4 text-primary" />Bài thi ({cert.exams?.length ?? 0})
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-0">
+      <div className="card enter enter-3" style={{ padding: 0, overflow: 'hidden' }}>
+        <div
+          className="row"
+          style={{
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '14px 18px',
+            borderBottom: '1px solid var(--border)',
+          }}
+        >
+          <div className="row" style={{ alignItems: 'center', gap: 8 }}>
+            <BookOpen size={16} style={{ color: 'var(--brand)' }} />
+            <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--ink)' }}>
+              Bài thi ({cert.exams?.length ?? 0})
+            </span>
+          </div>
+        </div>
+        <div style={{ padding: 14 }}>
           {(cert.exams?.length ?? 0) === 0 ? (
-            <p className="text-center py-8 text-slate-500 text-sm">Chưa có bài thi nào</p>
+            <p
+              style={{
+                textAlign: 'center',
+                padding: '30px 0',
+                color: 'var(--ink-3)',
+                fontSize: 13,
+              }}
+            >
+              Chưa có bài thi nào
+            </p>
           ) : (
-            <div className="space-y-2">
+            <div className="col" style={{ gap: 6 }}>
               {cert.exams.map(exam => (
-                <div key={exam.id} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-sm text-slate-900 dark:text-white">{exam.title}</p>
-                    <div className="flex gap-3 mt-1 text-xs text-slate-500">
+                <div
+                  key={exam.id}
+                  className="row"
+                  style={{
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '10px 12px',
+                    background: 'var(--surface-2)',
+                    borderRadius: 'var(--radius-sm)',
+                    gap: 10,
+                  }}
+                >
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <p
+                      style={{
+                        fontWeight: 600,
+                        fontSize: 13.5,
+                        color: 'var(--ink)',
+                        margin: 0,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {exam.title}
+                    </p>
+                    <div
+                      className="row"
+                      style={{ gap: 10, marginTop: 2, fontSize: 11.5, color: 'var(--ink-3)' }}
+                    >
                       <span>{exam.totalQuestions} câu</span>
                       <span>{exam.durationMinutes} phút</span>
                       <span>Đạt: {exam.passingScore}%</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="text-xs">{exam.type}</Badge>
-                    <Badge className={cn('text-xs', exam.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600')}>{exam.status}</Badge>
+                  <div className="row" style={{ alignItems: 'center', gap: 6 }}>
+                    <span className="codechip" style={{ fontSize: 10.5 }}>
+                      {exam.type}
+                    </span>
+                    <ExamStatusPill status={exam.status} />
                   </div>
                 </div>
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Domain create/edit dialog */}
       <Dialog open={domainDialogOpen} onOpenChange={() => closeDomainDialog()}>
         <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>{editingDomain ? 'Sửa domain' : 'Thêm domain mới'}</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>{editingDomain ? 'Sửa domain' : 'Thêm domain mới'}</DialogTitle>
+          </DialogHeader>
           <form onSubmit={form.handleSubmit(onSubmitDomain)} className="space-y-4 pt-2">
-            <div><Label htmlFor="d-name">Tên domain *</Label><Input id="d-name" {...form.register('name', { required: true })} placeholder="Cloud Concepts" /></div>
-            <div><Label htmlFor="d-code">Mã *</Label><Input id="d-code" {...form.register('code', { required: true })} placeholder="CLF-D1" /></div>
-            <div className="grid grid-cols-2 gap-4">
-              <div><Label htmlFor="d-weight">Trọng số (%)</Label><Input id="d-weight" type="number" {...form.register('weightPercentage', { valueAsNumber: true })} /></div>
-              <div><Label htmlFor="d-order">Thứ tự</Label><Input id="d-order" type="number" {...form.register('displayOrder', { valueAsNumber: true })} /></div>
+            <div>
+              <Label htmlFor="d-name">Tên domain *</Label>
+              <Input id="d-name" {...form.register('name', { required: true })} placeholder="Cloud Concepts" />
             </div>
-            <div><Label htmlFor="d-desc">Mô tả</Label><Textarea id="d-desc" {...form.register('description')} placeholder="Mô tả domain" rows={2} /></div>
-            <Button type="submit" disabled={createDomainMutation.isPending || updateDomainMutation.isPending} className="w-full bg-primary hover:bg-slate-800 text-white cursor-pointer">
-              {(createDomainMutation.isPending || updateDomainMutation.isPending) ? 'Đang lưu...' : editingDomain ? 'Cập nhật' : 'Thêm domain'}
+            <div>
+              <Label htmlFor="d-code">Mã *</Label>
+              <Input id="d-code" {...form.register('code', { required: true })} placeholder="CLF-D1" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="d-weight">Trọng số (%)</Label>
+                <Input
+                  id="d-weight"
+                  type="number"
+                  {...form.register('weightPercentage', { valueAsNumber: true })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="d-order">Thứ tự</Label>
+                <Input
+                  id="d-order"
+                  type="number"
+                  {...form.register('displayOrder', { valueAsNumber: true })}
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="d-desc">Mô tả</Label>
+              <Textarea id="d-desc" {...form.register('description')} placeholder="Mô tả domain" rows={2} />
+            </div>
+            <Button
+              type="submit"
+              disabled={createDomainMutation.isPending || updateDomainMutation.isPending}
+              className="w-full bg-primary hover:bg-slate-800 text-white cursor-pointer"
+            >
+              {createDomainMutation.isPending || updateDomainMutation.isPending
+                ? 'Đang lưu...'
+                : editingDomain
+                  ? 'Cập nhật'
+                  : 'Thêm domain'}
             </Button>
           </form>
         </DialogContent>
       </Dialog>
 
       {/* Delete domain confirmation */}
-      <Dialog open={!!confirmDeleteDomain} onOpenChange={() => setConfirmDeleteDomain(null)}>
+      <Dialog
+        open={!!confirmDeleteDomain}
+        onOpenChange={() => setConfirmDeleteDomain(null)}
+      >
         <DialogContent className="max-w-sm">
-          <DialogHeader><DialogTitle>Xóa domain</DialogTitle></DialogHeader>
-          <p className="text-sm text-slate-600 dark:text-slate-300">Xóa domain &quot;{confirmDeleteDomain?.name}&quot;?</p>
+          <DialogHeader>
+            <DialogTitle>Xóa domain</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-slate-600 dark:text-slate-300">
+            Xóa domain &quot;{confirmDeleteDomain?.name}&quot;?
+          </p>
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setConfirmDeleteDomain(null)} className="cursor-pointer">Hủy</Button>
-            <Button className="bg-red-600 hover:bg-red-700 text-white cursor-pointer" disabled={deleteDomainMutation.isPending} onClick={() => confirmDeleteDomain && deleteDomainMutation.mutate(confirmDeleteDomain.id)}>
+            <Button
+              variant="outline"
+              onClick={() => setConfirmDeleteDomain(null)}
+              className="cursor-pointer"
+            >
+              Hủy
+            </Button>
+            <Button
+              className="bg-red-600 hover:bg-red-700 text-white cursor-pointer"
+              disabled={deleteDomainMutation.isPending}
+              onClick={() =>
+                confirmDeleteDomain && deleteDomainMutation.mutate(confirmDeleteDomain.id)
+              }
+            >
               Xóa
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  )
+}
+
+function DomainRow({
+  domain,
+  onEdit,
+  onDelete,
+}: {
+  domain: CertificationDomainResponse
+  onEdit: () => void
+  onDelete: () => void
+}) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="row"
+      style={{
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '10px 12px',
+        background: 'var(--surface-2)',
+        borderRadius: 'var(--radius-sm)',
+        gap: 10,
+        transition: 'background .12s',
+      }}
+    >
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="row" style={{ alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <span
+            className="mono tnum"
+            style={{
+              fontSize: 11,
+              color: 'var(--ink-3)',
+              minWidth: 22,
+              textAlign: 'right',
+            }}
+          >
+            #{domain.displayOrder}
+          </span>
+          <p
+            style={{
+              fontWeight: 600,
+              fontSize: 13.5,
+              color: 'var(--ink)',
+              margin: 0,
+            }}
+          >
+            {domain.name}
+          </p>
+          <span className="codechip" style={{ fontSize: 10.5 }}>
+            {domain.code}
+          </span>
+          <span className="codechip" style={{ fontSize: 10.5 }}>
+            {domain.weightPercentage}%
+          </span>
+        </div>
+        {domain.description && (
+          <p
+            style={{
+              fontSize: 12,
+              color: 'var(--ink-3)',
+              margin: '4px 0 0',
+              paddingLeft: 28,
+            }}
+          >
+            {domain.description}
+          </p>
+        )}
+      </div>
+      <div
+        className="row"
+        style={{
+          gap: 4,
+          opacity: hovered ? 1 : 0.4,
+          transition: 'opacity .15s',
+        }}
+      >
+        <button onClick={onEdit} className="iconbtn" style={{ width: 28, height: 28 }} title="Sửa">
+          <Edit2 size={13} />
+        </button>
+        <button
+          onClick={onDelete}
+          className="iconbtn"
+          style={{ width: 28, height: 28, color: 'var(--hard)' }}
+          title="Xóa"
+        >
+          <Trash2 size={13} />
+        </button>
+      </div>
     </div>
   )
 }

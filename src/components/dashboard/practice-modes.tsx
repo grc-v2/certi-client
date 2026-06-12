@@ -1,73 +1,90 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Play, CheckCircle2, Layers, Zap } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { cn } from '@/lib/utils'
+import { Play, CheckCircle2, Layers, Zap, ChevronRight } from 'lucide-react'
+
+const MODES = [
+  {
+    key: 'free',
+    title: 'Luyện tập tự do',
+    desc: 'Học theo tốc độ của bạn, không giới hạn',
+    meta: 'Không giới hạn câu',
+    icon: Play,
+    iconColor: 'var(--blue)',
+    iconBg: 'var(--blue-soft)',
+    link: '/practice/free',
+    featured: false,
+  },
+  {
+    key: 'exam',
+    title: 'Thi thử ngay',
+    desc: 'Mô phỏng đúng kỳ thi thật, đồng hồ đếm ngược',
+    meta: '65 câu · 130 phút',
+    icon: CheckCircle2,
+    iconColor: 'var(--brand)',
+    iconBg: 'var(--brand-soft)',
+    link: '/practice/exam',
+    featured: true,
+  },
+  {
+    key: 'flashcard',
+    title: 'Flashcard',
+    desc: 'Ôn tập nhanh các khái niệm, lật thẻ',
+    meta: 'Lật thẻ · ghi nhớ',
+    icon: Layers,
+    iconColor: 'var(--violet)',
+    iconBg: 'var(--violet-soft)',
+    link: '/practice/flashcard',
+    featured: false,
+  },
+  {
+    key: 'weakness',
+    title: 'Khắc phục điểm yếu',
+    desc: 'Tập trung vào chủ đề bạn đang yếu nhất',
+    meta: 'Dựa trên lịch sử',
+    icon: Zap,
+    iconColor: 'var(--gold-deep)',
+    iconBg: 'var(--gold-soft)',
+    link: '/practice/weakness',
+    featured: false,
+  },
+]
 
 export function PracticeModes() {
-  const modes = [
-    {
-      title: 'Luyện tập tự do',
-      desc: 'Học theo tốc độ của bạn',
-      icon: Play,
-      color: 'text-blue-500',
-      bg: 'bg-blue-500/10',
-      link: '/practice/free'
-    },
-    {
-      title: 'Thi thử ngay',
-      desc: 'Mô phỏng như thi thật',
-      icon: CheckCircle2,
-      color: 'text-cta',
-      bg: 'bg-cta/10',
-      link: '/practice/exam',
-      highlight: true
-    },
-    {
-      title: 'Flashcard',
-      desc: 'Ôn tập nhanh khái niệm',
-      icon: Layers,
-      color: 'text-purple-500',
-      bg: 'bg-purple-500/10',
-      link: '/practice/flashcard'
-    },
-    {
-      title: 'Khắc phục điểm yếu',
-      desc: 'Tập trung vào câu sai',
-      icon: Zap,
-      color: 'text-orange-500',
-      bg: 'bg-orange-500/10',
-      link: '/practice/weakness'
-    }
-  ]
-
   return (
-    <Card className="border-slate-200/60 dark:border-slate-800">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <Zap className="w-4.5 h-4.5 text-warning" />
-          Chế độ luyện tập
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {modes.map((mode, i) => (
-            <Link key={i} to={mode.link} className={cn(
-              "flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 hover:-translate-y-0.5 group",
-              mode.highlight 
-                ? "border-cta/30 bg-cta/5 hover:bg-cta/10 hover:shadow-[0_0_15px_rgba(34,197,94,0.15)]" 
-                : "border-slate-100 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900/50"
-            )}>
-              <div className={cn("p-2.5 rounded-lg flex-shrink-0", mode.bg)}>
-                <mode.icon className={cn("w-5 h-5", mode.color)} />
-              </div>
-              <div>
-                <h4 className={cn("font-bold text-sm", mode.highlight ? "text-cta" : "text-slate-900 dark:text-slate-100")}>{mode.title}</h4>
-                <p className="text-[11px] text-slate-500">{mode.desc}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="card enter enter-2" style={{ padding: '18px 20px' }}>
+      <div className="row" style={{ justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+        <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--ink)', margin: 0 }}>Chế độ luyện tập</h3>
+        <Link
+          to="/practice"
+          className="row navlink"
+          style={{ padding: '4px 8px', fontSize: 13, color: 'var(--brand-deep)', textDecoration: 'none', gap: 4 }}
+        >
+          Tất cả <ChevronRight size={15} />
+        </Link>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+        {MODES.map(m => (
+          <Link
+            key={m.key}
+            to={m.link}
+            style={{
+              padding: '14px 14px', borderRadius: 'var(--radius)', cursor: 'pointer', textDecoration: 'none',
+              border: `1.5px solid ${m.featured ? 'color-mix(in srgb, var(--brand) 40%, var(--border))' : 'var(--border)'}`,
+              background: m.featured ? 'var(--brand-soft)' : 'var(--surface)',
+              transition: 'transform .12s, box-shadow .12s',
+              display: 'block',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-md)' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'none'; (e.currentTarget as HTMLElement).style.boxShadow = 'none' }}
+          >
+            <div className="itile" style={{ width: 38, height: 38, background: m.iconBg, marginBottom: 10 }}>
+              <m.icon size={20} style={{ color: m.iconColor }} />
+            </div>
+            <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--ink)' }}>{m.title}</div>
+            <div style={{ fontSize: 11, color: 'var(--ink-3)', marginTop: 2 }} className="mono">{m.meta}</div>
+          </Link>
+        ))}
+      </div>
+    </div>
   )
 }

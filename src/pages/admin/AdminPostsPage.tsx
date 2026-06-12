@@ -1,18 +1,57 @@
 'use client'
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Search, Star, Pin, Eye, FileText, ChevronLeft, ChevronRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
+import {
+  Search,
+  Star,
+  Pin,
+  Eye,
+  FileText,
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle2,
+  Archive,
+  Trash2,
+} from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 import { postsApi, type PostResponse } from '@/lib/api/posts'
-import { formatRelativeTime, cn } from '@/lib/utils'
+import { formatRelativeTime } from '@/lib/utils'
 import { toast } from 'sonner'
 import { useDebounce } from '@/hooks/use-debounce'
 import { Link } from 'react-router-dom'
 import { useLookups } from '@/hooks/use-lookups'
+import { StatusPill } from '@/layouts/AdminLayout'
+
+type ConfirmType = 'publish' | 'archive' | 'delete'
+type ConfirmTarget = { type: ConfirmType; post: PostResponse }
+
+const CONFIRM_COPY: Record<
+  ConfirmType,
+  { title: string; description: (title: string) => string; cta: string; tone: 'brand' | 'hard' }
+> = {
+  publish: {
+    title: 'Duyệt và publish bài viết',
+    description: title => `Publish bài viết "${title}"? Người dùng sẽ thấy được bài này.`,
+    cta: 'Publish',
+    tone: 'brand',
+  },
+  archive: {
+    title: 'Lưu trữ bài viết',
+    description: title =>
+      `Lưu trữ bài viết "${title}"? Bài sẽ bị ẩn khỏi trang cộng đồng nhưng vẫn giữ trong DB.`,
+    cta: 'Lưu trữ',
+    tone: 'hard',
+  },
+  delete: {
+    title: 'Xoá bài viết',
+    description: title =>
+      `Xoá bài viết "${title}"? Hành động không thể hoàn tác.`,
+    cta: 'Xoá',
+    tone: 'hard',
+  },
+}
 
 export default function AdminPostsPage() {
   const { getOptions, getLabel } = useLookups()
@@ -35,34 +74,64 @@ export default function AdminPostsPage() {
     mutationFn: ({ id, pinned }: { id: number; pinned: boolean }) => postsApi.adminPin(id, pinned),
     onSuccess: () => { toast.success('Đã cập nhật'); queryClient.invalidateQueries({ queryKey: ['admin-posts'] }) },
   })
+  const publishMutation = useMutation({
+    mutationFn: (id: number) => postsApi.publish(id),
+    onSuccess: () => { toast.success('Đã publish bài viết'); setConfirm(null); queryClient.invalidateQueries({ queryKey: ['admin-posts'] }) },
+    onError: () => toast.error('Không thể publish'),
+  })
+  const archiveMutation = useMutation({
+    mutationFn: (id: number) => postsApi.archive(id),
+    onSuccess: () => { toast.success('Đã lưu trữ'); setConfirm(null); queryClient.invalidateQueries({ queryKey: ['admin-posts'] }) },
+    onError: () => toast.error('Không thể lưu trữ'),
+  })
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => postsApi.delete(id),
+    onSuccess: () => { toast.success('Đã xoá'); setConfirm(null); queryClient.invalidateQueries({ queryKey: ['admin-posts'] }) },
+    onError: () => toast.error('Không thể xoá'),
+  })
+
+  const [confirm, setConfirm] = useState<ConfirmTarget | null>(null)
+  const isMutating = publishMutation.isPending || archiveMutation.isPending || deleteMutation.isPending
+
+  function runConfirm() {
+    if (!confirm) return
+    const id = confirm.post.id
+    if (confirm.type === 'publish') publishMutation.mutate(id)
+    else if (confirm.type === 'archive') archiveMutation.mutate(id)
+    else deleteMutation.mutate(id)
+  }
 
   const posts = data?.content ?? []
   const totalPages = data?.totalPages ?? 0
   const total = data?.totalElements ?? 0
 
-  const STATUS_COLORS: Record<string, string> = {
-    PUBLISHED: 'bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400',
-    DRAFT: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
-    PENDING_REVIEW: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/50 dark:text-yellow-400',
-    IN_REVIEW: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/50 dark:text-yellow-400',
-    SCHEDULED: 'bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400',
-    ARCHIVED: 'bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400',
-  }
-
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <FileText className="w-6 h-6 text-primary" />Quản lý bài viết
-        </h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">{total} bài viết</p>
+    <div className="col" style={{ gap: 20 }}>
+      {/* Header */}
+      <div className="row enter" style={{ alignItems: 'flex-start', gap: 12 }}>
+        <div>
+          <span className="eyebrow">Quản trị</span>
+          <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--ink)', marginTop: 6 }}>
+            <span className="row" style={{ alignItems: 'center', gap: 8 }}>
+              <FileText size={22} style={{ color: 'var(--violet)' }} />
+              Quản lý bài viết
+            </span>
+          </h1>
+          <p style={{ color: 'var(--ink-3)', fontSize: 13.5, marginTop: 4 }}>{total} bài viết</p>
+        </div>
       </div>
 
-      <Card className="border-slate-200 dark:border-slate-700">
-        <CardContent className="p-4 flex flex-wrap gap-3">
-          <div className="relative flex-1 min-w-0">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <Input placeholder="Tìm bài viết..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
+      {/* Filters */}
+      <div className="card enter enter-1" style={{ padding: '14px 16px' }}>
+        <div className="row" style={{ gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+          <div className="row" style={{ alignItems: 'center', gap: 8, flex: 1, minWidth: 180, background: 'var(--surface-2)', borderRadius: 'var(--radius-sm)', padding: '7px 12px', border: '1px solid var(--border)' }}>
+            <Search size={14} style={{ color: 'var(--ink-3)', flexShrink: 0 }} />
+            <input
+              placeholder="Tìm bài viết..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13.5, color: 'var(--ink)', width: '100%', fontFamily: 'var(--font-body)' }}
+            />
           </div>
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? '')}>
             <SelectTrigger className="w-full sm:w-40 cursor-pointer"><SelectValue placeholder="Trạng thái" /></SelectTrigger>
@@ -73,82 +142,166 @@ export default function AdminPostsPage() {
               ))}
             </SelectContent>
           </Select>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      <Card className="border-slate-200 dark:border-slate-700">
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-800">
-                  <th className="p-3 text-left font-medium text-slate-500">Bài viết</th>
-                  <th className="p-3 text-left font-medium text-slate-500 hidden sm:table-cell">Tác giả</th>
-                  <th className="p-3 text-left font-medium text-slate-500">Trạng thái</th>
-                  <th className="p-3 text-left font-medium text-slate-500 hidden md:table-cell">Ngày đăng</th>
-                  <th className="p-3 text-left font-medium text-slate-500">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                {isLoading ? (
-                  Array(6).fill(0).map((_, i) => (
-                    <tr key={i} className="border-b border-slate-50 dark:border-slate-800/50">
-                      {[1,2,3,4,5].map(j => <td key={j} className="p-3"><div className="h-4 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" /></td>)}
-                    </tr>
-                  ))
-                ) : posts.map((post: PostResponse) => (
-                  <tr key={post.id} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                    <td className="p-3 max-w-xs">
-                      <div className="flex items-center gap-2">
-                        {post.pinned && <Pin className="w-3.5 h-3.5 text-orange-500 flex-shrink-0" />}
-                        {post.featured && <Star className="w-3.5 h-3.5 text-yellow-500 flex-shrink-0" />}
-                        <p className="font-medium text-slate-900 dark:text-white line-clamp-1">{post.title}</p>
-                      </div>
-                    </td>
-                    <td className="p-3 text-slate-500 hidden sm:table-cell text-xs">#{post.authorId}</td>
-                    <td className="p-3">
-                      <Badge className={cn('text-xs', STATUS_COLORS[post.status] ?? 'bg-slate-100 text-slate-600')}>
-                        {getLabel('constants.postStatuses', post.status)}
-                      </Badge>
-                    </td>
-                    <td className="p-3 text-slate-400 hidden md:table-cell text-xs">{formatRelativeTime(post.publishedAt)}</td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-1">
-                        <Link to={`/community/${post.slug}`} target="_blank">
-                          <button className="p-1.5 text-slate-400 hover:text-primary cursor-pointer transition-colors rounded hover:bg-primary/10" title="Xem bài viết">
-                            <Eye className="w-4 h-4" />
-                          </button>
-                        </Link>
-                        <button
-                          onClick={() => featureMutation.mutate({ id: post.id, featured: !post.featured })}
-                          className={cn('p-1.5 cursor-pointer transition-colors rounded', post.featured ? 'text-yellow-500 bg-yellow-50 dark:bg-yellow-950/20' : 'text-slate-400 hover:text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-950/20')}
-                          title={post.featured ? 'Bỏ nổi bật' : 'Đánh dấu nổi bật'}
-                        >
-                          <Star className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => pinMutation.mutate({ id: post.id, pinned: !post.pinned })}
-                          className={cn('p-1.5 cursor-pointer transition-colors rounded', post.pinned ? 'text-orange-500 bg-orange-50 dark:bg-orange-950/20' : 'text-slate-400 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-950/20')}
-                          title={post.pinned ? 'Bỏ ghim' : 'Ghim bài viết'}
-                        >
-                          <Pin className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+      {/* Table */}
+      <div className="card enter enter-2" style={{ padding: 0, overflow: 'hidden' }}>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', fontSize: 13.5, borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>
+                {['Bài viết', 'Tác giả', 'Trạng thái', 'Ngày đăng', 'Thao tác'].map(h => (
+                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 800, letterSpacing: '.07em', textTransform: 'uppercase', color: 'var(--ink-3)', background: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}>{h}</th>
                 ))}
-              </tbody>
-            </table>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                Array(6).fill(0).map((_, i) => (
+                  <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
+                    {[1,2,3,4,5].map(j => <td key={j} style={{ padding: '12px 14px' }}><div style={{ height: 14, background: 'var(--surface-3)', borderRadius: 6 }} /></td>)}
+                  </tr>
+                ))
+              ) : posts.map((post: PostResponse) => (
+                <PostRow
+                  key={post.id}
+                  post={post}
+                  onFeature={() => featureMutation.mutate({ id: post.id, featured: !post.featured })}
+                  onPin={() => pinMutation.mutate({ id: post.id, pinned: !post.pinned })}
+                  onPublish={() => setConfirm({ type: 'publish', post })}
+                  onArchive={() => setConfirm({ type: 'archive', post })}
+                  onDelete={() => setConfirm({ type: 'delete', post })}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="row" style={{ alignItems: 'center', justifyContent: 'space-between', padding: '12px 18px', borderTop: '1px solid var(--border)' }}>
+          <p style={{ fontSize: 13, color: 'var(--ink-3)' }}>Trang {page + 1} / {totalPages || 1}</p>
+          <div className="row" style={{ gap: 8 }}>
+            <button className="btn3d ghost sm" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}><ChevronLeft size={15} /></button>
+            <button className="btn3d ghost sm" onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1}><ChevronRight size={15} /></button>
           </div>
-          <div className="flex items-center justify-between p-4 border-t border-slate-100 dark:border-slate-800">
-            <p className="text-sm text-slate-500">Trang {page + 1} / {totalPages || 1}</p>
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0} className="cursor-pointer"><ChevronLeft className="w-4 h-4" /></Button>
-              <Button size="sm" variant="outline" onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1} className="cursor-pointer"><ChevronRight className="w-4 h-4" /></Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+
+      {/* Confirm dialog */}
+      <Dialog open={!!confirm} onOpenChange={() => setConfirm(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{confirm ? CONFIRM_COPY[confirm.type].title : ''}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-slate-600 dark:text-slate-300">
+            {confirm ? CONFIRM_COPY[confirm.type].description(confirm.post.title) : ''}
+          </p>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setConfirm(null)} className="cursor-pointer">
+              Hủy
+            </Button>
+            <Button
+              className={
+                confirm && CONFIRM_COPY[confirm.type].tone === 'hard'
+                  ? 'bg-red-600 hover:bg-red-700 text-white cursor-pointer'
+                  : 'bg-primary hover:bg-slate-800 text-white cursor-pointer'
+              }
+              disabled={isMutating}
+              onClick={runConfirm}
+            >
+              {isMutating ? 'Đang xử lý...' : confirm ? CONFIRM_COPY[confirm.type].cta : ''}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
+  )
+}
+
+function PostRow({ post, onFeature, onPin, onPublish, onArchive, onDelete }: {
+  post: PostResponse
+  onFeature: () => void
+  onPin: () => void
+  onPublish: () => void
+  onArchive: () => void
+  onDelete: () => void
+}) {
+  const [hovered, setHovered] = useState(false)
+  const canPublish = post.status !== 'PUBLISHED' && post.status !== 'ARCHIVED'
+  const canArchive = post.status === 'PUBLISHED'
+
+  return (
+    <tr
+      style={{ borderBottom: '1px solid var(--border)', background: hovered ? 'var(--surface-2)' : 'transparent', transition: 'background .12s' }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <td style={{ padding: '10px 14px', maxWidth: 280 }}>
+        <div className="row" style={{ alignItems: 'center', gap: 6 }}>
+          {post.pinned && <Pin size={13} style={{ color: 'var(--medium)', flexShrink: 0 }} />}
+          {post.featured && <Star size={13} style={{ color: 'var(--gold)', flexShrink: 0 }} />}
+          <p style={{ fontWeight: 600, fontSize: 13.5, color: 'var(--ink)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{post.title}</p>
+        </div>
+      </td>
+      <td style={{ padding: '10px 14px' }}>
+        <span className="codechip" style={{ fontSize: 11 }}>#{post.authorId}</span>
+      </td>
+      <td style={{ padding: '10px 14px' }}>
+        <StatusPill status={post.status} />
+      </td>
+      <td style={{ padding: '10px 14px', fontSize: 12, color: 'var(--ink-3)' }}>{formatRelativeTime(post.publishedAt)}</td>
+      <td style={{ padding: '10px 14px' }}>
+        <div className="row" style={{ alignItems: 'center', gap: 4 }}>
+          <Link to={`/community/${post.slug}`} target="_blank">
+            <button className="iconbtn" style={{ width: 30, height: 30 }} title="Xem bài viết">
+              <Eye size={14} />
+            </button>
+          </Link>
+          <button
+            onClick={onFeature}
+            className="iconbtn"
+            style={{ width: 30, height: 30, color: post.featured ? 'var(--gold)' : 'var(--ink-3)' }}
+            title={post.featured ? 'Bỏ nổi bật' : 'Đánh dấu nổi bật'}
+          >
+            <Star size={14} />
+          </button>
+          <button
+            onClick={onPin}
+            className="iconbtn"
+            style={{ width: 30, height: 30, color: post.pinned ? 'var(--medium)' : 'var(--ink-3)' }}
+            title={post.pinned ? 'Bỏ ghim' : 'Ghim bài viết'}
+          >
+            <Pin size={14} />
+          </button>
+          {canPublish && (
+            <button
+              onClick={onPublish}
+              className="iconbtn"
+              style={{ width: 30, height: 30, color: 'var(--brand)' }}
+              title="Duyệt & publish"
+            >
+              <CheckCircle2 size={14} />
+            </button>
+          )}
+          {canArchive && (
+            <button
+              onClick={onArchive}
+              className="iconbtn"
+              style={{ width: 30, height: 30, color: 'var(--ink-3)' }}
+              title="Lưu trữ"
+            >
+              <Archive size={14} />
+            </button>
+          )}
+          <button
+            onClick={onDelete}
+            className="iconbtn"
+            style={{ width: 30, height: 30, color: 'var(--hard)' }}
+            title="Xoá"
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
+      </td>
+    </tr>
   )
 }

@@ -1,5 +1,5 @@
 import apiClient from './client'
-import type { CourseResponse } from './courses'
+import type { CourseLessonDetailResponse, CourseResponse } from './courses'
 
 export interface AdminCourseRequest {
   certificationId: number
@@ -88,6 +88,17 @@ export const adminCoursesApi = {
   deleteModule: (courseId: number, moduleId: number): Promise<CourseResponse> =>
     apiClient
       .delete<CourseResponse>(`${BASE}/${courseId}/modules/${moduleId}`)
+      .then(r => r.data),
+
+  getLessonDetail: (
+    courseId: number,
+    moduleId: number,
+    lessonId: number
+  ): Promise<CourseLessonDetailResponse> =>
+    apiClient
+      .get<CourseLessonDetailResponse>(
+        `${BASE}/${courseId}/modules/${moduleId}/lessons/${lessonId}`
+      )
       .then(r => r.data),
 
   createLesson: (

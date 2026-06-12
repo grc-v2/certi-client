@@ -1,14 +1,13 @@
-'use client'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { BookOpen, Search, Compass, BookMarked } from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CourseCard } from '@/components/course/CourseCard'
 import { coursesApi } from '@/lib/api/courses'
 
+type Tab = 'my-courses' | 'explore'
+
 export default function CoursesPage() {
+  const [tab, setTab] = useState<Tab>('my-courses')
   const [search, setSearch] = useState('')
 
   const { data: enrollments = [], isLoading: isLoadingEnrollments } = useQuery({
@@ -21,93 +20,127 @@ export default function CoursesPage() {
     queryFn: () => coursesApi.getAvailableCourses(),
   })
 
-  const filteredCourses = allCourses.filter(c => 
-    c.name.toLowerCase().includes(search.toLowerCase()) || 
+  const filteredCourses = allCourses.filter(c =>
+    !search.trim() ||
+    c.name.toLowerCase().includes(search.toLowerCase()) ||
     c.certificationName.toLowerCase().includes(search.toLowerCase())
   )
 
-  const LoadingSkeleton = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {[1, 2, 3].map(i => (
-        <div key={i} className="h-96 bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse" />
-      ))}
-    </div>
-  )
+  const isLoading = tab === 'my-courses' ? isLoadingEnrollments : isLoadingCourses
+  const TABS: { key: Tab; label: string; icon: typeof BookOpen }[] = [
+    { key: 'my-courses', label: 'Khoá học của tôi', icon: BookMarked },
+    { key: 'explore',    label: 'Khám phá',         icon: Compass    },
+  ]
 
   return (
-    <div className="space-y-8">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="col" style={{ gap: 20 }}>
+      {/* Header */}
+      <div className="row" style={{ justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 14 }}>
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <BookOpen className="w-8 h-8 text-primary" /> Khoá học
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-2">
-            Khám phá các khoá học chất lượng cao và nâng cao kỹ năng của bạn
+          <span className="eyebrow">Học tập</span>
+          <h1 style={{ fontSize: 25, fontWeight: 800, color: 'var(--ink)', marginTop: 6 }}>Khoá học</h1>
+          <p style={{ fontSize: 14, color: 'var(--ink-2)', marginTop: 6 }}>
+            Học theo lộ trình bài bản — video, bài đọc và bài tập theo từng chứng chỉ.
           </p>
-        </div>
-        
-        <div className="relative w-full md:w-80">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <Input 
-            placeholder="Tìm kiếm khoá học..." 
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 h-11 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
-          />
         </div>
       </div>
 
-      <Tabs defaultValue="my-courses" className="w-full">
-        <TabsList className="bg-slate-100 dark:bg-slate-800/50 p-1 rounded-xl">
-          <TabsTrigger value="my-courses" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 px-6 cursor-pointer">
-            <BookMarked className="w-4 h-4 mr-2" /> Khoá học của tôi
-          </TabsTrigger>
-          <TabsTrigger value="explore" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 px-6 cursor-pointer">
-            <Compass className="w-4 h-4 mr-2" /> Khám phá
-          </TabsTrigger>
-        </TabsList>
+      {/* Search + Tabs toolbar */}
+      <div className="card enter" style={{ padding: '14px 16px' }}>
+        <div className="row" style={{ gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+          {/* Search */}
+          <div className="row" style={{
+            alignItems: 'center', gap: 9, padding: '0 13px', height: 42,
+            borderRadius: 'var(--radius-sm)', background: 'var(--surface-2)',
+            border: '1px solid var(--border)', flex: '1 1 200px',
+          }}>
+            <Search size={17} style={{ color: 'var(--ink-3)', flexShrink: 0 }} />
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Tìm khoá học…"
+              style={{
+                border: 'none', background: 'transparent', outline: 'none',
+                color: 'var(--ink)', fontSize: 13.5, width: '100%',
+                fontFamily: 'var(--font-body)',
+              }}
+            />
+          </div>
 
-        <TabsContent value="my-courses" className="mt-6">
-          {isLoadingEnrollments ? (
-            <LoadingSkeleton />
-          ) : enrollments.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {enrollments.map(enrollment => (
-                <CourseCard 
-                  key={enrollment.id} 
-                  course={enrollment.course} 
-                  enrollment={enrollment} 
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-20 bg-slate-50 dark:bg-slate-900/30 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
-              <BookOpen className="w-16 h-16 mx-auto mb-4 text-slate-300 dark:text-slate-700" />
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Bạn chưa tham gia khoá học nào</h3>
-              <p className="text-slate-500 mb-6">Hãy khám phá danh mục để tìm khoá học phù hợp với mục tiêu của bạn.</p>
-              {/* Note: We will use a button that switches tab programmatically or just link to /certifications for now. In a real app we might switch tab. Let's just encourage them to use the other tab. */}
-            </div>
-          )}
-        </TabsContent>
+          {/* Tab switcher */}
+          <div className="row" style={{ gap: 4, padding: 4, borderRadius: 'var(--radius-sm)', background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
+            {TABS.map(t => (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key)}
+                className="row"
+                style={{
+                  gap: 7, alignItems: 'center',
+                  padding: '8px 14px', borderRadius: 9, border: 'none', cursor: 'pointer',
+                  fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13,
+                  background: tab === t.key ? 'var(--surface)' : 'transparent',
+                  color: tab === t.key ? 'var(--ink)' : 'var(--ink-3)',
+                  boxShadow: tab === t.key ? 'var(--shadow-sm)' : 'none',
+                  transition: 'all .12s',
+                }}
+              >
+                <t.icon size={15} strokeWidth={2} />
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
 
-        <TabsContent value="explore" className="mt-6">
-          {isLoadingCourses ? (
-            <LoadingSkeleton />
-          ) : filteredCourses.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredCourses.map(course => (
-                <CourseCard key={course.id} course={course} />
-              ))}
+      {/* Grid */}
+      {isLoading ? (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+          {[1, 2, 3].map(i => (
+            <div key={i} className="card" style={{ height: 320 }}>
+              <div style={{ height: 160, background: 'var(--surface-2)', borderRadius: 'var(--radius) var(--radius) 0 0', animation: 'pulse 1.5s ease-in-out infinite' }} />
+              <div style={{ padding: 18, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ height: 12, width: '40%', background: 'var(--surface-2)', borderRadius: 6, animation: 'pulse 1.5s ease-in-out infinite' }} />
+                <div style={{ height: 16, width: '80%', background: 'var(--surface-2)', borderRadius: 6, animation: 'pulse 1.5s ease-in-out infinite' }} />
+              </div>
             </div>
-          ) : (
-            <div className="text-center py-20">
-              <Search className="w-12 h-12 mx-auto mb-4 text-slate-300 dark:text-slate-700" />
-              <p className="font-medium text-slate-900 dark:text-white">Không tìm thấy khoá học phù hợp</p>
+          ))}
+        </div>
+      ) : tab === 'my-courses' ? (
+        enrollments.length > 0 ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+            {enrollments.map((enrollment, i) => (
+              <CourseCard key={enrollment.id} course={enrollment.course} enrollment={enrollment} index={i} />
+            ))}
+          </div>
+        ) : (
+          <div className="card" style={{ padding: '56px 24px', textAlign: 'center', color: 'var(--ink-3)' }}>
+            <div className="itile" style={{ width: 64, height: 64, background: 'var(--surface-2)', margin: '0 auto 16px' }}>
+              <BookOpen size={30} style={{ color: 'var(--ink-3)' }} />
             </div>
-          )}
-        </TabsContent>
-      </Tabs>
+            <h3 style={{ fontSize: 17, fontWeight: 700, color: 'var(--ink-2)', marginBottom: 8 }}>
+              Bạn chưa tham gia khoá học nào
+            </h3>
+            <p style={{ fontSize: 13.5, color: 'var(--ink-3)', marginBottom: 20 }}>
+              Khám phá các khoá học để bắt đầu hành trình học tập của bạn.
+            </p>
+            <button className="btn3d" onClick={() => setTab('explore')}>
+              <Compass size={16} /> Khám phá khoá học
+            </button>
+          </div>
+        )
+      ) : filteredCourses.length > 0 ? (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+          {filteredCourses.map((course, i) => (
+            <CourseCard key={course.id} course={course} index={i} />
+          ))}
+        </div>
+      ) : (
+        <div className="card" style={{ padding: 56, textAlign: 'center', color: 'var(--ink-3)' }}>
+          <Search size={30} style={{ marginBottom: 10 }} />
+          <p style={{ fontWeight: 600, color: 'var(--ink-2)' }}>Không tìm thấy khoá học phù hợp</p>
+          <p style={{ fontSize: 13, marginTop: 4 }}>Thử thay đổi từ khóa tìm kiếm</p>
+        </div>
+      )}
     </div>
   )
 }

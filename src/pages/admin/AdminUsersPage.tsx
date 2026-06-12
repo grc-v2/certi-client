@@ -1,21 +1,20 @@
 'use client'
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Search, UserCheck, UserX, Trash2, Eye, Users, ChevronLeft, ChevronRight, Shield, Calendar, ArrowUpDown, LogOut, Edit2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
+import { Search, UserCheck, UserX, Trash2, Eye, Users, ChevronLeft, ChevronRight, Shield, ArrowUpDown, LogOut, Edit2 } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import { adminApi, type UserSummaryResponse, type UserDetailResponse, type AdminUserUpdateRequest } from '@/lib/api/admin'
-import { formatDate, cn } from '@/lib/utils'
+import { formatDate } from '@/lib/utils'
 import { toast } from 'sonner'
 import { useDebounce } from '@/hooks/use-debounce'
+import { StatusPill, RolePill } from '@/layouts/AdminLayout'
 
 export default function AdminUsersPage() {
   const [page, setPage] = useState(0)
@@ -73,25 +72,36 @@ export default function AdminUsersPage() {
   const total = data?.totalElements ?? 0
 
   const toggleSelect = (id: string) => setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
-  const toggleAll = () => setSelectedIds(selectedIds.length === users.length ? [] : users.map(u => u.id))
+  const toggleAll = () => setSelectedIds(selectedIds.length === users.length ? [] : users.map((u: UserSummaryResponse) => u.id))
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="col" style={{ gap: 20 }}>
+      {/* Header */}
+      <div className="row enter" style={{ alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Users className="w-6 h-6 text-primary" />Quản lý người dùng
+          <span className="eyebrow">Quản trị</span>
+          <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--ink)', marginTop: 6 }}>
+            <span className="row" style={{ alignItems: 'center', gap: 8 }}>
+              <Users size={22} style={{ color: 'var(--violet)' }} />
+              Quản lý người dùng
+            </span>
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">{total} người dùng</p>
+          <p style={{ color: 'var(--ink-3)', fontSize: 13.5, marginTop: 4 }}>{total} người dùng</p>
         </div>
       </div>
 
       {/* Filters */}
-      <Card className="border-slate-200 dark:border-slate-700">
-        <CardContent className="p-4 flex flex-wrap gap-3">
-          <div className="relative flex-1 min-w-0">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <Input placeholder="Tìm theo tên, email..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
+      <div className="card enter enter-1" style={{ padding: '14px 16px' }}>
+        <div className="row" style={{ gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+          {/* Search */}
+          <div className="row" style={{ alignItems: 'center', gap: 8, flex: 1, minWidth: 180, background: 'var(--surface-2)', borderRadius: 'var(--radius-sm)', padding: '7px 12px', border: '1px solid var(--border)' }}>
+            <Search size={14} style={{ color: 'var(--ink-3)', flexShrink: 0 }} />
+            <input
+              placeholder="Tìm theo tên, email..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13.5, color: 'var(--ink)', width: '100%', fontFamily: 'var(--font-body)' }}
+            />
           </div>
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? '')}>
             <SelectTrigger className="w-full sm:w-36 cursor-pointer"><SelectValue placeholder="Trạng thái" /></SelectTrigger>
@@ -126,132 +136,87 @@ export default function AdminUsersPage() {
             </SelectContent>
           </Select>
           {selectedIds.length > 0 && (
-            <div className="flex gap-2">
-              <Button size="sm" onClick={() => bulkActivateMutation.mutate()} disabled={bulkActivateMutation.isPending} className="bg-[#22C55E] hover:bg-[#16A34A] text-white cursor-pointer">
-                <UserCheck className="w-3.5 h-3.5 mr-1.5" />Kích hoạt ({selectedIds.length})
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => bulkDeactivateMutation.mutate()} disabled={bulkDeactivateMutation.isPending} className="cursor-pointer text-red-600 border-red-300 hover:bg-red-50 dark:hover:bg-red-950/20">
-                <UserX className="w-3.5 h-3.5 mr-1.5" />Vô hiệu ({selectedIds.length})
-              </Button>
+            <div className="row" style={{ gap: 8 }}>
+              <button
+                className="btn3d sm"
+                onClick={() => bulkActivateMutation.mutate()}
+                disabled={bulkActivateMutation.isPending}
+              >
+                <UserCheck size={13} />Kích hoạt ({selectedIds.length})
+              </button>
+              <button
+                className="btn3d ghost sm"
+                onClick={() => bulkDeactivateMutation.mutate()}
+                disabled={bulkDeactivateMutation.isPending}
+                style={{ color: 'var(--hard)' }}
+              >
+                <UserX size={13} />Vô hiệu ({selectedIds.length})
+              </button>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Table */}
-      <Card className="border-slate-200 dark:border-slate-700">
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-800">
-                  <th className="p-3 text-left w-10">
-                    <Checkbox
-                      checked={selectedIds.length === users.length && users.length > 0}
-                      onCheckedChange={toggleAll}
-                      className="cursor-pointer"
-                    />
-                  </th>
-                  <th className="p-3 text-left font-medium text-slate-500 dark:text-slate-400">Người dùng</th>
-                  <th className="p-3 text-left font-medium text-slate-500 dark:text-slate-400 hidden sm:table-cell">Role</th>
-                  <th className="p-3 text-left font-medium text-slate-500 dark:text-slate-400 hidden md:table-cell">Ngày đăng ký</th>
-                  <th className="p-3 text-left font-medium text-slate-500 dark:text-slate-400">Trạng thái</th>
-                  <th className="p-3 text-left font-medium text-slate-500 dark:text-slate-400">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                {isLoading ? (
-                  Array(8).fill(0).map((_, i) => (
-                    <tr key={i} className="border-b border-slate-50 dark:border-slate-800/50">
-                      {[1,2,3,4,5,6].map(j => (
-                        <td key={j} className="p-3">
-                          <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
-                        </td>
-                      ))}
-                    </tr>
-                  ))
-                ) : users.map(user => (
-                  <tr key={user.id} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                    <td className="p-3">
-                      <Checkbox checked={selectedIds.includes(user.id)} onCheckedChange={() => toggleSelect(user.id)} className="cursor-pointer" />
-                    </td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-2.5">
-                        <Avatar className="w-8 h-8 flex-shrink-0">
-                          <AvatarFallback className="text-xs bg-primary/10 text-primary">{user.fullName?.slice(0,2).toUpperCase()}</AvatarFallback>
-                        </Avatar>
-                        <div className="min-w-0">
-                          <p className="font-medium text-slate-900 dark:text-white truncate">{user.fullName}</p>
-                          <p className="text-xs text-slate-400 truncate">{user.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-3 hidden sm:table-cell">
-                      <Badge variant="secondary" className={cn('text-xs', user.roleCode === 'ADMIN' ? 'bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-400' : '')}>{user.roleCode}</Badge>
-                    </td>
-                    <td className="p-3 text-slate-500 hidden md:table-cell text-xs">{formatDate(user.registrationDate)}</td>
-                    <td className="p-3">
-                      <Badge className={cn('text-xs', user.status === 'ACTIVE' ? 'bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400')}>
-                        {user.status === 'ACTIVE' ? 'Hoạt động' : 'Vô hiệu'}
-                      </Badge>
-                    </td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={async () => { const d = await adminApi.getUserById(user.id); setDetailUser(d) }}
-                          className="p-1.5 text-slate-400 hover:text-primary cursor-pointer transition-colors rounded hover:bg-primary/10"
-                          title="Xem chi tiết"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        {user.status === 'ACTIVE' ? (
-                          <button
-                            onClick={() => setConfirmAction({ type: 'deactivate', id: user.id, name: user.fullName })}
-                            className="p-1.5 text-slate-400 hover:text-red-500 cursor-pointer transition-colors rounded hover:bg-red-50 dark:hover:bg-red-950/20"
-                            title="Vô hiệu hóa"
-                          >
-                            <UserX className="w-4 h-4" />
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => setConfirmAction({ type: 'activate', id: user.id, name: user.fullName })}
-                            className="p-1.5 text-slate-400 hover:text-[#22C55E] cursor-pointer transition-colors rounded hover:bg-green-50 dark:hover:bg-green-950/20"
-                            title="Kích hoạt"
-                          >
-                            <UserCheck className="w-4 h-4" />
-                          </button>
-                        )}
-                        <button
-                          onClick={() => setConfirmAction({ type: 'delete', id: user.id, name: user.fullName })}
-                          className="p-1.5 text-slate-400 hover:text-red-500 cursor-pointer transition-colors rounded hover:bg-red-50 dark:hover:bg-red-950/20"
-                          title="Xóa"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+      <div className="card enter enter-2" style={{ padding: 0, overflow: 'hidden' }}>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', fontSize: 13.5, borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>
+                <th style={{ padding: '10px 14px', textAlign: 'left', width: 40, background: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}>
+                  <Checkbox
+                    checked={selectedIds.length === users.length && users.length > 0}
+                    onCheckedChange={toggleAll}
+                    className="cursor-pointer"
+                  />
+                </th>
+                {['Người dùng', 'Role', 'Ngày đăng ký', 'Trạng thái', 'Thao tác'].map(h => (
+                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 800, letterSpacing: '.07em', textTransform: 'uppercase', color: 'var(--ink-3)', background: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}>{h}</th>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                Array(8).fill(0).map((_, i) => (
+                  <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
+                    {[1,2,3,4,5,6].map(j => (
+                      <td key={j} style={{ padding: '12px 14px' }}>
+                        <div style={{ height: 14, background: 'var(--surface-3)', borderRadius: 6 }} />
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : users.map((user: UserSummaryResponse) => (
+                <UserRow
+                  key={user.id}
+                  user={user}
+                  selected={selectedIds.includes(user.id)}
+                  onToggle={() => toggleSelect(user.id)}
+                  onView={async () => { const d = await adminApi.getUserById(user.id); setDetailUser(d) }}
+                  onDeactivate={() => setConfirmAction({ type: 'deactivate', id: user.id, name: user.fullName })}
+                  onActivate={() => setConfirmAction({ type: 'activate', id: user.id, name: user.fullName })}
+                  onDelete={() => setConfirmAction({ type: 'delete', id: user.id, name: user.fullName })}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-          {/* Pagination */}
-          <div className="flex items-center justify-between p-4 border-t border-slate-100 dark:border-slate-800">
-            <p className="text-sm text-slate-500">Trang {page + 1} / {totalPages || 1}</p>
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0} className="cursor-pointer">
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1} className="cursor-pointer">
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
+        {/* Pagination */}
+        <div className="row" style={{ alignItems: 'center', justifyContent: 'space-between', padding: '12px 18px', borderTop: '1px solid var(--border)' }}>
+          <p style={{ fontSize: 13, color: 'var(--ink-3)' }}>Trang {page + 1} / {totalPages || 1}</p>
+          <div className="row" style={{ gap: 8 }}>
+            <button className="btn3d ghost sm" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}>
+              <ChevronLeft size={15} />
+            </button>
+            <button className="btn3d ghost sm" onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1}>
+              <ChevronRight size={15} />
+            </button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Detail dialog with tabs */}
+      {/* Detail dialog */}
       <Dialog open={!!detailUser} onOpenChange={() => setDetailUser(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>Chi tiết người dùng</DialogTitle></DialogHeader>
@@ -273,8 +238,8 @@ export default function AdminUsersPage() {
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div><span className="text-slate-500">Role:</span> <Badge variant="secondary">{detailUser.roleCode}</Badge></div>
-                  <div><span className="text-slate-500">Trạng thái:</span> <Badge className={cn(detailUser.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700')}>{detailUser.status}</Badge></div>
+                  <div className="flex items-center gap-2"><span className="text-slate-500">Role:</span> <RolePill role={detailUser.roleCode} /></div>
+                  <div className="flex items-center gap-2"><span className="text-slate-500">Trạng thái:</span> <StatusPill status={detailUser.status} /></div>
                   <div><span className="text-slate-500">Bài viết:</span> <span className="font-medium">{detailUser.postCount}</span></div>
                   <div><span className="text-slate-500">Chứng chỉ:</span> <span className="font-medium">{detailUser.certificationCount}</span></div>
                 </div>
@@ -343,7 +308,7 @@ export default function AdminUsersPage() {
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setConfirmAction(null)} className="cursor-pointer">Hủy</Button>
             <Button
-              className={cn('cursor-pointer', confirmAction?.type === 'activate' ? 'bg-[#22C55E] hover:bg-[#16A34A] text-white' : 'bg-red-600 hover:bg-red-700 text-white')}
+              className={`cursor-pointer ${confirmAction?.type === 'activate' ? 'bg-[#22C55E] hover:bg-[#16A34A] text-white' : 'bg-red-600 hover:bg-red-700 text-white'}`}
               disabled={deleteMutation.isPending || deactivateMutation.isPending || activateMutation.isPending}
               onClick={() => {
                 if (!confirmAction) return
@@ -358,6 +323,71 @@ export default function AdminUsersPage() {
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+function UserRow({ user, selected, onToggle, onView, onDeactivate, onActivate, onDelete }: {
+  user: UserSummaryResponse
+  selected: boolean
+  onToggle: () => void
+  onView: () => void
+  onDeactivate: () => void
+  onActivate: () => void
+  onDelete: () => void
+}) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <tr
+      style={{ borderBottom: '1px solid var(--border)', background: hovered ? 'var(--surface-2)' : 'transparent', transition: 'background .12s' }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <td style={{ padding: '10px 14px' }}>
+        <Checkbox checked={selected} onCheckedChange={onToggle} className="cursor-pointer" />
+      </td>
+      <td style={{ padding: '10px 14px' }}>
+        <div className="row" style={{ alignItems: 'center', gap: 10 }}>
+          <div
+            className="itile"
+            style={{ width: 32, height: 32, background: 'var(--brand-soft)', color: 'var(--brand)', fontWeight: 700, fontSize: 11, flexShrink: 0, fontFamily: 'var(--font-mono)' }}
+          >
+            {user.fullName?.slice(0,2).toUpperCase()}
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <p style={{ fontWeight: 600, fontSize: 13.5, color: 'var(--ink)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.fullName}</p>
+            <p style={{ fontSize: 11.5, color: 'var(--ink-3)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</p>
+          </div>
+        </div>
+      </td>
+      <td style={{ padding: '10px 14px' }}>
+        <RolePill role={user.roleCode} />
+      </td>
+      <td style={{ padding: '10px 14px', fontSize: 12, color: 'var(--ink-3)' }}>
+        {formatDate(user.registrationDate)}
+      </td>
+      <td style={{ padding: '10px 14px' }}>
+        <StatusPill status={user.status} />
+      </td>
+      <td style={{ padding: '10px 14px' }}>
+        <div className="row" style={{ alignItems: 'center', gap: 4 }}>
+          <button onClick={onView} className="iconbtn" style={{ width: 30, height: 30 }} title="Xem chi tiết">
+            <Eye size={14} />
+          </button>
+          {user.status === 'ACTIVE' ? (
+            <button onClick={onDeactivate} className="iconbtn" style={{ width: 30, height: 30, color: 'var(--hard)' }} title="Vô hiệu hóa">
+              <UserX size={14} />
+            </button>
+          ) : (
+            <button onClick={onActivate} className="iconbtn" style={{ width: 30, height: 30, color: 'var(--brand)' }} title="Kích hoạt">
+              <UserCheck size={14} />
+            </button>
+          )}
+          <button onClick={onDelete} className="iconbtn" style={{ width: 30, height: 30, color: 'var(--hard)' }} title="Xóa">
+            <Trash2 size={14} />
+          </button>
+        </div>
+      </td>
+    </tr>
   )
 }
 
@@ -378,23 +408,23 @@ function SessionsList({ userId }: { userId: string }) {
       {sessionList.map((s) => {
         const sessionId = s.sessionId ?? s.id
         return (
-        <div key={sessionId} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 text-sm">
-          <div className="min-w-0 flex-1">
-            <p className="text-slate-700 dark:text-slate-300 truncate text-xs">{s.userAgent ?? 'Unknown device'}</p>
-            <p className="text-slate-400 text-xs mt-0.5">{s.ipAddress} - {formatDate(s.createdAt)}</p>
+          <div key={sessionId} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 text-sm">
+            <div className="min-w-0 flex-1">
+              <p className="text-slate-700 dark:text-slate-300 truncate text-xs">{s.userAgent ?? 'Unknown device'}</p>
+              <p className="text-slate-400 text-xs mt-0.5">{s.ipAddress} - {formatDate(s.createdAt)}</p>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              className="cursor-pointer text-red-600 border-red-300 flex-shrink-0 ml-2"
+              onClick={() => {
+                adminApi.forceLogoutSession(userId, sessionId)
+                toast.success('Đã đăng xuất phiên')
+              }}
+            >
+              <LogOut className="w-3 h-3" />
+            </Button>
           </div>
-          <Button
-            size="sm"
-            variant="outline"
-            className="cursor-pointer text-red-600 border-red-300 flex-shrink-0 ml-2"
-            onClick={() => {
-              adminApi.forceLogoutSession(userId, sessionId)
-              toast.success('Đã đăng xuất phiên')
-            }}
-          >
-            <LogOut className="w-3 h-3" />
-          </Button>
-        </div>
         )
       })}
     </div>

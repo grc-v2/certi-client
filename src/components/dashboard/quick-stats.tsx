@@ -1,93 +1,80 @@
 import { Flame, Star, Target, Clock } from 'lucide-react'
-import { Card, CardContent } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
 
 interface QuickStatsProps {
-  streak?: number;
-  xp?: number;
-  accuracy?: number;
-  timeSpent?: string;
-  isLoading?: boolean;
+  streak?: number
+  xp?: number
+  accuracy?: number
+  timeSpent?: string
+  isLoading?: boolean
 }
 
-export function QuickStats({ streak = 12, xp = 2450, accuracy = 78, timeSpent = "14h 30m", isLoading = false }: QuickStatsProps) {
-  const stats = [
-    {
-      label: 'Streak',
-      value: streak,
-      unit: 'ngày',
-      desc: 'Giữ vững phong độ!',
-      icon: Flame,
-      color: 'text-orange-500',
-      bg: 'bg-orange-50 dark:bg-orange-950/30',
-      customClass: 'streak-card'
-    },
-    {
-      label: 'Kinh nghiệm (XP)',
-      value: xp,
-      unit: 'XP',
-      desc: 'Top 15% tuần này',
-      icon: Star,
-      color: 'text-yellow-500',
-      bg: 'bg-yellow-50 dark:bg-yellow-950/30',
-      customClass: 'bg-gradient-to-br from-white to-slate-50/50 dark:from-slate-900 dark:to-slate-900/60 border-slate-200/60 dark:border-slate-800'
-    },
-    {
-      label: 'Độ chính xác',
-      value: accuracy,
-      unit: '%',
-      desc: 'Tăng 4% so với tuần trước',
-      icon: Target,
-      color: 'text-green-500',
-      bg: 'bg-green-50 dark:bg-green-950/30',
-      customClass: 'bg-gradient-to-br from-white to-slate-50/50 dark:from-slate-900 dark:to-slate-900/60 border-slate-200/60 dark:border-slate-800'
-    },
-    {
-      label: 'Thời gian học',
-      value: timeSpent,
-      unit: '',
-      desc: 'Tháng này',
-      icon: Clock,
-      color: 'text-blue-500',
-      bg: 'bg-blue-50 dark:bg-blue-950/30',
-      customClass: 'bg-gradient-to-br from-white to-slate-50/50 dark:from-slate-900 dark:to-slate-900/60 border-slate-200/60 dark:border-slate-800'
-    },
-  ]
+const STATS = (streak: number, xp: number, accuracy: number, timeSpent: string) => [
+  {
+    label: 'Chuỗi ngày học',
+    value: streak,
+    unit: 'ngày',
+    icon: Flame,
+    iconColor: 'var(--gold)',
+    iconBg: 'var(--gold-soft)',
+    valueColor: 'var(--gold-deep)',
+  },
+  {
+    label: 'Kinh nghiệm (XP)',
+    value: xp,
+    unit: 'XP',
+    icon: Star,
+    iconColor: 'var(--brand)',
+    iconBg: 'var(--brand-soft)',
+    valueColor: 'var(--ink)',
+  },
+  {
+    label: 'Độ chính xác',
+    value: accuracy,
+    unit: '%',
+    icon: Target,
+    iconColor: 'var(--brand-deep)',
+    iconBg: 'var(--brand-soft)',
+    valueColor: 'var(--ink)',
+  },
+  {
+    label: 'Thời gian học',
+    value: timeSpent,
+    unit: '',
+    icon: Clock,
+    iconColor: 'var(--violet)',
+    iconBg: 'var(--violet-soft)',
+    valueColor: 'var(--ink)',
+  },
+]
+
+export function QuickStats({
+  streak = 12, xp = 2450, accuracy = 78, timeSpent = '14h 30m', isLoading = false
+}: QuickStatsProps) {
+  const stats = STATS(streak, xp, accuracy, timeSpent)
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      {stats.map((stat, i) => (
-        <Card key={i} className={cn(
-          "hover:shadow-xl hover:shadow-slate-200/40 dark:hover:shadow-black/25 hover:-translate-y-1 transition-all duration-300 border",
-          stat.customClass
-        )}>
-          <CardContent className="p-5">
-            <div className="flex items-start justify-between">
-              <div className="space-y-1">
-                <p className={cn("text-[10px] font-bold uppercase tracking-wider", i === 0 ? "text-slate-500 dark:text-slate-300" : "text-slate-500 dark:text-slate-400")}>{stat.label}</p>
-                <div className="flex items-baseline gap-1 pt-1">
-                  {isLoading ? (
-                    <div className="h-9 w-20 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
-                  ) : (
-                    <>
-                      <span className={cn(
-                        "text-3xl sm:text-4xl font-black font-heading leading-none tracking-tight", 
-                        i === 0 ? "bg-gradient-to-r from-orange-500 to-amber-500 dark:from-orange-400 dark:to-yellow-300 bg-clip-text text-transparent" : "text-slate-900 dark:text-white"
-                      )}>
-                        {stat.value}
-                      </span>
-                      {stat.unit && <span className={cn("text-xs font-semibold", "text-slate-500 dark:text-slate-400")}>{stat.unit}</span>}
-                    </>
-                  )}
-                </div>
-                <p className={cn("text-[10px] sm:text-[11px] font-semibold pt-1", i === 0 ? "text-green-600 dark:text-cta" : "text-slate-500 dark:text-slate-400")}>{stat.desc}</p>
-              </div>
-              <div className={cn('p-3 rounded-xl flex-shrink-0 transition-transform duration-300 hover:scale-110', stat.bg)}>
-                <stat.icon className={cn('w-6 h-6', stat.color, i === 0 && 'animate-bounce drop-shadow-[0_0_10px_rgba(249,115,22,0.6)]')} />
-              </div>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }} className="stat-grid">
+      {stats.map((s, i) => (
+        <div key={i} className={`card enter enter-${i + 1}`} style={{ padding: '16px 17px' }}>
+          <div className="row" style={{ justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+            <span className="eyebrow">{s.label}</span>
+            <div className="itile" style={{ width: 34, height: 34, background: s.iconBg }}>
+              <s.icon size={17} style={{ color: s.iconColor }} />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+          {isLoading ? (
+            <div style={{ height: 36, background: 'var(--surface-3)', borderRadius: 8, animation: 'pulse 1.5s ease-in-out infinite' }} />
+          ) : (
+            <div className="row" style={{ alignItems: 'baseline', gap: 5 }}>
+              <span className="mono tnum" style={{ fontSize: 30, fontWeight: 700, color: s.valueColor, lineHeight: 1 }}>
+                {s.value}
+              </span>
+              {s.unit && (
+                <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink-3)' }}>{s.unit}</span>
+              )}
+            </div>
+          )}
+        </div>
       ))}
     </div>
   )

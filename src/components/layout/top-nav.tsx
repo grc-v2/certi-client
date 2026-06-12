@@ -1,58 +1,99 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Search, Menu, X } from 'lucide-react'
-import { Input } from 'antd'
-import { cn } from '@/lib/utils'
+import { useNavigate, Link } from 'react-router-dom'
+import { Search, Bell, Sun, Moon, Menu, LogOut } from 'lucide-react'
+import { useMutation } from '@tanstack/react-query'
+import { authApi } from '@/lib/api/auth'
+import { useAuthStore } from '@/store/auth-store'
+import { useAppTheme } from '@/providers/theme-provider'
 
 interface TopNavProps {
+  title?: string
   onMenuClick?: () => void
   sidebarOpen?: boolean
 }
 
-export function TopNav({ onMenuClick, sidebarOpen }: TopNavProps) {
-  const [searchOpen, setSearchOpen] = useState(false)
+export function TopNav({ title, onMenuClick }: TopNavProps) {
+  const navigate = useNavigate()
+  const { resolvedTheme, setTheme } = useAppTheme()
+  const { logout } = useAuthStore()
+
+  const logoutMutation = useMutation({
+    mutationFn: authApi.logout,
+    onSettled: () => {
+      logout()
+      navigate('/login')
+    },
+  })
 
   return (
-    <header className="fixed top-4 left-4 lg:left-[17.5rem] right-4 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl safe-area-top flex flex-col shadow-sm transition-all duration-300">
-      <div className="h-14 flex items-center px-4 gap-3">
-        {/* Logo + menu toggle */}
-        <div className="flex items-center gap-3 flex-shrink-0">
-          <button
-            onClick={onMenuClick}
-            className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors lg:hidden"
-          >
-            {sidebarOpen ? <X className="w-5 h-5 text-slate-600 dark:text-slate-300" /> : <Menu className="w-5 h-5 text-slate-600 dark:text-slate-300" />}
-          </button>
-          <Link to="/dashboard" className="flex items-center gap-2 cursor-pointer no-underline">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
-              <span className="text-white font-bold text-sm">C</span>
-            </div>
-            <span className="font-bold text-slate-900 dark:text-white hidden sm:block">CertiMaster</span>
-          </Link>
-        </div>
+    <header className="topbar">
+      {/* Mobile menu toggle */}
+      <button
+        onClick={onMenuClick}
+        className="iconbtn"
+        aria-label="Mở menu"
+        id="menu-btn"
+      >
+        <Menu size={20} />
+      </button>
 
-        {/* Search */}
-        <div className={cn('flex-1 max-w-xl mx-auto', searchOpen ? 'block' : 'hidden sm:block')}>
-          <div className="relative flex items-center">
-            <Search className="absolute left-3 w-4 h-4 text-slate-400 z-10" />
-            <Input
-              placeholder="Tìm kiếm chứng chỉ, bài viết, tag..."
-              className="pl-9 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:bg-white dark:focus:bg-slate-900 rounded-xl"
-              variant="borderless"
-              style={{ paddingLeft: '2.25rem', height: '2.5rem', background: 'var(--color-bg-container)' }}
-            />
-          </div>
-        </div>
+      {/* Title */}
+      <div className="row" style={{ alignItems: 'center', gap: 11, flex: 1, minWidth: 0 }}>
+        <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--ink)', margin: 0 }}>
+          {title}
+        </h2>
+      </div>
 
-        {/* Right actions */}
-        <div className="flex items-center gap-2 flex-shrink-0 ml-auto sm:ml-0">
-          <button
-            onClick={() => setSearchOpen(!searchOpen)}
-            className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors sm:hidden text-slate-600 dark:text-slate-300"
-          >
-            <Search className="w-5 h-5" />
+      {/* Search box — hidden on mobile */}
+      <div
+        className="row topbar-search"
+        style={{
+          alignItems: 'center', gap: 9, padding: '0 14px', height: 40,
+          borderRadius: 'var(--radius-sm)', background: 'var(--surface-2)',
+          border: '1px solid var(--border)', width: 280, maxWidth: '32vw',
+        }}
+      >
+        <Search size={17} style={{ color: 'var(--ink-3)', flexShrink: 0 }} />
+        <input
+          placeholder="Tìm chứng chỉ, chủ đề…"
+          style={{
+            border: 'none', background: 'transparent', outline: 'none',
+            color: 'var(--ink)', fontSize: 13.5, width: '100%',
+            fontFamily: 'var(--font-body)',
+          }}
+        />
+        <kbd className="mono" style={{ fontSize: 10.5, color: 'var(--ink-3)', border: '1px solid var(--border-2)', borderRadius: 5, padding: '1px 5px', flexShrink: 0 }}>
+          ⌘K
+        </kbd>
+      </div>
+
+      {/* Actions */}
+      <div className="row" style={{ gap: 9, alignItems: 'center' }}>
+        <Link to="/notifications" style={{ position: 'relative' }}>
+          <button className="iconbtn" aria-label="Thông báo">
+            <Bell size={19} />
+            <span style={{
+              position: 'absolute', top: 8, right: 9, width: 7, height: 7,
+              borderRadius: '50%', background: 'var(--hard)', border: '2px solid var(--surface)',
+            }} />
           </button>
-        </div>
+        </Link>
+
+        <button
+          className="iconbtn"
+          onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+          aria-label="Đổi giao diện"
+        >
+          {resolvedTheme === 'dark' ? <Sun size={19} /> : <Moon size={19} />}
+        </button>
+
+        <button
+          className="iconbtn"
+          onClick={() => logoutMutation.mutate()}
+          aria-label="Đăng xuất"
+          title="Đăng xuất"
+        >
+          <LogOut size={18} />
+        </button>
       </div>
     </header>
   )

@@ -51,6 +51,7 @@ import AdminUsersPage from '@/pages/admin/AdminUsersPage'
 import AdminCertificationsPage from '@/pages/admin/AdminCertificationsPage'
 import AdminCertificationDetailPage from '@/pages/admin/AdminCertificationDetailPage'
 import AdminCoursesPage from '@/pages/admin/AdminCoursesPage'
+import AdminCoursesListPage from '@/pages/admin/AdminCoursesListPage'
 import AdminQuestionsPage from '@/pages/admin/AdminQuestionsPage'
 import AdminPostsPage from '@/pages/admin/AdminPostsPage'
 import AdminNotificationsPage from '@/pages/admin/AdminNotificationsPage'
@@ -64,12 +65,12 @@ function AppRoutes() {
       theme={{
         algorithm: resolvedTheme === 'dark' ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
         token: {
-          colorPrimary: '#0A66C2',
-          colorSuccess: '#22C55E',
-          colorInfo: '#3B82F6',
-          colorWarning: '#F59E0B',
-          colorError: '#EF4444',
-          fontFamily: "Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          colorPrimary: '#0F172A',
+          colorSuccess: '#15BE69',
+          colorInfo: '#2E7DF6',
+          colorWarning: '#F4B125',
+          colorError: '#F2546B',
+          fontFamily: "'Be Vietnam Pro', system-ui, -apple-system, sans-serif",
           borderRadius: 12,
         },
         components: {
@@ -139,6 +140,7 @@ function AppRoutes() {
             <Route path="/admin/certifications" element={<AdminCertificationsPage />} />
             <Route path="/admin/certifications/:id" element={<AdminCertificationDetailPage />} />
             <Route path="/admin/certifications/:id/courses" element={<AdminCoursesPage />} />
+            <Route path="/admin/courses" element={<AdminCoursesListPage />} />
             <Route path="/admin/questions" element={<AdminQuestionsPage />} />
             <Route path="/admin/posts" element={<AdminPostsPage />} />
             <Route path="/admin/notifications" element={<AdminNotificationsPage />} />

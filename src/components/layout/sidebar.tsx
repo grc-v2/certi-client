@@ -1,26 +1,33 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
-  LayoutDashboard, GraduationCap,
-  Bookmark, Bell, User, ChevronRight, X, BookOpen, FileText,
-  Moon, Sun, LogOut, Settings
+  LayoutDashboard, GraduationCap, Dumbbell, BarChart2,
+  Users, Settings, LogOut, User, Zap, Trophy, BookOpen
 } from 'lucide-react'
-import { Badge, Dropdown, Avatar } from 'antd'
+import { Dropdown } from 'antd'
 import type { MenuProps } from 'antd'
 import { useMutation } from '@tanstack/react-query'
 import { authApi } from '@/lib/api/auth'
 import { useAuthStore } from '@/store/auth-store'
 import { useAppTheme } from '@/providers/theme-provider'
-import { cn } from '@/lib/utils'
 
-const navItems = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', description: 'Tiến độ học tập' },
-  { href: '/certifications', icon: GraduationCap, label: 'Chứng chỉ', description: 'Danh mục chứng chỉ' },
-  { href: '/courses', icon: BookOpen, label: 'Khoá học', description: 'Khám phá và tham gia' },
-  { href: '/community', icon: FileText, label: 'Cộng đồng', description: 'Bài viết & thảo luận' },
-  { href: '/bookmarks', icon: Bookmark, label: 'Đã lưu', description: 'Bài viết đã bookmark' },
-  { href: '/notifications', icon: Bell, label: 'Thông báo', description: 'Tin nhắn & cảnh báo', badge: '3' },
-  { href: '/profile/me', icon: User, label: 'Trang cá nhân', description: 'Hồ sơ của bạn' },
+const NAV_ITEMS = [
+  { href: '/dashboard',                   icon: LayoutDashboard, label: 'Tổng quan' },
+  { href: '/certifications',              icon: GraduationCap,   label: 'Chứng chỉ' },
+  { href: '/courses',                     icon: BookOpen,        label: 'Khoá học'   },
+  { href: '/practice',                    icon: Dumbbell,        label: 'Luyện tập'  },
+  { href: '/certifications/exam-history', icon: BarChart2,       label: 'Kết quả'   },
+  { href: '/community',                   icon: Users,           label: 'Cộng đồng'  },
 ]
+
+const NAV_PARENT: Record<string, string> = {
+  '/certifications/exam-history': '/certifications/exam-history',
+}
+
+function isActive(pathname: string, href: string): boolean {
+  if (href === '/certifications' && (pathname.startsWith('/certifications/exam-history') || pathname.startsWith('/certifications/results'))) return false
+  if (href === '/certifications') return pathname === '/certifications' || (pathname.startsWith('/certifications/') && !pathname.startsWith('/certifications/exam-history') && !pathname.startsWith('/certifications/results'))
+  return pathname === href || pathname.startsWith(href + '/')
+}
 
 interface SidebarProps {
   isOpen: boolean
@@ -31,7 +38,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const location = useLocation()
   const pathname = location.pathname
   const navigate = useNavigate()
-  const { resolvedTheme, setTheme } = useAppTheme()
+  const { resolvedTheme } = useAppTheme()
   const { user, logout, isAdmin } = useAuthStore()
 
   const logoutMutation = useMutation({
@@ -43,20 +50,15 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   })
 
   const initials =
-    user?.fullName
-      ?.split(' ')
-      .map((n) => n[0])
-      .join('')
-      .slice(0, 2)
-      .toUpperCase() || 'U'
+    user?.fullName?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'U'
 
   const dropdownItems: MenuProps['items'] = [
     {
       key: 'user-info',
       label: (
         <div className="px-1 py-1 min-w-[160px]">
-          <p className="font-bold text-sm text-slate-900 dark:text-white truncate m-0">{user?.fullName}</p>
-          <p className="text-xs text-slate-500 truncate m-0">{user?.email}</p>
+          <p style={{ fontWeight: 700, fontSize: 13, color: 'var(--ink)', margin: 0 }}>{user?.fullName}</p>
+          <p style={{ fontSize: 11, color: 'var(--ink-3)', margin: 0 }}>{user?.email}</p>
         </div>
       ),
       disabled: true,
@@ -66,133 +68,137 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       key: 'profile',
       label: 'Trang cá nhân',
       icon: <User className="w-4 h-4" />,
-      onClick: () => { navigate('/profile/me'); onClose(); },
+      onClick: () => { navigate('/profile/me'); onClose() },
     },
-    {
-      key: 'settings',
-      label: 'Cài đặt',
-      icon: <Settings className="w-4 h-4" />,
-      onClick: () => { navigate('/settings'); onClose(); },
-    },
-    ...(isAdmin()
-      ? [
-        { type: 'divider' as const },
-        {
-          key: 'admin',
-          label: <span className="text-primary font-semibold">Admin Panel</span>,
-          icon: <Settings className="w-4 h-4 text-primary" />,
-          onClick: () => { navigate('/admin/dashboard'); onClose(); },
-        },
-      ]
-      : []),
+    ...(isAdmin() ? [
+      { type: 'divider' as const },
+      {
+        key: 'admin',
+        label: <span style={{ color: 'var(--brand)', fontWeight: 600 }}>Admin Panel</span>,
+        icon: <Settings className="w-4 h-4" style={{ color: 'var(--brand)' }} />,
+        onClick: () => { navigate('/admin/dashboard'); onClose() },
+      },
+    ] : []),
     { type: 'divider' },
     {
       key: 'logout',
-      label: <span className="text-red-600 font-semibold">Đăng xuất</span>,
-      icon: <LogOut className="w-4 h-4 text-red-600" />,
+      label: <span style={{ color: 'var(--hard)', fontWeight: 600 }}>Đăng xuất</span>,
+      icon: <LogOut className="w-4 h-4" style={{ color: 'var(--hard)' }} />,
       onClick: () => logoutMutation.mutate(),
     },
   ]
 
   return (
     <>
-      {/* Overlay */}
+      {/* Mobile overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
           onClick={onClose}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 30,
+            background: 'rgba(0,0,0,0.5)', display: 'block',
+          }}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={cn(
-          'fixed top-4 left-4 bottom-4 z-40 w-64 rounded-2xl bg-white dark:bg-primary border border-slate-200 dark:border-slate-800 shadow-sm',
-          'transition-transform duration-300 ease-in-out',
-          'lg:translate-x-0',
-          isOpen ? 'translate-x-0' : '-translate-x-[calc(100%+1rem)]'
-        )}
+        className="sidebar"
+        style={{
+          transform: isOpen ? 'translateX(0)' : undefined,
+          position: isOpen ? 'fixed' : undefined,
+          top: isOpen ? 0 : undefined,
+          bottom: isOpen ? 0 : undefined,
+          left: isOpen ? 0 : undefined,
+          zIndex: isOpen ? 40 : undefined,
+        }}
       >
-        <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between p-4 lg:hidden">
-            <span className="font-semibold text-slate-900 dark:text-white">Menu</span>
-            <button
-              onClick={onClose}
-              className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors text-slate-600 dark:text-slate-300"
-            >
-              <X className="w-4 h-4" />
-            </button>
+        {/* Brandmark */}
+        <div className="brandmark">
+          <div className="glyph">C</div>
+          <div className="col" style={{ gap: 1 }}>
+            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 17, color: 'var(--ink)', letterSpacing: '-.02em' }}>
+              Certi Hub
+            </span>
+            <span className="mono" style={{ fontSize: 10.5, color: 'var(--ink-3)' }}>Exam Prep</span>
           </div>
+        </div>
 
-          <nav className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-hide">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
-              return (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  onClick={onClose}
-                  className={cn(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 group no-underline',
-                    isActive
-                      ? 'bg-primary/10 text-primary dark:bg-cta/10 dark:text-cta'
-                      : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
-                  )}
-                >
-                  <item.icon className={cn('w-5 h-5 flex-shrink-0', isActive ? 'text-primary dark:text-cta' : 'text-slate-400')} />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">{item.label}</span>
-                      {item.badge && (
-                        <Badge
-                          count={item.badge}
-                          size="small"
-                          color={item.badge === 'Mới' ? '#22C55E' : '#EF4444'}
-                          style={{ fontSize: '9px', height: '14px', lineHeight: '14px', borderRadius: '4px' }}
-                        />
-                      )}
-                    </div>
-                    <p className="text-[11px] text-slate-400 truncate m-0">{item.description}</p>
-                  </div>
-                  <ChevronRight
-                    className={cn(
-                      'w-3.5 h-3.5 transition-transform flex-shrink-0',
-                      isActive ? 'text-primary dark:text-cta' : 'text-slate-300 group-hover:translate-x-0.5'
-                    )}
-                  />
-                </Link>
-              )
-            })}
-          </nav>
-
-          <div className="p-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-1">
-            <Dropdown menu={{ items: dropdownItems }} placement="topLeft" trigger={['click']}>
-              <div className="flex items-center gap-2 rounded-xl p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors flex-1 min-w-0">
-                <Avatar src={user?.avatarUrl ?? undefined} className="bg-primary flex-shrink-0" size={32}>
-                  {initials}
-                </Avatar>
-                <div className="flex-1 min-w-0 pr-1">
-                  <p className="text-sm font-medium text-slate-900 dark:text-white truncate m-0">{user?.fullName || 'User'}</p>
-                </div>
-              </div>
-            </Dropdown>
-
-            <div className="flex items-center gap-1 flex-shrink-0">
-              <Link to="/notifications" onClick={onClose} className="relative p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors text-slate-600 dark:text-slate-300">
-                <Badge count={3} size="small" offset={[2, -2]}>
-                  <Bell className="w-4 h-4 text-current" />
-                </Badge>
-              </Link>
-              <button
-                onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors text-slate-600 dark:text-slate-300"
-                aria-label="Toggle theme"
+        {/* Nav links */}
+        <nav className="col" style={{ gap: 3, flex: 1 }}>
+          {NAV_ITEMS.map(item => {
+            const active = isActive(pathname, item.href)
+            return (
+              <Link
+                key={item.href}
+                to={item.href}
+                onClick={onClose}
+                className={`navlink${active ? ' active' : ''}`}
+                style={{ textDecoration: 'none' }}
               >
-                <Sun className="hidden w-4 h-4 dark:block" />
-                <Moon className="w-4 h-4 dark:hidden" />
-              </button>
+                <item.icon size={20} strokeWidth={active ? 2.3 : 2} />
+                {item.label}
+              </Link>
+            )
+          })}
+
+          {isAdmin() && (
+            <Link
+              to="/admin/dashboard"
+              onClick={onClose}
+              className="navlink"
+              style={{ textDecoration: 'none', marginTop: 4 }}
+            >
+              <Settings size={20} strokeWidth={2} />
+              Quản trị
+            </Link>
+          )}
+        </nav>
+
+        {/* Daily goal + user at bottom */}
+        <div className="col" style={{ gap: 8, marginTop: 'auto' }}>
+          {/* XP goal card */}
+          <div className="card" style={{ padding: '14px 14px', boxShadow: 'none', background: 'var(--surface-2)' }}>
+            <div className="row" style={{ justifyContent: 'space-between', alignItems: 'center', marginBottom: 9 }}>
+              <span className="eyebrow">Mục tiêu hôm nay</span>
+              <span className="mono" style={{ fontSize: 11, fontWeight: 700, color: 'var(--brand-deep)' }}>
+                80/100 XP
+              </span>
+            </div>
+            <div className="ch-track" style={{ height: 8 }}>
+              <i style={{ width: '80%' }} />
+            </div>
+            <div className="row" style={{ gap: 6, marginTop: 9, alignItems: 'center' }}>
+              <Zap size={13} style={{ color: 'var(--gold)' }} />
+              <span style={{ fontSize: 11.5, color: 'var(--ink-2)' }}>Còn 20 XP nữa là đạt!</span>
             </div>
           </div>
+
+          {/* User profile */}
+          <Dropdown menu={{ items: dropdownItems }} placement="topLeft" trigger={['click']}>
+            <div className="navlink" style={{ cursor: 'pointer' }}>
+              <div
+                className="itile"
+                style={{
+                  width: 34, height: 34, background: 'var(--brand)', color: '#fff',
+                  fontWeight: 700, fontFamily: 'var(--font-mono)', fontSize: 14, borderRadius: 10,
+                }}
+              >
+                {user?.avatarUrl
+                  ? <img src={user.avatarUrl} alt={initials} style={{ width: '100%', height: '100%', borderRadius: 10, objectFit: 'cover' }} />
+                  : initials
+                }
+              </div>
+              <div className="col" style={{ minWidth: 0 }}>
+                <span style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {user?.fullName || 'Người dùng'}
+                </span>
+                <span style={{ fontSize: 11, color: 'var(--ink-3)', display: 'flex', alignItems: 'center', gap: 3 }}>
+                  <Trophy size={11} style={{ color: 'var(--gold)' }} /> Vàng
+                </span>
+              </div>
+            </div>
+          </Dropdown>
         </div>
       </aside>
     </>

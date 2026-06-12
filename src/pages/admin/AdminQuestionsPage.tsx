@@ -3,18 +3,16 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   Search, Plus, Trash2, ChevronLeft, ChevronRight, Eye, Edit2,
-  HelpCircle, CheckCircle2, XCircle, Power,
+  Sparkles, CheckCircle2, XCircle, Power,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { certificationsApi, type CertificationResponse, type CertificationDomainResponse } from '@/lib/api/certifications'
+import { certificationsApi, type CertificationResponse } from '@/lib/api/certifications'
 import {
   adminQuestionsApi,
   type AdminQuestionResponse,
@@ -26,18 +24,20 @@ import { toast } from 'sonner'
 import { useDebounce } from '@/hooks/use-debounce'
 import { useLookups } from '@/hooks/use-lookups'
 
-const DIFF_COLORS: Record<string, string> = {
-  EASY: 'bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400',
-  MEDIUM: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/50 dark:text-yellow-400',
-  HARD: 'bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400',
-}
-const STATUS_COLORS: Record<string, string> = {
-  DRAFT: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
-  ACTIVE: 'bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400',
-  INACTIVE: 'bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400',
+const DEFAULT_OPTION: QuestionOptionRequest = { content: '', isCorrect: false, orderIndex: 0 }
+
+function DiffPill({ diff }: { diff: string }) {
+  if (diff === 'EASY') return <span className="pill easy">Dễ</span>
+  if (diff === 'MEDIUM') return <span className="pill medium">Trung bình</span>
+  if (diff === 'HARD') return <span className="pill hard">Khó</span>
+  return <span className="pill" style={{ background: 'var(--surface-3)', color: 'var(--ink-3)' }}>{diff}</span>
 }
 
-const DEFAULT_OPTION: QuestionOptionRequest = { content: '', isCorrect: false, orderIndex: 0 }
+function QStatusPill({ status }: { status: string }) {
+  if (status === 'ACTIVE') return <span className="pill brand">Active</span>
+  if (status === 'INACTIVE') return <span className="pill hard">Inactive</span>
+  return <span className="pill" style={{ background: 'var(--surface-3)', color: 'var(--ink-3)' }}>Draft</span>
+}
 
 export default function AdminQuestionsPage() {
   const { getOptions, getLabel } = useLookups()
@@ -56,7 +56,6 @@ export default function AdminQuestionsPage() {
   const [bulkStatusDialog, setBulkStatusDialog] = useState(false)
   const [bulkStatus, setBulkStatus] = useState('')
 
-  // Form state
   const [formData, setFormData] = useState<QuestionCreateRequest>({
     domainId: 0, type: 'SINGLE_CHOICE', content: '', explanation: '', difficulty: 'MEDIUM',
     points: 1, timeLimitSeconds: 60, referenceUrl: '', options: [
@@ -68,7 +67,6 @@ export default function AdminQuestionsPage() {
   const debouncedSearch = useDebounce(search, 400)
   const queryClient = useQueryClient()
 
-  // Queries
   const { data, isLoading } = useQuery({
     queryKey: ['admin-questions', page, debouncedSearch, typeFilter, diffFilter, statusFilter, certFilter, domainFilter],
     queryFn: () => adminQuestionsApi.search({
@@ -93,7 +91,6 @@ export default function AdminQuestionsPage() {
     enabled: !!certFilter,
   })
 
-  // Mutations
   const createMutation = useMutation({
     mutationFn: (data: QuestionCreateRequest) => adminQuestionsApi.create(data),
     onSuccess: () => { toast.success('Đã tạo câu hỏi'); closeDialog(); queryClient.invalidateQueries({ queryKey: ['admin-questions'] }) },
@@ -157,7 +154,6 @@ export default function AdminQuestionsPage() {
     if (formData.options.length < 2) { toast.error('Cần ít nhất 2 đáp án'); return }
     if (!formData.options.some(o => o.isCorrect)) { toast.error('Cần ít nhất 1 đáp án đúng'); return }
     if (!formData.domainId) { toast.error('Chọn domain'); return }
-
     if (editingQuestion) updateMutation.mutate({ id: editingQuestion.id, data: formData })
     else createMutation.mutate(formData)
   }
@@ -192,28 +188,37 @@ export default function AdminQuestionsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="col" style={{ gap: 20 }}>
+      {/* Header */}
+      <div className="row enter" style={{ alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <HelpCircle className="w-6 h-6 text-primary" />Ngân hàng câu hỏi
+          <span className="eyebrow">Quản trị</span>
+          <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--ink)', marginTop: 6 }}>
+            <span className="row" style={{ alignItems: 'center', gap: 8 }}>
+              <Sparkles size={22} style={{ color: 'var(--violet)' }} />
+              Ngân hàng câu hỏi
+            </span>
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">{total} câu hỏi</p>
+          <p style={{ color: 'var(--ink-3)', fontSize: 13.5, marginTop: 4 }}>{total} câu hỏi</p>
         </div>
-        <Button onClick={openCreate} className="bg-primary hover:bg-slate-800 text-white cursor-pointer">
-          <Plus className="w-4 h-4 mr-2" />Thêm câu hỏi
-        </Button>
+        <button className="btn3d sm" onClick={openCreate}>
+          <Plus size={15} />Thêm câu hỏi
+        </button>
       </div>
 
       {/* Filters */}
-      <Card className="border-slate-200 dark:border-slate-700">
-        <CardContent className="p-4 space-y-4">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <Input placeholder="Tìm câu hỏi..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 w-full" />
+      <div className="card enter enter-1" style={{ padding: '14px 16px' }}>
+        <div className="col" style={{ gap: 12 }}>
+          <div className="row" style={{ alignItems: 'center', gap: 8, background: 'var(--surface-2)', borderRadius: 'var(--radius-sm)', padding: '7px 12px', border: '1px solid var(--border)' }}>
+            <Search size={14} style={{ color: 'var(--ink-3)', flexShrink: 0 }} />
+            <input
+              placeholder="Tìm câu hỏi..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13.5, color: 'var(--ink)', width: '100%', fontFamily: 'var(--font-body)' }}
+            />
           </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 8 }}>
             <Select value={certFilter || 'all'} onValueChange={v => { setCertFilter(v === 'all' ? '' : v); setDomainFilter('') }}>
               <SelectTrigger className="cursor-pointer"><SelectValue placeholder="Chứng chỉ" /></SelectTrigger>
               <SelectContent>
@@ -221,7 +226,6 @@ export default function AdminQuestionsPage() {
                 {certs.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
               </SelectContent>
             </Select>
-
             <Select value={domainFilter || 'all'} onValueChange={v => setDomainFilter(v === 'all' ? '' : v)} disabled={!certFilter || domains.length === 0}>
               <SelectTrigger className="cursor-pointer"><SelectValue placeholder="Domain" /></SelectTrigger>
               <SelectContent>
@@ -229,7 +233,6 @@ export default function AdminQuestionsPage() {
                 {domains.map(d => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
               </SelectContent>
             </Select>
-
             <Select value={typeFilter || 'all'} onValueChange={v => setTypeFilter(v === 'all' ? '' : v)}>
               <SelectTrigger className="cursor-pointer"><SelectValue placeholder="Loại" /></SelectTrigger>
               <SelectContent>
@@ -239,7 +242,6 @@ export default function AdminQuestionsPage() {
                 ))}
               </SelectContent>
             </Select>
-
             <Select value={diffFilter || 'all'} onValueChange={v => setDiffFilter(v === 'all' ? '' : v)}>
               <SelectTrigger className="cursor-pointer"><SelectValue placeholder="Độ khó" /></SelectTrigger>
               <SelectContent>
@@ -249,7 +251,6 @@ export default function AdminQuestionsPage() {
                 ))}
               </SelectContent>
             </Select>
-
             <Select value={statusFilter || 'all'} onValueChange={v => setStatusFilter(v === 'all' ? '' : v)}>
               <SelectTrigger className="cursor-pointer"><SelectValue placeholder="Trạng thái" /></SelectTrigger>
               <SelectContent>
@@ -260,96 +261,61 @@ export default function AdminQuestionsPage() {
               </SelectContent>
             </Select>
           </div>
-
           {selectedIds.length > 0 && (
-            <div className="flex gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-              <Button size="sm" variant="outline" onClick={() => setBulkStatusDialog(true)} className="cursor-pointer">
-                <Power className="w-3.5 h-3.5 mr-1.5" />Đổi trạng thái ({selectedIds.length})
-              </Button>
+            <div className="row" style={{ gap: 8, paddingTop: 4, borderTop: '1px solid var(--border)' }}>
+              <button className="btn3d ghost sm" onClick={() => setBulkStatusDialog(true)}>
+                <Power size={13} />Đổi trạng thái ({selectedIds.length})
+              </button>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Table */}
-      <Card className="border-slate-200 dark:border-slate-700">
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-800">
-                  <th className="p-3 text-left w-10">
-                    <Checkbox checked={selectedIds.length === questions.length && questions.length > 0} onCheckedChange={toggleAll} className="cursor-pointer" />
-                  </th>
-                  <th className="p-3 text-left font-medium text-slate-500">Câu hỏi</th>
-                  <th className="p-3 text-left font-medium text-slate-500 hidden sm:table-cell">Loại</th>
-                  <th className="p-3 text-left font-medium text-slate-500 hidden md:table-cell">Độ khó</th>
-                  <th className="p-3 text-left font-medium text-slate-500">Trạng thái</th>
-                  <th className="p-3 text-left font-medium text-slate-500">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                {isLoading ? (
-                  Array(8).fill(0).map((_, i) => (
-                    <tr key={i} className="border-b border-slate-50 dark:border-slate-800/50">
-                      {[1,2,3,4,5,6].map(j => <td key={j} className="p-3"><div className="h-4 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" /></td>)}
-                    </tr>
-                  ))
-                ) : questions.map(q => (
-                  <tr key={q.id} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                    <td className="p-3">
-                      <Checkbox checked={selectedIds.includes(q.id)} onCheckedChange={() => toggleSelect(q.id)} className="cursor-pointer" />
-                    </td>
-                    <td className="p-3 max-w-xs">
-                      <p className="text-slate-900 dark:text-white line-clamp-2 text-sm">{q.content}</p>
-                      <div className="flex items-center gap-1.5 mt-1">
-                        {q.domainName && <span className="text-xs text-slate-400">{q.domainName}</span>}
-                        {q.questionCode && <span className="text-xs text-slate-400">#{q.questionCode}</span>}
-                      </div>
-                    </td>
-                    <td className="p-3 hidden sm:table-cell">
-                      <Badge variant="secondary" className="text-xs">{getLabel('constants.questionTypes', q.type)}</Badge>
-                    </td>
-                    <td className="p-3 hidden md:table-cell">
-                      <Badge className={cn('text-xs', DIFF_COLORS[q.difficulty])}>{getLabel('constants.questionDifficulties', q.difficulty)}</Badge>
-                    </td>
-                    <td className="p-3">
-                      <Badge className={cn('text-xs', STATUS_COLORS[q.status])}>{getLabel('constants.questionStatuses', q.status)}</Badge>
-                    </td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-1">
-                        <button onClick={() => setPreviewQuestion(q)} className="p-1.5 text-slate-400 hover:text-primary cursor-pointer transition-colors rounded hover:bg-primary/10" title="Xem">
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => openEdit(q)} className="p-1.5 text-slate-400 hover:text-primary cursor-pointer transition-colors rounded hover:bg-primary/10" title="Sửa">
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => statusMutation.mutate({ id: q.id, status: q.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE' })}
-                          className={cn('p-1.5 cursor-pointer transition-colors rounded', q.status === 'ACTIVE' ? 'text-green-500' : 'text-slate-400 hover:text-green-500 hover:bg-green-50')}
-                          title="Bật/tắt"
-                        >
-                          <Power className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => setConfirmDelete(q)} className="p-1.5 text-slate-400 hover:text-red-500 cursor-pointer transition-colors rounded hover:bg-red-50 dark:hover:bg-red-950/20" title="Xóa">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+      <div className="card enter enter-2" style={{ padding: 0, overflow: 'hidden' }}>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', fontSize: 13.5, borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>
+                <th style={{ padding: '10px 14px', textAlign: 'left', width: 40, background: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}>
+                  <Checkbox checked={selectedIds.length === questions.length && questions.length > 0} onCheckedChange={toggleAll} className="cursor-pointer" />
+                </th>
+                {['Câu hỏi', 'Loại', 'Độ khó', 'Trạng thái', 'Thao tác'].map(h => (
+                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 800, letterSpacing: '.07em', textTransform: 'uppercase', color: 'var(--ink-3)', background: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}>{h}</th>
                 ))}
-              </tbody>
-            </table>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                Array(8).fill(0).map((_, i) => (
+                  <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
+                    {[1,2,3,4,5,6].map(j => <td key={j} style={{ padding: '12px 14px' }}><div style={{ height: 14, background: 'var(--surface-3)', borderRadius: 6 }} /></td>)}
+                  </tr>
+                ))
+              ) : questions.map((q: AdminQuestionResponse) => (
+                <QRow
+                  key={q.id}
+                  q={q}
+                  selected={selectedIds.includes(q.id)}
+                  onToggle={() => toggleSelect(q.id)}
+                  onPreview={() => setPreviewQuestion(q)}
+                  onEdit={() => openEdit(q)}
+                  onToggleStatus={() => statusMutation.mutate({ id: q.id, status: q.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE' })}
+                  onDelete={() => setConfirmDelete(q)}
+                  getLabel={getLabel}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="row" style={{ alignItems: 'center', justifyContent: 'space-between', padding: '12px 18px', borderTop: '1px solid var(--border)' }}>
+          <p style={{ fontSize: 13, color: 'var(--ink-3)' }}>Trang {page + 1} / {totalPages || 1}</p>
+          <div className="row" style={{ gap: 8 }}>
+            <button className="btn3d ghost sm" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}><ChevronLeft size={15} /></button>
+            <button className="btn3d ghost sm" onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1}><ChevronRight size={15} /></button>
           </div>
-          <div className="flex items-center justify-between p-4 border-t border-slate-100 dark:border-slate-800">
-            <p className="text-sm text-slate-500">Trang {page + 1} / {totalPages || 1}</p>
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0} className="cursor-pointer"><ChevronLeft className="w-4 h-4" /></Button>
-              <Button size="sm" variant="outline" onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1} className="cursor-pointer"><ChevronRight className="w-4 h-4" /></Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={() => closeDialog()}>
@@ -401,8 +367,6 @@ export default function AdminQuestionsPage() {
               <div><Label htmlFor="q-time">Thời gian (giây)</Label><Input id="q-time" type="number" value={formData.timeLimitSeconds ?? 60} onChange={e => setFormData(f => ({ ...f, timeLimitSeconds: Number(e.target.value) }))} /></div>
               <div><Label htmlFor="q-ref">Tham khảo</Label><Input id="q-ref" value={formData.referenceUrl ?? ''} onChange={e => setFormData(f => ({ ...f, referenceUrl: e.target.value }))} placeholder="URL" /></div>
             </div>
-
-            {/* Options */}
             <div>
               <div className="flex items-center justify-between mb-2">
                 <Label>Đáp án ({formData.options.length})</Label>
@@ -435,7 +399,6 @@ export default function AdminQuestionsPage() {
                 ))}
               </div>
             </div>
-
             <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="w-full bg-primary hover:bg-slate-800 text-white cursor-pointer">
               {(createMutation.isPending || updateMutation.isPending) ? 'Đang lưu...' : editingQuestion ? 'Cập nhật' : 'Tạo câu hỏi'}
             </Button>
@@ -450,10 +413,10 @@ export default function AdminQuestionsPage() {
           {previewQuestion && (
             <div className="space-y-4 pt-2">
               <div className="flex items-center gap-2 flex-wrap">
-                <Badge variant="secondary" className="text-xs">{getLabel('constants.questionTypes', previewQuestion.type)}</Badge>
-                <Badge className={cn('text-xs', DIFF_COLORS[previewQuestion.difficulty])}>{getLabel('constants.questionDifficulties', previewQuestion.difficulty)}</Badge>
-                <Badge className={cn('text-xs', STATUS_COLORS[previewQuestion.status])}>{getLabel('constants.questionStatuses', previewQuestion.status)}</Badge>
-                {previewQuestion.domainName && <Badge variant="secondary" className="text-xs">{previewQuestion.domainName}</Badge>}
+                <span className="codechip">{getLabel('constants.questionTypes', previewQuestion.type)}</span>
+                <DiffPill diff={previewQuestion.difficulty} />
+                <QStatusPill status={previewQuestion.status} />
+                {previewQuestion.domainName && <span className="codechip">{previewQuestion.domainName}</span>}
               </div>
               <p className="text-slate-900 dark:text-white font-medium">{previewQuestion.content}</p>
               <div className="space-y-2">
@@ -520,7 +483,62 @@ export default function AdminQuestionsPage() {
   )
 }
 
-// Domain selector component - picks certification first, then domain
+function QRow({ q, selected, onToggle, onPreview, onEdit, onToggleStatus, onDelete, getLabel }: {
+  q: AdminQuestionResponse
+  selected: boolean
+  onToggle: () => void
+  onPreview: () => void
+  onEdit: () => void
+  onToggleStatus: () => void
+  onDelete: () => void
+  getLabel: (ns: string, v: string) => string
+}) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <tr
+      style={{ borderBottom: '1px solid var(--border)', background: hovered ? 'var(--surface-2)' : 'transparent', transition: 'background .12s' }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <td style={{ padding: '10px 14px' }}>
+        <Checkbox checked={selected} onCheckedChange={onToggle} className="cursor-pointer" />
+      </td>
+      <td style={{ padding: '10px 14px', maxWidth: 300 }}>
+        <p style={{ fontSize: 13.5, color: 'var(--ink)', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{q.content}</p>
+        <div className="row" style={{ gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
+          {q.domainName && <span className="codechip" style={{ fontSize: 11 }}>{q.domainName}</span>}
+          {q.questionCode && <span className="codechip" style={{ fontSize: 11 }}>#{q.questionCode}</span>}
+        </div>
+      </td>
+      <td style={{ padding: '10px 14px' }}>
+        <span className="codechip" style={{ fontSize: 11 }}>{getLabel('constants.questionTypes', q.type)}</span>
+      </td>
+      <td style={{ padding: '10px 14px' }}>
+        <DiffPill diff={q.difficulty} />
+      </td>
+      <td style={{ padding: '10px 14px' }}>
+        <QStatusPill status={q.status} />
+      </td>
+      <td style={{ padding: '10px 14px' }}>
+        <div className="row" style={{ alignItems: 'center', gap: 4 }}>
+          <button onClick={onPreview} className="iconbtn" style={{ width: 30, height: 30 }} title="Xem">
+            <Eye size={14} />
+          </button>
+          <button onClick={onEdit} className="iconbtn" style={{ width: 30, height: 30 }} title="Sửa">
+            <Edit2 size={14} />
+          </button>
+          <button onClick={onToggleStatus} className="iconbtn" style={{ width: 30, height: 30, color: q.status === 'ACTIVE' ? 'var(--brand)' : 'var(--ink-3)' }} title="Bật/tắt">
+            <Power size={14} />
+          </button>
+          <button onClick={onDelete} className="iconbtn" style={{ width: 30, height: 30, color: 'var(--hard)' }} title="Xóa">
+            <Trash2 size={14} />
+          </button>
+        </div>
+      </td>
+    </tr>
+  )
+}
+
 function DomainSelector({ certs, value, onChange }: { certs: CertificationResponse[]; value: number; onChange: (v: number) => void }) {
   const [certId, setCertId] = useState('')
 

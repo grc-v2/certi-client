@@ -1,17 +1,32 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react'
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  ReactNode,
+} from 'react'
+import { createPortal } from 'react-dom'
 import { ChevronDown } from 'lucide-react'
 
-const SelectContext = createContext<{
+type SelectContextValue = {
   value: string
   setValue: (val: string) => void
   open: boolean
   setOpen: (open: boolean) => void
   labels: Record<string, ReactNode>
-} | null>(null)
+  registerTrigger: (el: HTMLButtonElement | null) => void
+  triggerEl: HTMLButtonElement | null
+}
+
+const SelectContext = createContext<SelectContextValue | null>(null)
 
 export function Select({ defaultValue, value, onValueChange, children }: any) {
   const [selectedValue, setSelectedValue] = useState(defaultValue || '')
   const [open, setOpen] = useState(false)
+  const [triggerEl, setTriggerEl] = useState<HTMLButtonElement | null>(null)
   const currentVal = value !== undefined ? value : selectedValue
   const setCurrentVal = onValueChange || setSelectedValue
 
@@ -31,7 +46,17 @@ export function Select({ defaultValue, value, onValueChange, children }: any) {
   traverse(children)
 
   return (
-    <SelectContext.Provider value={{ value: currentVal, setValue: setCurrentVal, open, setOpen, labels }}>
+    <SelectContext.Provider
+      value={{
+        value: currentVal,
+        setValue: setCurrentVal,
+        open,
+        setOpen,
+        labels,
+        registerTrigger: setTriggerEl,
+        triggerEl,
+      }}
+    >
       <div className="relative inline-block w-full">{children}</div>
     </SelectContext.Provider>
   )
@@ -39,10 +64,22 @@ export function Select({ defaultValue, value, onValueChange, children }: any) {
 
 export function SelectTrigger({ className, children, ...props }: any) {
   const context = useContext(SelectContext)
+  const localRef = useRef<HTMLButtonElement | null>(null)
+
+  // Bridge the ref into context so SelectContent can position relative to it.
+  const setRef = useCallback(
+    (el: HTMLButtonElement | null) => {
+      localRef.current = el
+      context?.registerTrigger(el)
+    },
+    [context]
+  )
+
   if (!context) return null
   return (
     <button
       type="button"
+      ref={setRef}
       onClick={() => context.setOpen(!context.open)}
       className={`flex h-10 w-full items-center justify-between rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary ${className}`}
       {...props}
@@ -56,29 +93,81 @@ export function SelectTrigger({ className, children, ...props }: any) {
 export function SelectValue({ placeholder }: any) {
   const context = useContext(SelectContext)
   if (!context) return null
-  
-  const displayLabel = context.labels[context.value] !== undefined 
-    ? context.labels[context.value] 
-    : (context.value || placeholder)
-    
+
+  const displayLabel =
+    context.labels[context.value] !== undefined
+      ? context.labels[context.value]
+      : context.value || placeholder
+
   return <span>{displayLabel}</span>
 }
 
-export function SelectContent({ className, children, ...props }: any) {
-  const context = useContext(SelectContext)
-  if (!context) return null
-  if (!context.open) return null
+type Rect = { top: number; left: number; width: number; height: number }
 
-  return (
+function useTriggerRect(triggerEl: HTMLButtonElement | null, open: boolean): Rect | null {
+  const [rect, setRect] = useState<Rect | null>(null)
+
+  const measure = useCallback(() => {
+    if (!triggerEl) return
+    const r = triggerEl.getBoundingClientRect()
+    setRect({ top: r.top, left: r.left, width: r.width, height: r.height })
+  }, [triggerEl])
+
+  useLayoutEffect(() => {
+    if (!open) {
+      setRect(null)
+      return
+    }
+    measure()
+  }, [open, measure])
+
+  useEffect(() => {
+    if (!open) return
+    const onChange = () => measure()
+    window.addEventListener('scroll', onChange, true)
+    window.addEventListener('resize', onChange)
+    return () => {
+      window.removeEventListener('scroll', onChange, true)
+      window.removeEventListener('resize', onChange)
+    }
+  }, [open, measure])
+
+  return rect
+}
+
+export function SelectContent({ className, children, style, ...props }: any) {
+  const context = useContext(SelectContext)
+  const rect = useTriggerRect(context?.triggerEl ?? null, !!context?.open)
+
+  if (!context || !context.open || typeof document === 'undefined') return null
+
+  // Until the trigger rect is measured, hide the menu to avoid a flicker at (0,0).
+  const positionStyle: React.CSSProperties = rect
+    ? {
+        position: 'fixed',
+        top: rect.top + rect.height + 4,
+        left: rect.left,
+        width: rect.width,
+        zIndex: 1000,
+      }
+    : { position: 'fixed', visibility: 'hidden', zIndex: 1000 }
+
+  return createPortal(
     <>
-      <div className="fixed inset-0 z-40" onClick={() => context.setOpen(false)} />
       <div
-        className={`absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-1 shadow-md ${className}`}
+        className="fixed inset-0"
+        style={{ zIndex: 999 }}
+        onClick={() => context.setOpen(false)}
+      />
+      <div
+        className={`max-h-60 overflow-auto rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-1 shadow-md ${className ?? ''}`}
+        style={{ ...positionStyle, ...style }}
         {...props}
       >
         {children}
       </div>
-    </>
+    </>,
+    document.body
   )
 }
 
@@ -94,7 +183,9 @@ export function SelectItem({ value, children, ...props }: any) {
         context.setOpen(false)
       }}
       className={`relative flex w-full cursor-pointer select-none items-center rounded-md py-1.5 pl-3 pr-9 text-sm outline-none hover:bg-slate-100 dark:hover:bg-slate-800 ${
-        isSelected ? 'bg-primary/10 text-primary font-semibold dark:bg-primary/20 dark:text-blue-400' : 'text-slate-900 dark:text-slate-200'
+        isSelected
+          ? 'bg-primary/10 text-primary font-semibold dark:bg-primary/20 dark:text-blue-400'
+          : 'text-slate-900 dark:text-slate-200'
       }`}
       {...props}
     >

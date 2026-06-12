@@ -2,21 +2,63 @@ import { useState, useEffect } from 'react'
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/store/auth-store'
 import {
-  LayoutDashboard, Users, FileText, GraduationCap,
-  Bell, FileSpreadsheet, ArrowLeft, HelpCircle, ChevronRight, X, Menu
+  LayoutDashboard, Users, GraduationCap, Sparkles, BookOpen,
+  FileText, Bell, ClipboardList, Menu, X, Sun, Moon,
+  ArrowLeft,
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Avatar } from 'antd'
 
 const adminNavItems = [
-  { href: '/admin/dashboard', icon: LayoutDashboard, label: 'Tổng quan Admin', description: 'Thống kê hệ thống' },
-  { href: '/admin/users', icon: Users, label: 'Quản lý Học viên', description: 'Danh sách và phân quyền' },
-  { href: '/admin/certifications', icon: GraduationCap, label: 'Quản lý Chứng chỉ', description: 'Cấu hình lộ trình' },
-  { href: '/admin/questions', icon: HelpCircle, label: 'Ngân hàng Câu hỏi', description: 'Kho đề thi & câu hỏi' },
-  { href: '/admin/posts', icon: FileText, label: 'Quản lý Bài viết', description: 'Kiểm duyệt cộng đồng' },
-  { href: '/admin/notifications', icon: Bell, label: 'Quản lý Thông báo', description: 'Thông báo hệ thống' },
-  { href: '/admin/audit', icon: FileSpreadsheet, label: 'Nhật ký Audit', description: 'Giám sát hoạt động' },
+  { href: '/admin/dashboard', icon: LayoutDashboard, label: 'Tổng quan' },
+  { href: '/admin/users', icon: Users, label: 'Học viên' },
+  { href: '/admin/certifications', icon: GraduationCap, label: 'Chứng chỉ' },
+  { href: '/admin/courses', icon: BookOpen, label: 'Khoá học' },
+  { href: '/admin/questions', icon: Sparkles, label: 'Câu hỏi' },
+  { href: '/admin/posts', icon: FileText, label: 'Bài viết' },
+  { href: '/admin/notifications', icon: Bell, label: 'Thông báo' },
+  { href: '/admin/audit', icon: ClipboardList, label: 'Nhật ký' },
 ]
+
+const ROUTE_TITLES: Record<string, string> = {
+  '/admin/dashboard': 'Tổng quan hệ thống',
+  '/admin/users': 'Học viên',
+  '/admin/certifications': 'Chứng chỉ',
+  '/admin/courses': 'Khoá học',
+  '/admin/questions': 'Ngân hàng đề',
+  '/admin/posts': 'Bài viết',
+  '/admin/notifications': 'Thông báo',
+  '/admin/audit': 'Nhật ký hoạt động',
+}
+
+function getTitle(pathname: string): string {
+  if (ROUTE_TITLES[pathname]) return ROUTE_TITLES[pathname]
+  for (const [key, val] of Object.entries(ROUTE_TITLES)) {
+    if (pathname.startsWith(key + '/')) return val
+  }
+  return 'Admin'
+}
+
+export function StatusPill({ status }: { status: string }) {
+  if (status === 'ACTIVE' || status === 'PUBLISHED') {
+    return <span className="pill brand">{status === 'ACTIVE' ? 'Hoạt động' : 'Published'}</span>
+  }
+  if (status === 'INACTIVE' || status === 'BANNED') {
+    return <span className="pill hard">{status === 'INACTIVE' ? 'Vô hiệu' : 'Banned'}</span>
+  }
+  if (status === 'PENDING_REVIEW' || status === 'IN_REVIEW' || status === 'PENDING') {
+    return <span className="pill gold">{status === 'PENDING_REVIEW' ? 'Chờ duyệt' : status === 'IN_REVIEW' ? 'Đang duyệt' : 'Pending'}</span>
+  }
+  if (status === 'DRAFT') {
+    return <span className="pill" style={{ background: 'var(--surface-3)', color: 'var(--ink-3)' }}>Draft</span>
+  }
+  return <span className="pill" style={{ background: 'var(--surface-3)', color: 'var(--ink-3)' }}>{status}</span>
+}
+
+export function RolePill({ role }: { role: string }) {
+  if (role === 'ADMIN') {
+    return <span className="pill violet">Admin</span>
+  }
+  return <span className="pill" style={{ background: 'var(--surface-3)', color: 'var(--ink-2)' }}>User</span>
+}
 
 export default function AdminLayout() {
   const { user, isAuthenticated, isAdmin } = useAuthStore()
@@ -24,6 +66,7 @@ export default function AdminLayout() {
   const location = useLocation()
   const pathname = location.pathname
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'))
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -34,9 +77,7 @@ export default function AdminLayout() {
     }
   }, [isAuthenticated, isAdmin, navigate, location])
 
-  if (!isAuthenticated || !isAdmin()) {
-    return null
-  }
+  if (!isAuthenticated || !isAdmin()) return null
 
   const initials =
     user?.fullName
@@ -46,119 +87,167 @@ export default function AdminLayout() {
       .slice(0, 2)
       .toUpperCase() || 'A'
 
-  return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-      {/* Top Header - Matching Client TopNav styles */}
-      <header className="fixed top-4 left-4 lg:left-[17.5rem] right-4 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl safe-area-top flex flex-col shadow-sm transition-all duration-300">
-        <div className="h-14 flex items-center px-4 justify-between">
-          <div className="flex items-center gap-3">
-            <button 
-              className="lg:hidden p-2 -ml-2 rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-            >
-              {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-            <Link to="/dashboard" className="hidden lg:flex items-center gap-1 font-medium text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors no-underline">
-              <ArrowLeft className="w-4 h-4" />
-              <span className="text-sm">Về Client</span>
-            </Link>
-            <div className="hidden lg:block h-4 w-[1px] bg-slate-200 dark:bg-slate-700" />
-            <span className="font-extrabold text-slate-900 dark:text-white tracking-tight">CertiMaster Admin</span>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-slate-500 font-semibold hidden md:inline">Đang đăng nhập:</span>
-            <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700">
-              <Avatar src={user?.avatarUrl ?? undefined} className="bg-primary flex-shrink-0" size={24}>
-                {initials}
-              </Avatar>
-              <span className="text-xs font-bold text-slate-700 dark:text-slate-200 hidden sm:inline">
-                {user?.fullName} (ADMIN)
-              </span>
-            </div>
-          </div>
-        </div>
-      </header>
+  const title = getTitle(pathname)
 
-      {/* Overlay */}
+  function toggleTheme() {
+    const isDark = document.documentElement.classList.toggle('dark')
+    setDark(isDark)
+  }
+
+  const SidebarContent = () => (
+    <>
+      {/* Brandmark */}
+      <div className="brandmark">
+        <div className="glyph">C</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 16, color: 'var(--ink)', letterSpacing: '-0.02em' }}>Certi Hub</div>
+        </div>
+        <span className="pill violet" style={{ fontSize: 10, padding: '2px 8px', letterSpacing: '.06em' }}>QUẢN TRỊ</span>
+      </div>
+
+      {/* Nav */}
+      <nav style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 2 }} className="scroll-area">
+        {adminNavItems.map((item) => {
+          const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+          return (
+            <Link
+              key={item.href}
+              to={item.href}
+              onClick={() => setSidebarOpen(false)}
+              className={`navlink${isActive ? ' active' : ''}`}
+            >
+              <item.icon size={18} strokeWidth={2} style={{ flexShrink: 0 }} />
+              <span>{item.label}</span>
+            </Link>
+          )
+        })}
+      </nav>
+
+      {/* Bottom warning + back link */}
+      <div style={{ paddingTop: 14 }}>
+        <div className="card" style={{ padding: '12px 14px', background: 'var(--gold-soft)', borderColor: 'var(--gold-deep)', marginBottom: 10 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--gold-deep)', marginBottom: 4 }}>Cẩn trọng</p>
+          <p style={{ fontSize: 11, color: 'var(--ink-2)', lineHeight: 1.5 }}>Cẩn trọng khi thay đổi dữ liệu hệ thống.</p>
+        </div>
+        <Link
+          to="/dashboard"
+          className="navlink"
+          style={{ justifyContent: 'center', gap: 8 }}
+        >
+          <ArrowLeft size={15} />
+          <span style={{ fontSize: 13 }}>← Về giao diện học viên</span>
+        </Link>
+      </div>
+    </>
+  )
+
+  return (
+    <div className="shell">
+      {/* Desktop sidebar */}
+      <aside className="sidebar admin-sidebar" style={{ display: undefined }}>
+        <SidebarContent />
+      </aside>
+
+      {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(0,0,0,.45)' }}
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar - Matching Client Sidebar styles */}
+      {/* Mobile drawer — uses admin-sidebar class for theme but NOT .sidebar (which is hidden on mobile) */}
       <aside
-        className={cn(
-          'fixed top-4 left-4 bottom-4 z-40 w-64 rounded-2xl bg-white dark:bg-primary border border-slate-200 dark:border-slate-800 shadow-sm',
-          'transition-transform duration-300 ease-in-out flex flex-col',
-          'lg:translate-x-0',
-          sidebarOpen ? 'translate-x-0' : '-translate-x-[calc(100%+1rem)]'
-        )}
+        className="admin-sidebar"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          bottom: 0,
+          zIndex: 60,
+          width: 'var(--nav-w)',
+          flexShrink: 0,
+          background: 'var(--surface)',
+          borderRight: '1px solid var(--border)',
+          display: 'flex',
+          flexDirection: 'column',
+          padding: '18px 14px',
+          gap: 4,
+          transform: sidebarOpen ? 'translateX(0)' : 'translateX(-110%)',
+          transition: 'transform .25s cubic-bezier(.16,1,.3,1)',
+        }}
       >
-        <div className="flex items-center justify-between p-4 lg:hidden">
-          <span className="font-semibold text-slate-900 dark:text-white">Admin Menu</span>
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors text-slate-600 dark:text-slate-300"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        <nav className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-hide mt-2 lg:mt-4">
-          {adminNavItems.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
-            return (
-              <Link
-                key={item.href}
-                to={item.href}
-                onClick={() => setSidebarOpen(false)}
-                className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-all duration-200 group no-underline',
-                  isActive
-                    ? 'bg-primary/10 text-primary dark:bg-cta/10 dark:text-cta'
-                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
-                )}
-              >
-                <item.icon className={cn('w-5 h-5 flex-shrink-0', isActive ? 'text-primary dark:text-cta' : 'text-slate-400')} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">{item.label}</span>
-                  </div>
-                  <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate m-0">{item.description}</p>
-                </div>
-                <ChevronRight
-                  className={cn(
-                    'w-3.5 h-3.5 transition-transform flex-shrink-0',
-                    isActive ? 'text-primary dark:text-cta' : 'text-slate-300 group-hover:translate-x-0.5'
-                  )}
-                />
-              </Link>
-            )
-          })}
-        </nav>
-
-        <div className="p-4 border-t border-slate-100 dark:border-slate-800">
-          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-100 dark:border-slate-800/50">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 m-0">Trang quản trị</p>
-            <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 m-0">Vui lòng cẩn trọng khi thực hiện thay đổi dữ liệu hệ thống.</p>
-            <Link to="/dashboard">
-              <button className="w-full mt-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-xs font-semibold py-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors flex items-center justify-center gap-1 lg:hidden">
-                <ArrowLeft className="w-3 h-3" /> Về Client
-              </button>
-            </Link>
-          </div>
-        </div>
+        <button
+          onClick={() => setSidebarOpen(false)}
+          className="iconbtn"
+          style={{ position: 'absolute', top: 14, right: 14, width: 32, height: 32 }}
+        >
+          <X size={16} />
+        </button>
+        <SidebarContent />
       </aside>
 
-      {/* Main Content Area - Matching Client Layout padding */}
-      <main className="lg:pl-[17.5rem] pt-24 pb-6 min-h-screen">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-          <Outlet />
+      <div className="main">
+        {/* Topbar */}
+        <div className="topbar">
+          <button
+            id="admin-menu-btn"
+            className="iconbtn"
+            style={{ width: 36, height: 36 }}
+            onClick={() => setSidebarOpen(true)}
+          >
+            <Menu size={18} />
+          </button>
+          <h2 style={{ flex: 1, fontSize: 18, fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.02em' }}>{title}</h2>
+
+          {/* Search */}
+          <div
+            className="admin-topbar-search row"
+            style={{ alignItems: 'center', gap: 8, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', padding: '6px 12px', minWidth: 220 }}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ color: 'var(--ink-3)', flexShrink: 0 }}>
+              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+            </svg>
+            <input
+              placeholder="Tìm kiếm..."
+              style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13.5, color: 'var(--ink)', width: '100%', fontFamily: 'var(--font-body)' }}
+            />
+          </div>
+
+          {/* Bell */}
+          <button className="iconbtn" style={{ width: 36, height: 36 }}>
+            <Bell size={17} />
+          </button>
+
+          {/* Theme toggle */}
+          <button className="iconbtn" style={{ width: 36, height: 36 }} onClick={toggleTheme}>
+            {dark ? <Sun size={17} /> : <Moon size={17} />}
+          </button>
+
+          {/* User avatar pill */}
+          <div
+            className="itile row"
+            style={{ gap: 8, padding: '5px 10px 5px 5px', background: 'var(--violet-soft)', borderRadius: 'var(--radius-sm)', cursor: 'default' }}
+          >
+            <div
+              className="itile"
+              style={{ width: 28, height: 28, background: 'var(--violet)', color: '#fff', fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 12 }}
+            >
+              {initials}
+            </div>
+            <div className="col" style={{ gap: 0 }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)', lineHeight: 1.2 }}>{user?.fullName}</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--violet)' }}>Admin</span>
+            </div>
+          </div>
         </div>
-      </main>
+
+        <div className="content scroll-area">
+          <div className="content-inner">
+            <Outlet />
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

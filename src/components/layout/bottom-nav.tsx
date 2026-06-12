@@ -1,41 +1,27 @@
 import { Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, GraduationCap, FileText, Bell, User } from 'lucide-react'
-import { Badge } from 'antd'
-import { cn } from '@/lib/utils'
+import { LayoutDashboard, GraduationCap, BookOpen, Dumbbell, Users } from 'lucide-react'
 
-const items = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Home' },
-  { href: '/certifications', icon: GraduationCap, label: 'Chứng chỉ' },
-  { href: '/community', icon: FileText, label: 'Cộng đồng' },
-  { href: '/notifications', icon: Bell, label: 'Thông báo', badge: 3 },
-  { href: '/profile/me', icon: User, label: 'Hồ sơ' },
+const ITEMS = [
+  { href: '/dashboard',      icon: LayoutDashboard, label: 'Tổng quan'  },
+  { href: '/certifications', icon: GraduationCap,   label: 'Chứng chỉ' },
+  { href: '/courses',        icon: BookOpen,        label: 'Khoá học'   },
+  { href: '/practice',       icon: Dumbbell,        label: 'Luyện tập'  },
+  { href: '/community',      icon: Users,           label: 'Cộng đồng'  },
 ]
 
 export function BottomNav() {
-  const location = useLocation()
-  const pathname = location.pathname
+  const { pathname } = useLocation()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex lg:hidden pb-safe">
-      {items.map((item) => {
-        const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+    <nav className="botnav">
+      {ITEMS.map(item => {
+        const active =
+          pathname === item.href ||
+          (item.href !== '/certifications' && pathname.startsWith(item.href + '/'))
         return (
-          <Link
-            key={item.href}
-            to={item.href}
-            className={cn(
-              'flex-1 flex flex-col items-center gap-1 py-2 px-1 cursor-pointer transition-colors',
-              isActive
-                ? 'text-primary'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-            )}
-          >
-            <div className="relative flex items-center justify-center">
-              <Badge count={item.badge} size="small" offset={[5, -2]}>
-                <item.icon className="w-5 h-5 text-current" />
-              </Badge>
-            </div>
-            <span className="text-[10px] font-medium">{item.label}</span>
+          <Link key={item.href} to={item.href} className={active ? 'active' : ''}>
+            <item.icon size={22} strokeWidth={active ? 2.4 : 2} />
+            {item.label}
           </Link>
         )
       })}

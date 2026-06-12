@@ -4,27 +4,35 @@ import { useQuery } from '@tanstack/react-query'
 import {
   ClipboardList, Search, ChevronLeft, ChevronRight, Eye, Calendar, Filter,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { adminApi, type AuditLogResponse } from '@/lib/api/admin'
-import { cn } from '@/lib/utils'
 
-const METHOD_COLORS: Record<string, string> = {
-  GET: 'bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400',
-  POST: 'bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400',
-  PUT: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/50 dark:text-yellow-400',
-  PATCH: 'bg-orange-100 text-orange-700 dark:bg-orange-950/50 dark:text-orange-400',
-  DELETE: 'bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400',
+const METHOD_STYLE: Record<string, { bg: string; color: string }> = {
+  GET:    { bg: '#2E7DF618', color: '#2E7DF6' },
+  POST:   { bg: 'var(--brand-soft)', color: 'var(--brand)' },
+  PUT:    { bg: 'var(--gold-soft)', color: 'var(--gold-deep)' },
+  PATCH:  { bg: '#F4943B18', color: '#F4943B' },
+  DELETE: { bg: 'var(--hard-soft)', color: 'var(--hard)' },
 }
 
 function formatDatetime(dt: string) {
   if (!dt) return '-'
   const d = new Date(dt)
   return d.toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })
+}
+
+function HttpMethodChip({ method }: { method: string }) {
+  const s = METHOD_STYLE[method] ?? { bg: 'var(--surface-3)', color: 'var(--ink-3)' }
+  return (
+    <span className="codechip" style={{ fontSize: 11, background: s.bg, color: s.color, border: 'none' }}>{method}</span>
+  )
+}
+
+function StatusCodePill({ code }: { code: number }) {
+  if (code < 400) return <span className="pill brand" style={{ fontSize: 11 }}>{code}</span>
+  return <span className="pill hard" style={{ fontSize: 11 }}>{code}</span>
 }
 
 export default function AdminAuditPage() {
@@ -49,17 +57,24 @@ export default function AdminAuditPage() {
   const total = data?.totalElements ?? 0
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <ClipboardList className="w-6 h-6 text-primary" />Audit Log
-        </h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">{total} bản ghi</p>
+    <div className="col" style={{ gap: 20 }}>
+      {/* Header */}
+      <div className="row enter" style={{ alignItems: 'flex-start', gap: 12 }}>
+        <div>
+          <span className="eyebrow">Quản trị</span>
+          <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--ink)', marginTop: 6 }}>
+            <span className="row" style={{ alignItems: 'center', gap: 8 }}>
+              <ClipboardList size={22} style={{ color: 'var(--violet)' }} />
+              Nhật ký hoạt động
+            </span>
+          </h1>
+          <p style={{ color: 'var(--ink-3)', fontSize: 13.5, marginTop: 4 }}>{total} bản ghi</p>
+        </div>
       </div>
 
       {/* Filters */}
-      <Card className="border-slate-200 dark:border-slate-700">
-        <CardContent className="p-4 flex flex-wrap gap-3">
+      <div className="card enter enter-1" style={{ padding: '14px 16px' }}>
+        <div className="row" style={{ gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
           <Select value={resourceType} onValueChange={v => { setResourceType(v ?? ''); setPage(0) }}>
             <SelectTrigger className="w-full sm:w-44 cursor-pointer">
               <Filter className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
@@ -75,95 +90,55 @@ export default function AdminAuditPage() {
               <SelectItem value="SESSION">Session</SelectItem>
             </SelectContent>
           </Select>
-          <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-slate-400" />
+          <div className="row" style={{ alignItems: 'center', gap: 8 }}>
+            <Calendar size={15} style={{ color: 'var(--ink-3)', flexShrink: 0 }} />
             <Input type="date" value={fromDate} onChange={e => { setFromDate(e.target.value); setPage(0) }} className="w-40" />
-            <span className="text-slate-400">-</span>
+            <span style={{ color: 'var(--ink-3)' }}>-</span>
             <Input type="date" value={toDate} onChange={e => { setToDate(e.target.value); setPage(0) }} className="w-40" />
           </div>
           {(resourceType || fromDate || toDate) && (
-            <Button variant="outline" size="sm" onClick={() => { setResourceType(''); setFromDate(''); setToDate(''); setPage(0) }} className="cursor-pointer">
+            <button
+              className="btn3d ghost sm"
+              onClick={() => { setResourceType(''); setFromDate(''); setToDate(''); setPage(0) }}
+            >
               Xóa bộ lọc
-            </Button>
+            </button>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Table */}
-      <Card className="border-slate-200 dark:border-slate-700">
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-800">
-                  <th className="p-3 text-left font-medium text-slate-500">Thời gian</th>
-                  <th className="p-3 text-left font-medium text-slate-500">Actor</th>
-                  <th className="p-3 text-left font-medium text-slate-500 hidden sm:table-cell">Method</th>
-                  <th className="p-3 text-left font-medium text-slate-500">Action</th>
-                  <th className="p-3 text-left font-medium text-slate-500 hidden md:table-cell">Resource</th>
-                  <th className="p-3 text-left font-medium text-slate-500 hidden lg:table-cell">Status</th>
-                  <th className="p-3 text-left font-medium text-slate-500">Chi tiết</th>
-                </tr>
-              </thead>
-              <tbody>
-                {isLoading ? (
-                  Array(10).fill(0).map((_, i) => (
-                    <tr key={i} className="border-b border-slate-50 dark:border-slate-800/50">
-                      {[1,2,3,4,5,6,7].map(j => <td key={j} className="p-3"><div className="h-4 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" /></td>)}
-                    </tr>
-                  ))
-                ) : logs.map(log => (
-                  <tr key={log.id} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                    <td className="p-3 text-xs text-slate-500 whitespace-nowrap">{formatDatetime(log.occurredAt)}</td>
-                    <td className="p-3">
-                      <span className="text-sm font-medium text-slate-900 dark:text-white">{log.actorUsername ?? `#${log.actorId}`}</span>
-                    </td>
-                    <td className="p-3 hidden sm:table-cell">
-                      {log.httpMethod && (
-                        <Badge className={cn('text-xs font-mono', METHOD_COLORS[log.httpMethod] ?? 'bg-slate-100 text-slate-600')}>{log.httpMethod}</Badge>
-                      )}
-                    </td>
-                    <td className="p-3">
-                      <span className="text-sm text-slate-700 dark:text-slate-300">{log.action}</span>
-                    </td>
-                    <td className="p-3 hidden md:table-cell">
-                      <div className="flex items-center gap-1.5">
-                        {log.resourceType && <Badge variant="secondary" className="text-xs">{log.resourceType}</Badge>}
-                        {log.resourceId && <span className="text-xs text-slate-400">#{log.resourceId}</span>}
-                      </div>
-                    </td>
-                    <td className="p-3 hidden lg:table-cell">
-                      <div className="flex items-center gap-2">
-                        {log.statusCode && (
-                          <Badge className={cn('text-xs', log.statusCode < 400 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700')}>
-                            {log.statusCode}
-                          </Badge>
-                        )}
-                        {log.durationMs != null && <span className="text-xs text-slate-400">{log.durationMs}ms</span>}
-                      </div>
-                    </td>
-                    <td className="p-3">
-                      <button
-                        onClick={() => setDetailLog(log)}
-                        className="p-1.5 text-slate-400 hover:text-primary cursor-pointer transition-colors rounded hover:bg-primary/10"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                    </td>
-                  </tr>
+      <div className="card enter enter-2" style={{ padding: 0, overflow: 'hidden' }}>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>
+                {['Thời gian', 'Actor', 'Method', 'Action', 'Resource', 'Status', 'Chi tiết'].map(h => (
+                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 800, letterSpacing: '.07em', textTransform: 'uppercase', color: 'var(--ink-3)', background: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}>{h}</th>
                 ))}
-              </tbody>
-            </table>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                Array(10).fill(0).map((_, i) => (
+                  <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
+                    {[1,2,3,4,5,6,7].map(j => <td key={j} style={{ padding: '12px 14px' }}><div style={{ height: 14, background: 'var(--surface-3)', borderRadius: 6 }} /></td>)}
+                  </tr>
+                ))
+              ) : logs.map((log: AuditLogResponse) => (
+                <AuditRow key={log.id} log={log} onView={() => setDetailLog(log)} />
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="row" style={{ alignItems: 'center', justifyContent: 'space-between', padding: '12px 18px', borderTop: '1px solid var(--border)' }}>
+          <p style={{ fontSize: 13, color: 'var(--ink-3)' }}>Trang {page + 1} / {totalPages || 1}</p>
+          <div className="row" style={{ gap: 8 }}>
+            <button className="btn3d ghost sm" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}><ChevronLeft size={15} /></button>
+            <button className="btn3d ghost sm" onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1}><ChevronRight size={15} /></button>
           </div>
-          <div className="flex items-center justify-between p-4 border-t border-slate-100 dark:border-slate-800">
-            <p className="text-sm text-slate-500">Trang {page + 1} / {totalPages || 1}</p>
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0} className="cursor-pointer"><ChevronLeft className="w-4 h-4" /></Button>
-              <Button size="sm" variant="outline" onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1} className="cursor-pointer"><ChevronRight className="w-4 h-4" /></Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Detail dialog */}
       <Dialog open={!!detailLog} onOpenChange={() => setDetailLog(null)}>
@@ -177,10 +152,9 @@ export default function AdminAuditPage() {
                 <div><span className="text-slate-500">Action:</span><p className="font-medium">{detailLog.action}</p></div>
                 <div><span className="text-slate-500">Service:</span><p className="font-medium">{detailLog.serviceName ?? '-'}</p></div>
                 <div><span className="text-slate-500">Resource:</span><p className="font-medium">{detailLog.resourceType} #{detailLog.resourceId}</p></div>
-                <div><span className="text-slate-500">Status:</span>
-                  {detailLog.statusCode && (
-                    <Badge className={cn('text-xs', detailLog.statusCode < 400 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700')}>{detailLog.statusCode}</Badge>
-                  )}
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-500">Status:</span>
+                  {detailLog.statusCode && <StatusCodePill code={detailLog.statusCode} />}
                 </div>
               </div>
               <div className="border-t border-slate-100 dark:border-slate-800 pt-3 space-y-2">
@@ -194,5 +168,42 @@ export default function AdminAuditPage() {
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+function AuditRow({ log, onView }: { log: AuditLogResponse; onView: () => void }) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <tr
+      style={{ borderBottom: '1px solid var(--border)', background: hovered ? 'var(--surface-2)' : 'transparent', transition: 'background .12s' }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <td style={{ padding: '10px 14px', fontSize: 11.5, color: 'var(--ink-3)', whiteSpace: 'nowrap', fontFamily: 'var(--font-mono)' }}>{formatDatetime(log.occurredAt)}</td>
+      <td style={{ padding: '10px 14px' }}>
+        <span style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--ink)' }}>{log.actorUsername ?? `#${log.actorId}`}</span>
+      </td>
+      <td style={{ padding: '10px 14px' }}>
+        {log.httpMethod && <HttpMethodChip method={log.httpMethod} />}
+      </td>
+      <td style={{ padding: '10px 14px', fontSize: 13, color: 'var(--ink-2)' }}>{log.action}</td>
+      <td style={{ padding: '10px 14px' }}>
+        <div className="row" style={{ alignItems: 'center', gap: 6 }}>
+          {log.resourceType && <span className="codechip" style={{ fontSize: 11 }}>{log.resourceType}</span>}
+          {log.resourceId && <span style={{ fontSize: 11, color: 'var(--ink-3)' }}>#{log.resourceId}</span>}
+        </div>
+      </td>
+      <td style={{ padding: '10px 14px' }}>
+        <div className="row" style={{ alignItems: 'center', gap: 6 }}>
+          {log.statusCode && <StatusCodePill code={log.statusCode} />}
+          {log.durationMs != null && <span style={{ fontSize: 11, color: 'var(--ink-3)' }}>{log.durationMs}ms</span>}
+        </div>
+      </td>
+      <td style={{ padding: '10px 14px' }}>
+        <button onClick={onView} className="iconbtn" style={{ width: 30, height: 30 }}>
+          <Eye size={14} />
+        </button>
+      </td>
+    </tr>
   )
 }

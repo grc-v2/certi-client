@@ -2,16 +2,13 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Search, Plus, Trash2, GraduationCap, ChevronLeft, ChevronRight, Power, Eye, Edit2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Button } from '@/components/ui/button'
 import { certificationsApi, type CertificationResponse } from '@/lib/api/certifications'
-import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { useForm, Controller } from 'react-hook-form'
 import { useDebounce } from '@/hooks/use-debounce'
@@ -20,6 +17,12 @@ import { Link } from 'react-router-dom'
 type CertForm = {
   name: string; provider: string; level: string; description: string
   passingScore: number; totalQuestions: number; durationMinutes: number; price: number
+}
+
+function CertStatusPill({ status }: { status: string }) {
+  if (status === 'ACTIVE') return <span className="pill brand">Active</span>
+  if (status === 'DRAFT') return <span className="pill gold">Draft</span>
+  return <span className="pill" style={{ background: 'var(--surface-3)', color: 'var(--ink-3)' }}>Inactive</span>
 }
 
 export default function AdminCertificationsPage() {
@@ -63,12 +66,6 @@ export default function AdminCertificationsPage() {
   const totalPages = data?.totalPages ?? 0
   const total = data?.totalElements ?? 0
 
-  const STATUS_COLORS: Record<string, string> = {
-    ACTIVE: 'bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400',
-    INACTIVE: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
-    DRAFT: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/50 dark:text-yellow-400',
-  }
-
   function openCreate() {
     setEditingCert(null)
     form.reset({ name: '', provider: '', level: '', description: '', passingScore: 70, totalQuestions: 65, durationMinutes: 130, price: 0 })
@@ -104,107 +101,77 @@ export default function AdminCertificationsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="col" style={{ gap: 20 }}>
+      {/* Header */}
+      <div className="row enter" style={{ alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <GraduationCap className="w-6 h-6 text-primary" />Quản lý chứng chỉ
+          <span className="eyebrow">Quản trị</span>
+          <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--ink)', marginTop: 6 }}>
+            <span className="row" style={{ alignItems: 'center', gap: 8 }}>
+              <GraduationCap size={22} style={{ color: 'var(--gold)' }} />
+              Quản lý chứng chỉ
+            </span>
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">{total} chứng chỉ</p>
+          <p style={{ color: 'var(--ink-3)', fontSize: 13.5, marginTop: 4 }}>{total} chứng chỉ</p>
         </div>
-        <Button onClick={openCreate} className="bg-primary hover:bg-slate-800 text-white cursor-pointer">
-          <Plus className="w-4 h-4 mr-2" />Thêm chứng chỉ
-        </Button>
+        <button className="btn3d sm" onClick={openCreate}>
+          <Plus size={15} />Thêm chứng chỉ
+        </button>
       </div>
 
-      <Card className="border-slate-200 dark:border-slate-700">
-        <CardContent className="p-4">
-          <div className="relative max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <Input placeholder="Tìm chứng chỉ..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
+      {/* Filter bar */}
+      <div className="card enter enter-1" style={{ padding: '14px 16px' }}>
+        <div className="row" style={{ gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+          <div className="row" style={{ alignItems: 'center', gap: 8, flex: 1, minWidth: 180, background: 'var(--surface-2)', borderRadius: 'var(--radius-sm)', padding: '7px 12px', border: '1px solid var(--border)' }}>
+            <Search size={14} style={{ color: 'var(--ink-3)', flexShrink: 0 }} />
+            <input
+              placeholder="Tìm chứng chỉ..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13.5, color: 'var(--ink)', width: '100%', fontFamily: 'var(--font-body)' }}
+            />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      <Card className="border-slate-200 dark:border-slate-700">
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-800">
-                  <th className="p-3 text-left font-medium text-slate-500">Chứng chỉ</th>
-                  <th className="p-3 text-left font-medium text-slate-500 hidden sm:table-cell">Provider</th>
-                  <th className="p-3 text-left font-medium text-slate-500 hidden md:table-cell">Cấp độ</th>
-                  <th className="p-3 text-left font-medium text-slate-500">Trạng thái</th>
-                  <th className="p-3 text-left font-medium text-slate-500">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                {isLoading ? (
-                  Array(6).fill(0).map((_, i) => (
-                    <tr key={i} className="border-b border-slate-50 dark:border-slate-800/50">
-                      {[1,2,3,4,5].map(j => <td key={j} className="p-3"><div className="h-4 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" /></td>)}
-                    </tr>
-                  ))
-                ) : certs.map((cert: CertificationResponse) => (
-                  <tr key={cert.id} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                    <td className="p-3">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0">
-                          <GraduationCap className="w-4 h-4 text-primary" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-medium text-slate-900 dark:text-white line-clamp-1">{cert.name}</p>
-                          <p className="text-xs text-slate-400">{cert.code}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-3 text-slate-500 hidden sm:table-cell text-xs">{cert.provider}</td>
-                    <td className="p-3 hidden md:table-cell">
-                      <Badge variant="secondary" className="text-xs">{cert.level}</Badge>
-                    </td>
-                    <td className="p-3">
-                      <Badge className={cn('text-xs', STATUS_COLORS[cert.status] ?? 'bg-slate-100 text-slate-600')}>{cert.status}</Badge>
-                    </td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-1">
-                        <Link to={`/admin/certifications/${cert.id}`}>
-                          <button className="p-1.5 text-slate-400 hover:text-primary cursor-pointer transition-colors rounded hover:bg-primary/10" title="Chi tiết">
-                            <Eye className="w-4 h-4" />
-                          </button>
-                        </Link>
-                        <button onClick={() => openEdit(cert)} className="p-1.5 text-slate-400 hover:text-primary cursor-pointer transition-colors rounded hover:bg-primary/10" title="Sửa">
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => statusMutation.mutate({ id: cert.id, status: nextStatus(cert.status) })}
-                          className={cn('p-1.5 cursor-pointer transition-colors rounded', cert.status === 'ACTIVE' ? 'text-[#22C55E] hover:bg-green-50' : 'text-slate-400 hover:text-[#22C55E] hover:bg-green-50 dark:hover:bg-green-950/20')}
-                          title={`Chuyển sang ${nextStatus(cert.status)}`}
-                        >
-                          <Power className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => setConfirmDelete(cert)}
-                          className="p-1.5 text-slate-400 hover:text-red-500 cursor-pointer transition-colors rounded hover:bg-red-50 dark:hover:bg-red-950/20"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+      {/* Table */}
+      <div className="card enter enter-2" style={{ padding: 0, overflow: 'hidden' }}>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', fontSize: 13.5, borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>
+                {['Chứng chỉ', 'Provider', 'Cấp độ', 'Trạng thái', 'Thao tác'].map(h => (
+                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 800, letterSpacing: '.07em', textTransform: 'uppercase', color: 'var(--ink-3)', background: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}>{h}</th>
                 ))}
-              </tbody>
-            </table>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                Array(6).fill(0).map((_, i) => (
+                  <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
+                    {[1,2,3,4,5].map(j => <td key={j} style={{ padding: '12px 14px' }}><div style={{ height: 14, background: 'var(--surface-3)', borderRadius: 6 }} /></td>)}
+                  </tr>
+                ))
+              ) : certs.map((cert: CertificationResponse) => (
+                <CertRow
+                  key={cert.id}
+                  cert={cert}
+                  onEdit={() => openEdit(cert)}
+                  onToggleStatus={() => statusMutation.mutate({ id: cert.id, status: nextStatus(cert.status) })}
+                  onDelete={() => setConfirmDelete(cert)}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="row" style={{ alignItems: 'center', justifyContent: 'space-between', padding: '12px 18px', borderTop: '1px solid var(--border)' }}>
+          <p style={{ fontSize: 13, color: 'var(--ink-3)' }}>Trang {page + 1} / {totalPages || 1}</p>
+          <div className="row" style={{ gap: 8 }}>
+            <button className="btn3d ghost sm" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}><ChevronLeft size={15} /></button>
+            <button className="btn3d ghost sm" onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1}><ChevronRight size={15} /></button>
           </div>
-          <div className="flex items-center justify-between p-4 border-t border-slate-100 dark:border-slate-800">
-            <p className="text-sm text-slate-500">Trang {page + 1} / {totalPages || 1}</p>
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0} className="cursor-pointer"><ChevronLeft className="w-4 h-4" /></Button>
-              <Button size="sm" variant="outline" onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1} className="cursor-pointer"><ChevronRight className="w-4 h-4" /></Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={() => closeDialog()}>
@@ -257,5 +224,58 @@ export default function AdminCertificationsPage() {
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+function CertRow({ cert, onEdit, onToggleStatus, onDelete }: {
+  cert: CertificationResponse
+  onEdit: () => void
+  onToggleStatus: () => void
+  onDelete: () => void
+}) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <tr
+      style={{ borderBottom: '1px solid var(--border)', background: hovered ? 'var(--surface-2)' : 'transparent', transition: 'background .12s' }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <td style={{ padding: '10px 14px' }}>
+        <div className="row" style={{ alignItems: 'center', gap: 10 }}>
+          <div className="itile" style={{ width: 34, height: 34, background: 'var(--gold-soft)', color: 'var(--gold)', flexShrink: 0 }}>
+            <GraduationCap size={16} />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <p style={{ fontWeight: 600, fontSize: 13.5, color: 'var(--ink)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cert.name}</p>
+            <span className="codechip" style={{ fontSize: 10.5 }}>{cert.code}</span>
+          </div>
+        </div>
+      </td>
+      <td style={{ padding: '10px 14px', fontSize: 12.5, color: 'var(--ink-2)' }}>{cert.provider}</td>
+      <td style={{ padding: '10px 14px' }}>
+        <span className="codechip" style={{ fontSize: 11 }}>{cert.level}</span>
+      </td>
+      <td style={{ padding: '10px 14px' }}>
+        <CertStatusPill status={cert.status} />
+      </td>
+      <td style={{ padding: '10px 14px' }}>
+        <div className="row" style={{ alignItems: 'center', gap: 4 }}>
+          <Link to={`/admin/certifications/${cert.id}`}>
+            <button className="iconbtn" style={{ width: 30, height: 30 }} title="Chi tiết">
+              <Eye size={14} />
+            </button>
+          </Link>
+          <button onClick={onEdit} className="iconbtn" style={{ width: 30, height: 30 }} title="Sửa">
+            <Edit2 size={14} />
+          </button>
+          <button onClick={onToggleStatus} className="iconbtn" style={{ width: 30, height: 30, color: cert.status === 'ACTIVE' ? 'var(--brand)' : 'var(--ink-3)' }} title="Đổi trạng thái">
+            <Power size={14} />
+          </button>
+          <button onClick={onDelete} className="iconbtn" style={{ width: 30, height: 30, color: 'var(--hard)' }} title="Xóa">
+            <Trash2 size={14} />
+          </button>
+        </div>
+      </td>
+    </tr>
   )
 }

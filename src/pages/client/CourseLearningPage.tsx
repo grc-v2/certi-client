@@ -1,25 +1,20 @@
-'use client'
 import { useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { 
+import {
   ArrowLeft, CheckCircle2, PlayCircle, BookOpen,
-  ChevronLeft, ChevronRight, Menu, X
+  ChevronLeft, ChevronRight, Menu, X,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
 import { toast } from 'sonner'
 import { coursesApi } from '@/lib/api/courses'
-import { cn } from '@/lib/utils'
 
 export default function CourseLearningPage() {
-  const { id, lessonId } = useParams<{ id: string, lessonId: string }>()
+  const { id, lessonId } = useParams<{ id: string; lessonId: string }>()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  
+
   const courseId = Number(id)
   const currentLessonId = Number(lessonId)
-
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const { data: course, isLoading: isLoadingCourse } = useQuery({
@@ -47,19 +42,18 @@ export default function CourseLearningPage() {
       queryClient.invalidateQueries({ queryKey: ['course', courseId] })
       queryClient.invalidateQueries({ queryKey: ['my-enrollments'] })
       queryClient.invalidateQueries({ queryKey: ['course-lesson', courseId, currentLessonId] })
-      
       if (lesson?.nextLessonId) {
         navigate(`/courses/${courseId}/learn/${lesson.nextLessonId}`)
       }
-    }
+    },
   })
 
   if (isLoadingCourse || isLoadingLesson) {
     return (
-      <div className="flex h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-          <p className="text-slate-500 font-medium">Đang tải bài học...</p>
+      <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center', background: 'var(--paper)' }}>
+        <div className="col" style={{ alignItems: 'center', gap: 14 }}>
+          <div style={{ width: 40, height: 40, border: '3px solid var(--surface-3)', borderTopColor: 'var(--brand)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+          <p style={{ color: 'var(--ink-2)', fontWeight: 500 }}>Đang tải bài học...</p>
         </div>
       </div>
     )
@@ -67,94 +61,119 @@ export default function CourseLearningPage() {
 
   if (!course || !lesson) {
     return (
-      <div className="flex h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
-        <div className="text-center">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Không tìm thấy nội dung</h2>
-          <Button onClick={() => navigate(`/courses/${courseId}`)} className="cursor-pointer">Quay lại khóa học</Button>
+      <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center', background: 'var(--paper)' }}>
+        <div style={{ textAlign: 'center' }}>
+          <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--ink)', marginBottom: 14 }}>Không tìm thấy nội dung</h2>
+          <button className="btn3d" onClick={() => navigate(`/courses/${courseId}`)}>Quay lại khoá học</button>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex h-screen bg-white dark:bg-slate-950 overflow-hidden">
-      
-      {/* Mobile Sidebar Overlay */}
+    <div style={{ display: 'flex', height: '100vh', background: 'var(--paper)', overflow: 'hidden' }}>
+
+      {/* Mobile overlay */}
       {sidebarOpen && (
-        <div 
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+        <div
           onClick={() => setSidebarOpen(false)}
+          style={{ position: 'fixed', inset: 0, zIndex: 40, background: 'rgba(0,0,0,.5)' }}
         />
       )}
 
-      {/* Curriculum Sidebar */}
-      <div className={cn(
-        "fixed inset-y-0 left-0 z-50 w-80 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col transition-transform duration-300 lg:translate-x-0 lg:static lg:flex-shrink-0",
-        sidebarOpen ? "translate-x-0" : "-translate-x-full"
-      )}>
-        {/* Sidebar Header */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
-          <Link to={`/courses/${courseId}`} className="flex items-center text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            <span className="truncate max-w-[200px]">{course.name}</span>
+      {/* Curriculum sidebar */}
+      <div style={{
+        width: 288, flexShrink: 0, background: 'var(--surface)',
+        borderRight: '1px solid var(--border)',
+        display: 'flex', flexDirection: 'column',
+        transition: 'transform .3s',
+        ...(typeof window !== 'undefined' && window.innerWidth < 900
+          ? {
+              position: 'fixed', insetY: 0, left: 0, top: 0, bottom: 0, zIndex: 50,
+              transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+            }
+          : {}),
+      }}>
+        {/* Sidebar header */}
+        <div style={{
+          height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0 18px', borderBottom: '1px solid var(--border)', flexShrink: 0,
+        }}>
+          <Link
+            to={`/courses/${courseId}`}
+            className="row"
+            style={{ gap: 8, alignItems: 'center', fontSize: 13, fontWeight: 600, color: 'var(--ink-2)', textDecoration: 'none', minWidth: 0 }}
+          >
+            <ArrowLeft size={15} />
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 180 }}>{course.name}</span>
           </Link>
-          <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg">
-            <X className="w-5 h-5" />
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="iconbtn"
+            style={{ width: 32, height: 32, flexShrink: 0 }}
+          >
+            <X size={16} />
           </button>
         </div>
 
         {/* Progress */}
         {enrollment && (
-          <div className="p-4 border-b border-slate-200 dark:border-slate-800 shrink-0 bg-white dark:bg-slate-950">
-            <div className="flex justify-between text-xs font-medium mb-2">
-              <span className="text-slate-700 dark:text-slate-300">Tiến độ của bạn</span>
-              <span className="text-primary">{enrollment.progressPercentage}%</span>
+          <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--border)', flexShrink: 0, background: 'var(--surface-2)' }}>
+            <div className="row" style={{ justifyContent: 'space-between', fontSize: 11.5, marginBottom: 8 }}>
+              <span style={{ color: 'var(--ink-3)', fontWeight: 600 }}>Tiến độ</span>
+              <span className="mono" style={{ fontWeight: 700, color: 'var(--brand-deep)' }}>{enrollment.progressPercentage}%</span>
             </div>
-            <Progress value={enrollment.progressPercentage} className="h-1.5" />
+            <div className="ch-track" style={{ height: 7 }}>
+              <i style={{ width: `${enrollment.progressPercentage}%` }} />
+            </div>
           </div>
         )}
 
-        {/* Modules List */}
-        <div className="flex-1 overflow-y-auto scrollbar-hide py-4 space-y-6">
-          {course.modules.sort((a, b) => a.orderIndex - b.orderIndex).map((module, mIdx) => (
-            <div key={module.id}>
-              <div className="px-4 mb-2">
-                <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                  Phần {mIdx + 1}: {module.title}
-                </h3>
+        {/* Modules */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '12px 0' }} className="scroll-area">
+          {course.modules.slice().sort((a, b) => a.orderIndex - b.orderIndex).map((module, mIdx) => (
+            <div key={module.id} style={{ marginBottom: 8 }}>
+              <div style={{ padding: '8px 18px 6px' }}>
+                <span className="eyebrow" style={{ display: 'block' }}>Phần {mIdx + 1}: {module.title}</span>
               </div>
-              <div className="space-y-0.5">
-                {module.lessons?.sort((a, b) => a.orderIndex - b.orderIndex).map((l, lIdx) => {
+              <div>
+                {module.lessons?.slice().sort((a, b) => a.orderIndex - b.orderIndex).map((l, lIdx) => {
                   const isActive = l.id === currentLessonId
                   return (
                     <Link
                       key={l.id}
                       to={`/courses/${courseId}/learn/${l.id}`}
                       onClick={() => setSidebarOpen(false)}
-                      className={cn(
-                        "flex items-start gap-3 px-4 py-2.5 cursor-pointer transition-colors border-l-2",
-                        isActive 
-                          ? "bg-primary/10 border-primary" 
-                          : "border-transparent hover:bg-slate-100 dark:hover:bg-slate-800"
-                      )}
+                      style={{
+                        display: 'flex', alignItems: 'flex-start', gap: 10,
+                        padding: '10px 18px', cursor: 'pointer', textDecoration: 'none',
+                        borderLeft: `3px solid ${isActive ? 'var(--brand)' : 'transparent'}`,
+                        background: isActive ? 'var(--brand-soft)' : 'transparent',
+                        transition: 'background .12s',
+                      }}
+                      onMouseEnter={e => { if (!isActive) (e.currentTarget.style.background = 'var(--surface-2)') }}
+                      onMouseLeave={e => { if (!isActive) (e.currentTarget.style.background = 'transparent') }}
                     >
-                      <div className="mt-0.5 shrink-0">
+                      <div style={{ flexShrink: 0, marginTop: 2 }}>
                         {l.isCompleted ? (
-                          <CheckCircle2 className="w-4 h-4 text-[#22C55E]" />
+                          <CheckCircle2 size={15} style={{ color: 'var(--brand)' }} />
                         ) : l.type === 'VIDEO' ? (
-                          <PlayCircle className={cn("w-4 h-4", isActive ? "text-primary" : "text-slate-400")} />
+                          <PlayCircle size={15} style={{ color: isActive ? 'var(--brand)' : 'var(--ink-3)' }} />
                         ) : (
-                          <BookOpen className={cn("w-4 h-4", isActive ? "text-primary" : "text-slate-400")} />
+                          <BookOpen size={15} style={{ color: isActive ? 'var(--brand)' : 'var(--ink-3)' }} />
                         )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className={cn(
-                          "text-sm font-medium line-clamp-2",
-                          isActive ? "text-primary" : "text-slate-700 dark:text-slate-300"
-                        )}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{
+                          fontSize: 13, fontWeight: isActive ? 700 : 500, margin: 0,
+                          color: isActive ? 'var(--brand-deep)' : 'var(--ink)',
+                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                        }}>
                           {lIdx + 1}. {l.title}
                         </p>
-                        <p className="text-[11px] text-slate-500 mt-0.5">{l.durationMinutes} phút</p>
+                        <p className="mono" style={{ fontSize: 11, color: 'var(--ink-3)', margin: 0, marginTop: 2 }}>
+                          {l.durationMinutes} phút
+                        </p>
                       </div>
                     </Link>
                   )
@@ -165,88 +184,100 @@ export default function CourseLearningPage() {
         </div>
       </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 h-full relative">
-        {/* Top Navbar */}
-        <header className="h-16 flex items-center justify-between px-4 sm:px-6 border-b border-slate-200 dark:border-slate-800 shrink-0 bg-white dark:bg-slate-950">
-          <div className="flex items-center gap-4">
-            <button 
+      {/* Main content */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, height: '100%' }}>
+        {/* Top bar */}
+        <header style={{
+          height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0 22px', borderBottom: '1px solid var(--border)',
+          background: 'color-mix(in srgb, var(--surface) 90%, transparent)',
+          backdropFilter: 'blur(8px)', flexShrink: 0,
+        }}>
+          <div className="row" style={{ alignItems: 'center', gap: 12 }}>
+            <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 -ml-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer"
+              className="iconbtn"
+              style={{ display: 'none' }}
+              id="learn-menu-btn"
             >
-              <Menu className="w-5 h-5" />
+              <Menu size={18} />
             </button>
-            <h1 className="text-lg font-bold text-slate-900 dark:text-white truncate max-w-[300px] sm:max-w-md">
+            <h1 style={{
+              fontSize: 16, fontWeight: 700, color: 'var(--ink)', margin: 0,
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 400,
+            }}>
               {lesson.title}
             </h1>
           </div>
-          <div className="flex items-center gap-2">
-            {!lesson.isCompleted && (
-              <Button 
-                onClick={() => completeMutation.mutate()}
-                disabled={completeMutation.isPending}
-                className="bg-[#22C55E] hover:bg-[#16a34a] text-white cursor-pointer h-9 hidden sm:flex"
-              >
-                <CheckCircle2 className="w-4 h-4 mr-2" /> Hoàn thành
-              </Button>
-            )}
-          </div>
+          {!lesson.isCompleted && (
+            <button
+              className="btn3d sm"
+              onClick={() => completeMutation.mutate()}
+              disabled={completeMutation.isPending}
+            >
+              <CheckCircle2 size={15} strokeWidth={2.4} />
+              Hoàn thành
+            </button>
+          )}
         </header>
 
-        {/* Content Scrollable Area */}
-        <main className="flex-1 overflow-y-auto bg-white dark:bg-slate-950 scrollbar-hide p-4 sm:p-8">
-          <div className="max-w-4xl mx-auto space-y-8">
-            {/* Video Player Placeholder */}
+        {/* Content */}
+        <main style={{ flex: 1, overflowY: 'auto', background: 'var(--surface)' }} className="scroll-area">
+          <div style={{ maxWidth: 860, margin: '0 auto', padding: '32px 26px 48px' }}>
+            {/* Video */}
             {lesson.type === 'VIDEO' && lesson.videoUrl && (
-              <div className="w-full aspect-video bg-black rounded-xl overflow-hidden shadow-lg">
-                <video 
-                  src={lesson.videoUrl} 
-                  controls 
-                  className="w-full h-full object-contain"
-                  poster="https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=1000&auto=format&fit=crop"
+              <div style={{ width: '100%', aspectRatio: '16/9', background: '#000', borderRadius: 'var(--radius)', overflow: 'hidden', marginBottom: 32 }}>
+                <video
+                  src={lesson.videoUrl}
+                  controls
+                  style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                 />
               </div>
             )}
 
-            {/* Markdown Content (Rendered as simple HTML here for mock) */}
-            <div className="prose prose-slate dark:prose-invert max-w-none prose-headings:font-bold prose-a:text-primary">
-              <div dangerouslySetInnerHTML={{ __html: lesson.content.replace(/\n/g, '<br/>') }} />
-            </div>
-            
-            {/* Mobile Complete Button */}
+            {/* Lesson content */}
+            <div
+              className="prose"
+              style={{ color: 'var(--ink)', lineHeight: 1.75 }}
+              dangerouslySetInnerHTML={{ __html: lesson.content.replace(/\n/g, '<br/>') }}
+            />
+
+            {/* Mobile complete button */}
             {!lesson.isCompleted && (
-              <div className="pt-8 pb-4 sm:hidden flex justify-center border-t border-slate-100 dark:border-slate-800">
-                <Button 
+              <div id="mobile-complete" style={{ paddingTop: 32, display: 'none' }}>
+                <button
+                  className="btn3d"
+                  style={{ width: '100%' }}
                   onClick={() => completeMutation.mutate()}
                   disabled={completeMutation.isPending}
-                  className="bg-[#22C55E] hover:bg-[#16a34a] text-white cursor-pointer w-full"
                 >
-                  <CheckCircle2 className="w-4 h-4 mr-2" /> Đánh dấu hoàn thành
-                </Button>
+                  <CheckCircle2 size={17} /> Đánh dấu hoàn thành
+                </button>
               </div>
             )}
           </div>
         </main>
 
-        {/* Bottom Navigation */}
-        <footer className="h-16 flex items-center justify-between px-4 sm:px-6 border-t border-slate-200 dark:border-slate-800 shrink-0 bg-white dark:bg-slate-950">
-          <Button 
-            variant="outline" 
+        {/* Bottom navigation */}
+        <footer style={{
+          height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0 22px', borderTop: '1px solid var(--border)',
+          background: 'var(--surface)', flexShrink: 0,
+        }}>
+          <button
+            className="btn3d ghost sm"
             disabled={!lesson.prevLessonId}
             onClick={() => navigate(`/courses/${courseId}/learn/${lesson.prevLessonId}`)}
-            className="cursor-pointer"
           >
-            <ChevronLeft className="w-4 h-4 mr-2" /> Bài trước
-          </Button>
-          
-          <Button 
-            variant="default"
+            <ChevronLeft size={16} /> Bài trước
+          </button>
+          <button
+            className="btn3d sm"
             disabled={!lesson.nextLessonId}
             onClick={() => navigate(`/courses/${courseId}/learn/${lesson.nextLessonId}`)}
-            className="bg-primary hover:bg-slate-800 text-white cursor-pointer"
           >
-            Bài tiếp <ChevronRight className="w-4 h-4 ml-2" />
-          </Button>
+            Bài tiếp <ChevronRight size={16} />
+          </button>
         </footer>
       </div>
     </div>

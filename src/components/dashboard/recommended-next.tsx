@@ -1,34 +1,48 @@
-import { Card, CardContent } from '@/components/ui/card'
 import { Sparkles, ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
 
 export function RecommendedNext() {
   return (
-    <Card className="border-cta/30 bg-gradient-to-br from-cta/5 to-transparent relative overflow-hidden group hover:border-cta/50 transition-colors">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-cta/10 rounded-full blur-2xl group-hover:bg-cta/20 transition-colors pointer-events-none" />
-      <CardContent className="p-5 flex flex-col sm:flex-row items-center gap-4 justify-between relative z-10">
-        <div className="flex items-center gap-4">
-          <div className="p-3 bg-cta/10 rounded-xl">
-            <Sparkles className="w-6 h-6 text-cta animate-pulse" />
+    <div
+      className="card enter enter-2"
+      style={{
+        padding: 0, overflow: 'hidden', position: 'relative',
+        borderColor: 'color-mix(in srgb, var(--violet) 35%, var(--border))',
+      }}
+    >
+      {/* Gradient top bar */}
+      <div style={{ height: 4, background: 'linear-gradient(90deg, var(--violet), var(--brand))' }} />
+
+      <div style={{ padding: '20px 22px' }}>
+        <div className="row" style={{ gap: 13, alignItems: 'flex-start' }}>
+          <div className="itile" style={{ width: 46, height: 46, background: 'var(--violet-soft)', flexShrink: 0 }}>
+            <Sparkles size={24} style={{ color: 'var(--violet)' }} />
           </div>
-          <div>
-            <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              Gợi ý tiếp theo từ AI
-              <span className="text-[10px] bg-cta text-primary px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">Beta</span>
-            </h4>
-            <p className="text-xs text-slate-500 mt-1 max-w-sm leading-relaxed">
-              Bạn đang yếu phần <strong className="text-slate-700 dark:text-slate-300">Security and Compliance</strong>. Hãy ôn tập lại 15 câu hỏi sai gần đây để củng cố kiến thức.
+
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <span className="pill violet" style={{ marginBottom: 8, display: 'inline-flex' }}>
+              <Sparkles size={12} strokeWidth={2.4} /> AI Gợi ý
+            </span>
+            <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 6, color: 'var(--ink)' }}>
+              Ôn tập điểm yếu ngay hôm nay
+            </h3>
+            <p style={{ fontSize: 13.5, color: 'var(--ink-2)', lineHeight: 1.55, marginBottom: 16 }}>
+              Bạn đang yếu phần <strong style={{ color: 'var(--ink)' }}>Security &amp; Compliance</strong>.
+              Hãy ôn lại 15 câu sai gần đây để củng cố kiến thức.
             </p>
+            <div className="row" style={{ gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+              <Link to="/practice/weakness">
+                <button className="btn-3d btn-3d-violet" style={{ background: 'var(--violet)', boxShadow: '0 4px 0 0 var(--violet-deep)' }}>
+                  <ArrowRight size={15} strokeWidth={2.4} /> Ôn tập ngay
+                </button>
+              </Link>
+              <span style={{ fontSize: 12.5, color: 'var(--ink-3)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                ~15 phút
+              </span>
+            </div>
           </div>
         </div>
-        <Link to="/practice/weakness" className="w-full sm:w-auto">
-          <Button className="w-full sm:w-auto bg-primary hover:bg-slate-800 text-white rounded-xl shadow-md cursor-pointer transition-transform hover:-translate-y-0.5 px-6 font-semibold">
-            Ôn tập ngay
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
-        </Link>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

@@ -1,83 +1,90 @@
-'use client'
 import { useState } from 'react'
 import { useInfiniteQuery, useQuery, useMutation } from '@tanstack/react-query'
-import { Search, GraduationCap, Star, Clock, ChevronDown, Play, RotateCcw, BookOpen } from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Progress } from '@/components/ui/progress'
+import { Search, GraduationCap, Clock, ChevronDown, Trophy, Star, ChevronRight, RotateCcw, BookOpen } from 'lucide-react'
 import { certificationsApi, type CertificationResponse } from '@/lib/api/certifications'
 import {
   examSessionsApi, type ActiveSessionResponse,
   EXAM_SESSION_KEY, EXAM_INIT_KEY, normaliseResumeSession,
 } from '@/lib/api/exam-sessions'
-import { cn } from '@/lib/utils'
-import { Link } from 'react-router-dom'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useDebounce } from '@/hooks/use-debounce'
 import { toast } from 'sonner'
 import { useLookups } from '@/hooks/use-lookups'
 
-const LEVEL_COLORS: Record<string, string> = {
-  BEGINNER: 'bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400',
-  INTERMEDIATE: 'bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400',
-  ADVANCED: 'bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-400',
-  EXPERT: 'bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400',
+const LEVEL_TONE: Record<string, string> = {
+  BEGINNER:     'easy',
+  INTERMEDIATE: 'medium',
+  ADVANCED:     'hard',
+  EXPERT:       'hard',
 }
 
-const DIFFICULTY_LABELS: Record<string, string> = {
-  EASY: 'Dễ', MEDIUM: 'Trung bình', HARD: 'Khó', VERY_HARD: 'Rất khó'
+const LEVEL_LABEL: Record<string, string> = {
+  BEGINNER: 'Cơ bản', INTERMEDIATE: 'Trung cấp', ADVANCED: 'Nâng cao', EXPERT: 'Chuyên gia',
 }
 
-function CertificationCard({ cert }: { cert: CertificationResponse }) {
+function CertCard({ cert, onStart }: { cert: CertificationResponse; onStart: () => void }) {
+  const tone = LEVEL_TONE[cert.level] || 'brand'
   return (
-    <Link to={`/certifications/${cert.slug}`} className="block cursor-pointer group">
-      <Card className="border-slate-200 dark:border-slate-700 hover:border-primary/50 hover:shadow-md transition-all duration-200 h-full">
-        <CardContent className="p-5">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 overflow-hidden">
-              <GraduationCap className="w-6 h-6 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex flex-wrap gap-1.5 mb-2">
-                <Badge variant="secondary" className={cn('text-xs', LEVEL_COLORS[cert.level] ?? 'bg-slate-100 text-slate-600')}>
-                  {cert.level}
-                </Badge>
-              </div>
-              <h3 className="font-semibold text-slate-900 dark:text-white group-hover:text-primary transition-colors line-clamp-2 text-sm leading-snug">
-                {cert.name}
-              </h3>
-              <p className="text-xs text-slate-500 mt-1">{cert.provider}</p>
-              {cert.description && (
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 line-clamp-2">{cert.description}</p>
-              )}
-            </div>
+    <div
+      className="card enter"
+      style={{ padding: 0, overflow: 'hidden', cursor: 'pointer', transition: 'transform .12s, box-shadow .12s' }}
+      onClick={() => window.location.assign(`/certifications/${cert.slug}`)}
+      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)'; (e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-lg)' }}
+      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'none'; (e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-sm)' }}
+    >
+      <div style={{ padding: '18px 18px 0' }}>
+        <div className="row" style={{ justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
+          <div className="itile" style={{ width: 48, height: 48, background: `var(--${tone}-soft, var(--brand-soft))` }}>
+            <Trophy size={25} style={{ color: `var(--${tone}, var(--brand))` }} />
           </div>
-          <div className="flex items-center gap-4 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500">
-            {cert.totalQuestions && (
-              <div className="flex items-center gap-1">
-                <GraduationCap className="w-3.5 h-3.5" />
-                {cert.totalQuestions} câu hỏi
-              </div>
-            )}
-            {cert.durationMinutes && (
-              <div className="flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5" />
-                {cert.durationMinutes} phút
-              </div>
-            )}
-            {cert.passingScore && (
-              <div className="flex items-center gap-1">
-                <Star className="w-3.5 h-3.5" />
-                Đỗ: {cert.passingScore}%
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
+        </div>
+        <div className="row" style={{ gap: 7, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
+          {cert.code && <span className="codechip">{cert.code}</span>}
+          <span className={`pill ${tone}`} style={{ padding: '3px 9px' }}>
+            {LEVEL_LABEL[cert.level] || cert.level}
+          </span>
+        </div>
+        <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--ink)', lineHeight: 1.3, marginBottom: 6, minHeight: 42 }}>
+          {cert.name}
+        </h3>
+        {cert.provider && (
+          <p style={{ fontSize: 12, color: 'var(--ink-3)', marginBottom: 8 }}>{cert.provider}</p>
+        )}
+        <div className="row" style={{ gap: 13, flexWrap: 'wrap', marginBottom: 14 }}>
+          {cert.totalQuestions && (
+            <span className="row" style={{ gap: 5, alignItems: 'center', fontSize: 12, color: 'var(--ink-3)' }}>
+              <GraduationCap size={13} />
+              <span className="mono">{cert.totalQuestions}</span> câu
+            </span>
+          )}
+          {cert.durationMinutes && (
+            <span className="row" style={{ gap: 5, alignItems: 'center', fontSize: 12, color: 'var(--ink-3)' }}>
+              <Clock size={13} />
+              <span className="mono">{cert.durationMinutes}</span> phút
+            </span>
+          )}
+          {cert.passingScore && (
+            <span className="row" style={{ gap: 5, alignItems: 'center', fontSize: 12, color: 'var(--gold-deep)' }}>
+              <Star size={13} />
+              <span className="mono">{cert.passingScore}%</span>
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="row" style={{
+        padding: '13px 18px', alignItems: 'center', justifyContent: 'space-between',
+        gap: 10, borderTop: '1px solid var(--border)', background: 'var(--surface-2)',
+      }}>
+        <button
+          className="btn3d sm"
+          style={{ flex: 1 }}
+          onClick={e => { e.stopPropagation(); onStart() }}
+        >
+          Bắt đầu học <ChevronRight size={14} strokeWidth={2.4} />
+        </button>
+      </div>
+    </div>
   )
 }
 
@@ -92,48 +99,50 @@ function ActiveSessionCard({ session, onResume, resuming }: {
   const remainingMins = Math.max(0, Math.round((session.durationMinutes * 60 - session.timeSpentSeconds) / 60))
 
   return (
-    <Card className="border-primary/30 bg-primary/5 dark:bg-primary/10">
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
-              <span className="text-xs font-medium text-[#22C55E]">Đang làm</span>
-              <Badge variant="secondary" className="text-xs bg-primary/10 text-primary border-0">
-                {session.mode === 'PRACTICE' ? 'Luyện tập' : 'Thi thật'}
-              </Badge>
+    <div className="card" style={{ padding: '14px 16px', borderColor: 'color-mix(in srgb, var(--brand) 40%, var(--border))' }}>
+      <div className="row" style={{ justifyContent: 'space-between', alignItems: 'flex-start', gap: 14 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="row" style={{ alignItems: 'center', gap: 8, marginBottom: 6 }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--brand)', display: 'inline-block', animation: 'pulse 2s ease-in-out infinite' }} />
+            <span className="pill brand" style={{ padding: '2px 8px', fontSize: 10.5 }}>
+              {session.mode === 'PRACTICE' ? 'Luyện tập' : 'Thi thật'} · đang làm
+            </span>
+          </div>
+          <p style={{ fontWeight: 700, fontSize: 13.5, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {session.examTitle}
+          </p>
+          <p style={{ fontSize: 11.5, color: 'var(--ink-3)', marginTop: 2 }}>{session.certificationName}</p>
+          <div style={{ marginTop: 10 }}>
+            <div className="row" style={{ justifyContent: 'space-between', fontSize: 11, color: 'var(--ink-3)', marginBottom: 6 }}>
+              <span className="mono">{session.answeredCount}/{session.totalQuestions} câu</span>
+              <span className="mono">{remainingMins} phút còn lại</span>
             </div>
-            <p className="font-semibold text-slate-900 dark:text-white text-sm truncate">{session.examTitle}</p>
-            <p className="text-xs text-slate-500 mt-0.5 truncate">{session.certificationName}</p>
-            <div className="mt-2.5 space-y-1.5">
-              <div className="flex justify-between text-xs text-slate-500">
-                <span>{session.answeredCount}/{session.totalQuestions} câu đã trả lời</span>
-                <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{remainingMins} phút còn lại</span>
-              </div>
-              <Progress value={progress} className="h-1.5" />
+            <div className="ch-track" style={{ height: 7 }}>
+              <i style={{ width: `${progress}%` }} />
             </div>
           </div>
-          <Button
-            size="sm"
-            onClick={() => onResume(session.id)}
-            disabled={resuming}
-            className="bg-primary hover:bg-slate-800 text-white cursor-pointer flex-shrink-0"
-          >
-            <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
-            {resuming ? 'Đang tải...' : 'Tiếp tục'}
-          </Button>
         </div>
-      </CardContent>
-    </Card>
+        <button
+          className="btn3d sm"
+          onClick={() => onResume(session.id)}
+          disabled={resuming}
+          style={{ flexShrink: 0 }}
+        >
+          <RotateCcw size={14} />
+          {resuming ? 'Đang tải...' : 'Tiếp tục'}
+        </button>
+      </div>
+    </div>
   )
 }
+
+const LEVELS = [['', 'Tất cả'], ['BEGINNER', 'Cơ bản'], ['INTERMEDIATE', 'Trung cấp'], ['ADVANCED', 'Nâng cao']]
 
 export default function CertificationsPage() {
   const navigate = useNavigate()
   const { getOptions, getLabel } = useLookups()
   const [search, setSearch] = useState('')
-  const [level, setLevel] = useState<string>('')
-  const [difficulty, setDifficulty] = useState<string>('')
+  const [level, setLevel] = useState('')
   const debouncedSearch = useDebounce(search, 400)
 
   const { data: activeSessions = [] } = useQuery({
@@ -155,14 +164,11 @@ export default function CertificationsPage() {
     onError: () => { toast.error('Không thể tiếp tục phiên thi'); setResumingId(null) },
   })
 
-  const {
-    data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading,
-  } = useInfiniteQuery({
-    queryKey: ['certifications', debouncedSearch, level, difficulty],
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
+    queryKey: ['certifications', debouncedSearch, level],
     queryFn: ({ pageParam = 0 }) => certificationsApi.search({
       keyword: debouncedSearch || undefined,
       level: level || undefined,
-      difficultyLevel: difficulty || undefined,
       page: pageParam,
       size: 12,
     }),
@@ -175,32 +181,25 @@ export default function CertificationsPage() {
   const total = data?.pages[0]?.totalElements ?? 0
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Danh mục chứng chỉ</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">{total} chứng chỉ có sẵn</p>
-        </div>
-        <Link to="/certifications/exam-history">
-          <Button variant="outline" className="cursor-pointer text-primary border-primary/20 hover:bg-primary/5">
-            <BookOpen className="w-4 h-4 mr-2" />
-            Lịch sử thi
-          </Button>
-        </Link>
+    <div className="col" style={{ gap: 20 }}>
+      {/* Header */}
+      <div>
+        <span className="eyebrow">Danh mục</span>
+        <h1 style={{ fontSize: 25, fontWeight: 800, color: 'var(--ink)', marginTop: 6 }}>Khám phá chứng chỉ</h1>
+        <p style={{ fontSize: 14, color: 'var(--ink-2)', marginTop: 6 }}>
+          Chọn chứng chỉ bạn muốn chinh phục — luyện đề, flashcard và mô phỏng thi thật.
+        </p>
       </div>
 
-      {/* Active sessions banner */}
+      {/* Active sessions */}
       {activeSessions.length > 0 && (
-        <div className="space-y-2">
-          <p className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
-            <Play className="w-4 h-4 text-primary" />
-            Bài thi đang dở ({activeSessions.length})
-          </p>
+        <div className="col" style={{ gap: 10 }}>
+          <span className="eyebrow">Bài thi đang dở ({activeSessions.length})</span>
           {activeSessions.map(s => (
             <ActiveSessionCard
               key={s.id}
               session={s}
-              onResume={(id) => resumeMutation.mutate(id)}
+              onResume={id => resumeMutation.mutate(id)}
               resuming={resumingId === s.id && resumeMutation.isPending}
             />
           ))}
@@ -208,105 +207,113 @@ export default function CertificationsPage() {
       )}
 
       {/* Filters */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <Input
-            placeholder="Tìm kiếm chứng chỉ..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="pl-9 h-10 w-full bg-slate-50/50 dark:bg-slate-900/50"
-          />
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="w-full sm:w-44">
-            <Select value={level} onValueChange={(v) => setLevel(v ?? '')}>
-              <SelectTrigger className="w-full h-10 cursor-pointer bg-slate-50/50 dark:bg-slate-900/50">
-                <SelectValue placeholder="Cấp độ" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Tất cả cấp độ</SelectItem>
-                {getOptions('constants.certificationLevels').map(opt => (
-                  <SelectItem key={opt.value} value={opt.value}>{getLabel('constants.certificationLevels', opt.value)}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      <div className="card enter" style={{ padding: '14px 16px' }}>
+        <div className="row" style={{ gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+          {/* Search */}
+          <div className="row" style={{
+            alignItems: 'center', gap: 9, padding: '0 13px', height: 42,
+            borderRadius: 'var(--radius-sm)', background: 'var(--surface-2)',
+            border: '1px solid var(--border)', flex: '1 1 220px',
+          }}>
+            <Search size={17} style={{ color: 'var(--ink-3)' }} />
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Tìm chứng chỉ…"
+              style={{
+                border: 'none', background: 'transparent', outline: 'none',
+                color: 'var(--ink)', fontSize: 13.5, width: '100%',
+                fontFamily: 'var(--font-body)',
+              }}
+            />
           </div>
-          <div className="w-full sm:w-44">
-            <Select value={difficulty} onValueChange={(v) => setDifficulty(v ?? '')}>
-              <SelectTrigger className="w-full h-10 cursor-pointer bg-slate-50/50 dark:bg-slate-900/50">
-                <SelectValue placeholder="Độ khó" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Tất cả độ khó</SelectItem>
-                {getOptions('constants.certificationDifficultyLevels').map(opt => (
-                  <SelectItem key={opt.value} value={opt.value}>{getLabel('constants.certificationDifficultyLevels', opt.value)}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+
+          {/* Level filter pills */}
+          <div className="row" style={{ gap: 4, padding: 4, borderRadius: 'var(--radius-sm)', background: 'var(--surface-2)', border: '1px solid var(--border)', flexWrap: 'wrap' }}>
+            {LEVELS.map(([k, l]) => (
+              <button
+                key={k}
+                onClick={() => setLevel(k)}
+                style={{
+                  padding: '7px 12px', borderRadius: 9, border: 'none', cursor: 'pointer',
+                  fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12.5, transition: 'all .12s',
+                  background: level === k ? 'var(--surface)' : 'transparent',
+                  color: level === k ? 'var(--ink)' : 'var(--ink-3)',
+                  boxShadow: level === k ? 'var(--shadow-sm)' : 'none',
+                }}
+              >
+                {l}
+              </button>
+            ))}
           </div>
-          {(search || level || difficulty) && (
-            <Button 
-              variant="ghost" 
-              onClick={() => { setSearch(''); setLevel(''); setDifficulty('') }} 
-              className="h-10 px-4 cursor-pointer text-slate-500 hover:text-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            >
-              Xóa bộ lọc
-            </Button>
-          )}
+
+          {/* History link */}
+          <Link
+            to="/certifications/exam-history"
+            className="row"
+            style={{ gap: 6, alignItems: 'center', fontSize: 13, fontWeight: 600, color: 'var(--ink-2)', textDecoration: 'none' }}
+          >
+            <BookOpen size={15} /> Lịch sử thi
+          </Link>
         </div>
       </div>
 
+      {/* Results count */}
+      {!isLoading && (
+        <p style={{ fontSize: 13, color: 'var(--ink-3)' }}>
+          {total} chứng chỉ
+          {search || level ? ` phù hợp với bộ lọc` : ' có sẵn'}
+        </p>
+      )}
+
       {/* Grid */}
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(264px, 1fr))', gap: 16 }}>
           {Array(6).fill(0).map((_, i) => (
-            <Card key={i} className="border-slate-200 dark:border-slate-700">
-              <CardContent className="p-5 space-y-3">
-                <div className="flex gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-slate-200 dark:bg-slate-700 animate-pulse" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded animate-pulse w-1/2" />
-                    <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded animate-pulse w-3/4" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <div key={i} className="card" style={{ padding: '18px', height: 220 }}>
+              <div style={{ height: 48, width: 48, borderRadius: 12, background: 'var(--surface-2)', marginBottom: 14, animation: 'pulse 1.5s ease-in-out infinite' }} />
+              <div style={{ height: 12, width: '60%', background: 'var(--surface-2)', borderRadius: 6, marginBottom: 8, animation: 'pulse 1.5s ease-in-out infinite' }} />
+              <div style={{ height: 16, width: '80%', background: 'var(--surface-2)', borderRadius: 6, animation: 'pulse 1.5s ease-in-out infinite' }} />
+            </div>
           ))}
         </div>
       ) : certifications.length > 0 ? (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-            {certifications.map(cert => <CertificationCard key={cert.id} cert={cert} />)}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(264px, 1fr))', gap: 16 }}>
+            {certifications.map((cert, i) => (
+              <CertCard
+                key={cert.id}
+                cert={cert}
+                onStart={() => navigate(`/certifications/${cert.slug}`)}
+              />
+            ))}
           </div>
           {hasNextPage && (
-            <div className="flex justify-center">
-              <Button
-                variant="outline"
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
+              <button
+                className="btn3d ghost"
                 onClick={() => fetchNextPage()}
                 disabled={isFetchingNextPage}
-                className="cursor-pointer"
               >
                 {isFetchingNextPage ? (
-                  <span className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-slate-400/30 border-t-slate-400 rounded-full animate-spin" />
+                  <span className="row" style={{ gap: 8, alignItems: 'center' }}>
+                    <span style={{ width: 16, height: 16, border: '2px solid var(--ink-3)', borderTopColor: 'var(--brand)', borderRadius: '50%', animation: 'spin 1s linear infinite', display: 'inline-block' }} />
                     Đang tải...
                   </span>
                 ) : (
-                  <span className="flex items-center gap-2">
-                    <ChevronDown className="w-4 h-4" />
-                    Xem thêm
+                  <span className="row" style={{ gap: 8, alignItems: 'center' }}>
+                    <ChevronDown size={16} /> Xem thêm
                   </span>
                 )}
-              </Button>
+              </button>
             </div>
           )}
         </>
       ) : (
-        <div className="text-center py-16 text-slate-500">
-          <GraduationCap className="w-12 h-12 mx-auto mb-3 opacity-30" />
-          <p className="font-medium">Không tìm thấy chứng chỉ nào</p>
-          <p className="text-sm mt-1">Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
+        <div className="card" style={{ padding: 56, textAlign: 'center', color: 'var(--ink-3)' }}>
+          <Search size={30} style={{ marginBottom: 10 }} />
+          <p style={{ fontWeight: 600, color: 'var(--ink-2)' }}>Không tìm thấy chứng chỉ phù hợp</p>
+          <p style={{ fontSize: 13, marginTop: 4, color: 'var(--ink-3)' }}>Thử thay đổi bộ lọc hoặc từ khóa</p>
         </div>
       )}
     </div>
