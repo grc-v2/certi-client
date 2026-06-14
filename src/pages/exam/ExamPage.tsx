@@ -1,7 +1,6 @@
 'use client'
-import { useState, useEffect, useCallback, useRef, type ReactNode } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { useMutation } from '@tanstack/react-query'
+import { useState, useEffect, type ReactNode } from 'react'
+import { useParams } from 'react-router-dom'
 import {
   Flag, ChevronLeft, ChevronRight, Clock, AlertTriangle,
   CheckSquare, Square, Send, CheckCircle2, XCircle, BookOpen, ExternalLink,
@@ -22,14 +21,11 @@ const getDomainName = (id: number) => MOCK_DOMAINS[id] || `Chủ đề kiến th
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import {
-  examSessionsApi,
-  EXAM_SESSION_KEY, EXAM_INIT_KEY,
-  normaliseResumeSession,
-  type StartSessionResponse, type QuestionResponse,
+  type QuestionResponse,
   type AnswerFeedbackResponse,
 } from '@/lib/api/exam-sessions'
+import { useExamSession } from '@/hooks/use-exam-session'
 import { cn } from '@/lib/utils'
-import { toast } from 'sonner'
 
 type AnswerMap  = Record<number, number[]>
 type FlagMap    = Record<number, boolean>
@@ -378,206 +374,19 @@ function LegendItem({
 
 export default function ExamPage() {
   const { sessionId } = useParams<{ sessionId: string }>()
-  const navigate = useNavigate()
+  const exam = useExamSession(sessionId)
+  const { session, currentIndex, answers, flagged, feedback, timeLeft, isPaused, hasDuration, isTimeUp } = exam.state
 
-  const [session,  setSession]  = useState<StartSessionResponse | null>(null)
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [answers,  setAnswers]  = useState<AnswerMap>({})
-  const [flagged,  setFlagged]  = useState<FlagMap>({})
-  const [feedback, setFeedback] = useState<FeedbackMap>({})
-  const [timeLeft, setTimeLeft] = useState(0)
-  const [isPaused, setIsPaused] = useState(false)
-  const [hasDuration, setHasDuration] = useState(false)
   const [submitDialog, setSubmitDialog] = useState(false)
-  const [timeUpDialog, setTimeUpDialog] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
-  // Time tracking per question
-  const questionStartRef = useRef<number>(Date.now())
-  const lastTickRef = useRef<number>(Date.now())
-  useEffect(() => { questionStartRef.current = Date.now() }, [currentIndex])
+  // Handler aliases so the JSX reads as before; all transition logic lives in useExamSession.
+  const handleAnswer = exam.selectAnswer
+  const handleConfirmMulti = exam.confirmMulti
+  const handleToggleFlag = exam.toggleFlag
+  const handleSelectQuestion = (i: number) => { exam.goTo(i); setMobileNavOpen(false) }
 
-  // ── Load session from server (source of truth for mode + deadline) ───────────
-
-  useEffect(() => {
-    if (!sessionId) return
-    let cancelled = false
-
-    examSessionsApi.resumeSession(Number(sessionId))
-      .then(resume => {
-        if (cancelled) return
-        const { session: serverSession, init } = normaliseResumeSession(resume)
-        setSession(serverSession)
-        const hasTimer = !!serverSession.durationMinutes && serverSession.durationMinutes > 0
-        setHasDuration(hasTimer)
-        if (Object.keys(init.answers).length) setAnswers(init.answers)
-        if (Object.keys(init.flagged).length) setFlagged(init.flagged)
-        setTimeLeft(hasTimer ? init.timeLeftSeconds : 0)
-        if (serverSession.status === 'PAUSED') setIsPaused(true)
-        // Clear any stale init payload — the server response is now authoritative.
-        sessionStorage.removeItem(EXAM_INIT_KEY(sessionId))
-      })
-      .catch((err: { response?: { status?: number } }) => {
-        if (cancelled) return
-        // 401 is handled centrally by SessionGuard — don't redirect to /certifications
-        // (which would race the session-expired flow and lose the redirect target).
-        if (err?.response?.status === 401) return
-        toast.error('Không tìm thấy phiên thi. Vui lòng bắt đầu lại.')
-        navigate('/certifications', { replace: true })
-      })
-
-    return () => { cancelled = true }
-  }, [sessionId, navigate])
-
-  // ── Mutations ────────────────────────────────────────────────────────────────
-
-  const submitAnswerMutation = useMutation({
-    mutationFn: ({ questionId, optionIds }: { questionId: number; optionIds: number[] }) => {
-      const timeSpentSeconds = Math.round((Date.now() - questionStartRef.current) / 1000)
-      return examSessionsApi.submitAnswer(sessionId!, {
-        questionId,
-        selectedOptionIds: optionIds,
-        timeSpentSeconds,
-        isFlagged: !!flagged[questionId],
-      })
-    },
-    onSuccess: (data, { questionId }) => {
-      // Trust the server payload, not the cached mode: BE strips correctOptionIds
-      // for EXAM, so storing the response is safe — the banner only renders
-      // when the response actually contains the answer.
-      setFeedback(prev => ({ ...prev, [questionId]: data }))
-    },
-    onError: (err: { response?: { status?: number } }) => {
-      const status = err?.response?.status
-      if (status === 400) toast.error('Dữ liệu không hợp lệ')
-      else if (status === 403) toast.error('Không có quyền thực hiện')
-      else if (status === 404) toast.error('Không tìm thấy câu hỏi')
-      else toast.error('Không thể lưu câu trả lời')
-    },
-  })
-
-  const completeSessionMutation = useMutation({
-    mutationFn: () => examSessionsApi.completeSession(sessionId!),
-    onSuccess: (result) => {
-      sessionStorage.removeItem(EXAM_SESSION_KEY(sessionId!))
-      toast.success('Nộp bài thành công!')
-      navigate(`/certifications/results/${result.resultId}`)
-    },
-    onError: (err: { response?: { status?: number } }) => {
-      const status = err?.response?.status
-      if (status === 400) toast.error('Phiên thi không hợp lệ hoặc đã kết thúc')
-      else if (status === 403) toast.error('Không có quyền nộp bài')
-      else toast.error('Không thể nộp bài. Vui lòng thử lại.')
-    },
-  })
-
-  const timeoutSessionMutation = useMutation({
-    mutationFn: () => examSessionsApi.timeoutSession(sessionId!),
-    onSuccess: (result) => {
-      sessionStorage.removeItem(EXAM_SESSION_KEY(sessionId!))
-      navigate(`/certifications/results/${result.resultId}`)
-    },
-    onError: () => toast.error('Không thể kết thúc phiên thi do hết giờ. Vui lòng thử lại.'),
-  })
-
-  const pauseMutation = useMutation({
-    mutationFn: () => {
-      const elapsed = Math.round((Date.now() - lastTickRef.current) / 1000)
-      return examSessionsApi.pauseSession(sessionId!, { timeSpentSeconds: Math.max(0, elapsed) })
-    },
-    onSuccess: () => { setIsPaused(true); toast.success('Đã tạm dừng phiên luyện tập') },
-    onError: (err: { response?: { status?: number } }) => {
-      if (err?.response?.status === 400) toast.error('Chỉ có thể tạm dừng phiên luyện tập đang hoạt động')
-      else toast.error('Không thể tạm dừng phiên')
-    },
-  })
-
-  const resumePlayMutation = useMutation({
-    mutationFn: () => examSessionsApi.resumePlay(sessionId!),
-    onSuccess: () => {
-      setIsPaused(false)
-      lastTickRef.current = Date.now()
-      questionStartRef.current = Date.now()
-      toast.success('Tiếp tục phiên luyện tập')
-    },
-    onError: () => toast.error('Không thể tiếp tục phiên'),
-  })
-
-  // ── Timer countdown (re-derive from server deadline so the timer is wall-clock
-  //    accurate even after tab throttling or refresh) ──────────────────────────
-
-  useEffect(() => {
-    if (!hasDuration || timeLeft <= 0 || isPaused) return
-    const deadline = session?.deadline ? new Date(session.deadline).getTime() : null
-    const interval = setInterval(() => {
-      lastTickRef.current = Date.now()
-      setTimeLeft(prev => {
-        const next = deadline != null
-          ? Math.max(0, Math.floor((deadline - Date.now()) / 1000))
-          : Math.max(0, prev - 1)
-        if (next <= 0) setTimeUpDialog(true)
-        return next
-      })
-    }, 1000)
-    return () => clearInterval(interval)
-  }, [hasDuration, timeLeft, isPaused, session?.deadline])
-
-  // Auto-submit when timer expires (after a 5s grace period for the user to read the modal)
-  useEffect(() => {
-    if (!timeUpDialog) return
-    const t = setTimeout(() => {
-      timeoutSessionMutation.mutate()
-    }, 5000)
-    return () => clearTimeout(t)
-  }, [timeUpDialog])
-
-  // ── Handlers ─────────────────────────────────────────────────────────────────
-
-  const handleAnswer = useCallback((questionId: number, optionId: number) => {
-    if (!session || isPaused) return
-    const question = session.questions.find(q => q.id === questionId)
-    if (!question) return
-    const isMulti = question.type === 'MULTIPLE_CHOICE'
-
-    setAnswers(prev => {
-      const current = prev[questionId] ?? []
-      let next: number[]
-      if (isMulti) {
-        next = current.includes(optionId)
-          ? current.filter(id => id !== optionId)
-          : [...current, optionId]
-      } else {
-        if (current[0] === optionId) return prev
-        next = [optionId]
-        submitAnswerMutation.mutate({ questionId, optionIds: next })
-      }
-      if (next.length === 0) {
-        const { [questionId]: _omit, ...rest } = prev
-        return rest
-      }
-      return { ...prev, [questionId]: next }
-    })
-  }, [session, isPaused, submitAnswerMutation])
-
-  const handleConfirmMulti = useCallback((questionId: number) => {
-    if (isPaused) return
-    const optionIds = answers[questionId]
-    if (!optionIds?.length) return
-    submitAnswerMutation.mutate({ questionId, optionIds })
-  }, [answers, isPaused, submitAnswerMutation])
-
-  const handleToggleFlag = useCallback((questionId: number) => {
-    if (isPaused) return
-    setFlagged(prev => ({ ...prev, [questionId]: !prev[questionId] }))
-  }, [isPaused])
-
-  const handleSelectQuestion = useCallback((i: number) => {
-    setCurrentIndex(i)
-    setMobileNavOpen(false)
-  }, [])
-
-  // ── Keyboard shortcuts ───────────────────────────────────────────────────────
-
+  // ── Keyboard shortcuts (presentation) ────────────────────────────────────────
   useEffect(() => {
     if (!session || isPaused) return
     const handler = (e: KeyboardEvent) => {
@@ -585,21 +394,20 @@ export default function ExamPage() {
       if (tag === 'INPUT' || tag === 'TEXTAREA') return
       const q = session.questions[currentIndex]
       if (!q) return
-      if (e.key === 'ArrowLeft')  { e.preventDefault(); setCurrentIndex(i => Math.max(0, i - 1)) }
-      else if (e.key === 'ArrowRight') { e.preventDefault(); setCurrentIndex(i => Math.min(session.questions.length - 1, i + 1)) }
-      else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); handleToggleFlag(q.id) }
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); exam.goTo(Math.max(0, currentIndex - 1)) }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); exam.goTo(Math.min(session.questions.length - 1, currentIndex + 1)) }
+      else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); exam.toggleFlag(q.id) }
       else if (/^[1-5]$/.test(e.key)) {
         const idx = parseInt(e.key, 10) - 1
         const opt = q.options[idx]
-        if (opt) { e.preventDefault(); handleAnswer(q.id, opt.id) }
+        if (opt) { e.preventDefault(); exam.selectAnswer(q.id, opt.id) }
       }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [session, currentIndex, isPaused, handleAnswer, handleToggleFlag])
+  }, [session, currentIndex, isPaused, exam])
 
   // ── Warn on tab close while in-progress ──────────────────────────────────────
-
   useEffect(() => {
     if (!session) return
     const handler = (e: BeforeUnloadEvent) => {
@@ -679,8 +487,8 @@ export default function ExamPage() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => pauseMutation.mutate()}
-              disabled={pauseMutation.isPending}
+              onClick={() => exam.pause()}
+              disabled={exam.isPausing}
               className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white cursor-pointer flex-shrink-0 bg-slate-50 dark:bg-slate-800/50"
               aria-label="Tạm dừng"
             >
@@ -750,7 +558,7 @@ export default function ExamPage() {
               flagged={flagged}
               feedback={feedback}
               isPractice={isPractice}
-              pendingSubmit={submitAnswerMutation.isPending}
+              pendingSubmit={exam.isSubmitting}
               onAnswer={handleAnswer}
               onToggleFlag={handleToggleFlag}
               onConfirmMulti={handleConfirmMulti}
@@ -761,7 +569,7 @@ export default function ExamPage() {
           <div className="sticky bottom-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 p-3 sm:p-4 flex items-center justify-between gap-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
             <Button
               variant="outline"
-              onClick={() => setCurrentIndex(i => Math.max(0, i - 1))}
+              onClick={() => exam.goTo(Math.max(0, currentIndex - 1))}
               disabled={currentIndex === 0}
               className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white cursor-pointer disabled:opacity-50"
               aria-label="Câu trước"
@@ -789,7 +597,7 @@ export default function ExamPage() {
             ) : (
               <Button
                 variant="default"
-                onClick={() => setCurrentIndex(i => Math.min(totalQuestions - 1, i + 1))}
+                onClick={() => exam.goTo(Math.min(totalQuestions - 1, currentIndex + 1))}
                 className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 cursor-pointer shadow-sm"
                 aria-label="Câu sau"
               >
@@ -815,12 +623,12 @@ export default function ExamPage() {
               </p>
             </div>
             <Button
-              onClick={() => resumePlayMutation.mutate()}
-              disabled={resumePlayMutation.isPending}
+              onClick={() => exam.resume()}
+              disabled={exam.isResuming}
               className="w-full bg-primary hover:bg-primary/90 text-white cursor-pointer"
             >
               <Play className="w-4 h-4 mr-1.5" />
-              {resumePlayMutation.isPending ? 'Đang tiếp tục...' : 'Tiếp tục làm bài'}
+              {exam.isResuming ? 'Đang tiếp tục...' : 'Tiếp tục làm bài'}
             </Button>
           </div>
         </div>
@@ -885,18 +693,18 @@ export default function ExamPage() {
               Tiếp tục làm bài
             </Button>
             <Button
-              onClick={() => { setSubmitDialog(false); completeSessionMutation.mutate() }}
-              disabled={completeSessionMutation.isPending}
+              onClick={() => { setSubmitDialog(false); exam.complete() }}
+              disabled={exam.isCompleting}
               className="bg-[#22C55E] hover:bg-[#16A34A] text-white cursor-pointer min-w-[160px]"
             >
-              {completeSessionMutation.isPending ? 'Đang nộp...' : 'Xác nhận nộp bài'}
+              {exam.isCompleting ? 'Đang nộp...' : 'Xác nhận nộp bài'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Time-up dialog */}
-      <Dialog open={timeUpDialog} onOpenChange={() => {}}>
+      <Dialog open={isTimeUp} onOpenChange={() => {}}>
         <DialogContent size="md" closable={false} maskClosable={false} className="exam-dialog">
           <DialogHeader>
             <div className="flex items-start gap-3">
@@ -931,11 +739,11 @@ export default function ExamPage() {
 
           <DialogFooter>
             <Button
-              onClick={() => timeoutSessionMutation.mutate()}
-              disabled={timeoutSessionMutation.isPending}
+              onClick={() => exam.submitTimeout()}
+              disabled={exam.isTimingOut}
               className="bg-red-500 hover:bg-red-600 text-white cursor-pointer min-w-[180px] w-full sm:w-auto"
             >
-              {timeoutSessionMutation.isPending ? 'Đang xử lý...' : 'Xem kết quả ngay'}
+              {exam.isTimingOut ? 'Đang xử lý...' : 'Xem kết quả ngay'}
             </Button>
           </DialogFooter>
         </DialogContent>
