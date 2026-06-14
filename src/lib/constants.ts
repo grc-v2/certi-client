@@ -34,7 +34,7 @@ export const QUERY_KEYS = {
   STUDY_PLANS: ['study-plans'],
   // EXAM_SESSIONS absorbed into the keys factory (lib/query-keys.ts: keys.examSessions)
   TAGS: ['tags'],
-  BOOKMARKS: ['bookmarks'],
+  // BOOKMARKS absorbed into the keys factory (lib/query-keys.ts: keys.bookmarks)
   STREAKS: ['streaks'],
   HEATMAP: ['heatmap'],
 } as const

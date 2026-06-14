@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
+import { useBookmarkPost, useRemoveBookmark } from '@/hooks/queries/bookmarks'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import {
   MessageSquare, Bookmark, BookmarkCheck, TrendingUp, Star, Pin, Search,
@@ -109,25 +110,20 @@ function Pagination({
 // ── PostCard ──────────────────────────────────────────────────────────────────
 
 function PostCard({ post }: { post: PostResponse }) {
-  const queryClient = useQueryClient()
   const [bookmarkId, setBookmarkId] = useState<number | null>(null)
   const isBookmarked = bookmarkId !== null
 
-  const addMutation = useMutation({
-    mutationFn: () => postsApi.bookmarkPost(post.id),
+  const addMutation = useBookmarkPost({
     onSuccess: (data) => {
       setBookmarkId(data.id)
       toast.success('Đã lưu bài viết')
-      queryClient.invalidateQueries({ queryKey: ['bookmarks'] })
     },
     onError: () => toast.error('Không thể lưu bài viết'),
   })
-  const removeMutation = useMutation({
-    mutationFn: () => postsApi.removeBookmark(bookmarkId!),
+  const removeMutation = useRemoveBookmark({
     onSuccess: () => {
       setBookmarkId(null)
       toast.success('Đã bỏ lưu')
-      queryClient.invalidateQueries({ queryKey: ['bookmarks'] })
     },
     onError: () => toast.error('Không thể bỏ lưu'),
   })
@@ -136,7 +132,7 @@ function PostCard({ post }: { post: PostResponse }) {
   const handleBookmark = (e: React.MouseEvent) => {
     e.preventDefault()
     if (isPending) return
-    isBookmarked ? removeMutation.mutate() : addMutation.mutate()
+    isBookmarked ? removeMutation.mutate(bookmarkId!) : addMutation.mutate(post.id)
   }
 
   return (

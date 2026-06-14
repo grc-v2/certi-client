@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useBookmarks, useBookmarkPost } from '@/hooks/queries/bookmarks'
 import { Link } from 'react-router-dom'
 import {
   Bookmark, BookmarkX, Search, Tag, Clock, Eye, Heart,
@@ -10,11 +10,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { postsApi, type BookmarkResponse } from '@/lib/api/posts'
+import { type BookmarkResponse } from '@/lib/api/posts'
 import { formatRelativeTime, cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { useDebounce } from '@/hooks/use-debounce'
-import { QUERY_KEYS } from '@/lib/constants'
 
 const PAGE_SIZE = 12
 
@@ -204,25 +203,18 @@ function BookmarkSkeleton() {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function BookmarksPage() {
-  const queryClient = useQueryClient()
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(0)
   const debouncedSearch = useDebounce(search, 400)
 
   const handleSearchChange = (v: string) => { setSearch(v); setPage(0) }
 
-  const { data, isLoading, isFetching, isPlaceholderData } = useQuery({
-    queryKey: [...QUERY_KEYS.BOOKMARKS, debouncedSearch, page],
-    queryFn: () => postsApi.getBookmarks(page, PAGE_SIZE),
-    placeholderData: (prev) => prev,
+  const { data, isLoading, isFetching, isPlaceholderData } = useBookmarks({
+    search: debouncedSearch, page, size: PAGE_SIZE,
   })
 
-  const removeMutation = useMutation({
-    mutationFn: (postId: number) => postsApi.bookmarkPost(postId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.BOOKMARKS })
-      toast.success('Đã bỏ lưu bài viết')
-    },
+  const removeMutation = useBookmarkPost({
+    onSuccess: () => toast.success('Đã bỏ lưu bài viết'),
     onError: () => toast.error('Không thể bỏ lưu'),
   })
 

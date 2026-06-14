@@ -2,11 +2,11 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { MessageSquare, Bookmark, BookmarkCheck, Tag, Star, Pin, User as UserIcon } from 'lucide-react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { postsApi, type PostResponse } from '@/lib/api/posts'
+import { type PostResponse } from '@/lib/api/posts'
+import { useBookmarkPost } from '@/hooks/queries/bookmarks'
 import { formatRelativeTime, cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
@@ -22,16 +22,13 @@ const CONTENT_TYPE_LABELS: Record<string, string> = {
 }
 
 export function PostCard({ post }: { post: PostResponse }) {
-  const queryClient = useQueryClient()
   const [bookmarked, setBookmarked] = useState(false)
 
-  const bookmarkMutation = useMutation({
-    mutationFn: () => postsApi.bookmarkPost(post.id),
+  const bookmarkMutation = useBookmarkPost({
     onSuccess: () => {
       const next = !bookmarked
       setBookmarked(next)
       toast.success(next ? 'Đã lưu bài viết' : 'Đã bỏ lưu')
-      queryClient.invalidateQueries({ queryKey: ['bookmarks'] })
     },
     onError: () => toast.error('Không thể cập nhật bookmark'),
   })
@@ -74,7 +71,7 @@ export function PostCard({ post }: { post: PostResponse }) {
           <Link to={`/community/${post.slug}#comments`} className="flex items-center gap-1 text-xs text-slate-500 hover:text-primary cursor-pointer transition-colors">
             <MessageSquare className="w-3.5 h-3.5" />{post.commentsCount}
           </Link>
-          <button onClick={(e) => { e.preventDefault(); bookmarkMutation.mutate() }} className={cn('p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors', bookmarked ? 'text-primary' : 'text-slate-400 hover:text-primary')} disabled={bookmarkMutation.isPending}>
+          <button onClick={(e) => { e.preventDefault(); bookmarkMutation.mutate(post.id) }} className={cn('p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors', bookmarked ? 'text-primary' : 'text-slate-400 hover:text-primary')} disabled={bookmarkMutation.isPending}>
             {bookmarked ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
           </button>
         </div>

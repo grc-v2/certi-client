@@ -1,5 +1,6 @@
 'use client'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useBookmarkPost } from '@/hooks/queries/bookmarks'
 import { useParams } from 'react-router-dom'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom'
@@ -242,19 +243,17 @@ export default function PostDetailPage() {
     },
     onError: () => toast.error('Không thể thêm bình luận'),
   })
-  const bookmarkMutation = useMutation({
-    mutationFn: () => postsApi.bookmarkPost(post!.id),
+  const bookmarkMutation = useBookmarkPost({
     onSuccess: () => {
       const next = !bookmarked
       setBookmarked(next)
       toast.success(next ? 'Đã lưu bài viết' : 'Đã bỏ lưu')
-      queryClient.invalidateQueries({ queryKey: ['bookmarks'] })
     },
     onError: () => toast.error('Không thể cập nhật bookmark'),
   })
   const handleBookmarkToggle = () => {
     if (bookmarkMutation.isPending) return
-    bookmarkMutation.mutate()
+    bookmarkMutation.mutate(post!.id)
   }
 
   const shareUrl = typeof window !== 'undefined' ? window.location.href : ''
