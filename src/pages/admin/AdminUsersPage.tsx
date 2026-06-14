@@ -1,6 +1,10 @@
 'use client'
 import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
+import {
+  useAdminUsers, useActivateUser, useDeactivateUser, useDeleteUser,
+  useUpdateUser, useBulkActivateUsers, useBulkDeactivateUsers,
+} from '@/hooks/queries/admin-users'
 import { Search, UserCheck, UserX, Trash2, Eye, Users, ChevronLeft, ChevronRight, Shield, ArrowUpDown, LogOut, Edit2 } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -10,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { adminApi, type UserSummaryResponse, type UserDetailResponse, type AdminUserUpdateRequest } from '@/lib/api/admin'
+import { adminApi, type UserSummaryResponse, type UserDetailResponse } from '@/lib/api/admin'
 import { formatDate } from '@/lib/utils'
 import { toast } from 'sonner'
 import { useDebounce } from '@/hooks/use-debounce'
@@ -28,43 +32,29 @@ export default function AdminUsersPage() {
   const [editUser, setEditUser] = useState<UserDetailResponse | null>(null)
   const [editForm, setEditForm] = useState({ fullName: '', bio: '' })
   const debouncedSearch = useDebounce(search, 400)
-  const queryClient = useQueryClient()
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['admin-users', page, debouncedSearch, statusFilter, roleFilter, sortBy],
-    queryFn: () => adminApi.listUsers({
-      search: debouncedSearch || undefined,
-      status: statusFilter || undefined,
-      role: roleFilter || undefined,
-      sort: sortBy || undefined,
-      page, size: 15,
-    }),
+  const { data, isLoading } = useAdminUsers({
+    page, search: debouncedSearch, status: statusFilter, role: roleFilter, sortBy,
   })
 
-  const activateMutation = useMutation({
-    mutationFn: (id: string) => adminApi.activateUser(id),
-    onSuccess: () => { toast.success('Đã kích hoạt người dùng'); queryClient.invalidateQueries({ queryKey: ['admin-users'] }); setConfirmAction(null) },
+  const activateMutation = useActivateUser({
+    onSuccess: () => { toast.success('Đã kích hoạt người dùng'); setConfirmAction(null) },
   })
-  const deactivateMutation = useMutation({
-    mutationFn: (id: string) => adminApi.deactivateUser(id),
-    onSuccess: () => { toast.success('Đã vô hiệu hóa'); queryClient.invalidateQueries({ queryKey: ['admin-users'] }); setConfirmAction(null) },
+  const deactivateMutation = useDeactivateUser({
+    onSuccess: () => { toast.success('Đã vô hiệu hóa'); setConfirmAction(null) },
   })
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => adminApi.deleteUser(id),
-    onSuccess: () => { toast.success('Đã xóa người dùng'); queryClient.invalidateQueries({ queryKey: ['admin-users'] }); setConfirmAction(null) },
+  const deleteMutation = useDeleteUser({
+    onSuccess: () => { toast.success('Đã xóa người dùng'); setConfirmAction(null) },
   })
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: AdminUserUpdateRequest }) => adminApi.updateUser(id, data),
-    onSuccess: () => { toast.success('Đã cập nhật'); setEditUser(null); queryClient.invalidateQueries({ queryKey: ['admin-users'] }) },
+  const updateMutation = useUpdateUser({
+    onSuccess: () => { toast.success('Đã cập nhật'); setEditUser(null) },
     onError: () => toast.error('Không thể cập nhật'),
   })
-  const bulkActivateMutation = useMutation({
-    mutationFn: () => adminApi.bulkActivate(selectedIds),
-    onSuccess: () => { toast.success(`Đã kích hoạt ${selectedIds.length} người dùng`); setSelectedIds([]); queryClient.invalidateQueries({ queryKey: ['admin-users'] }) },
+  const bulkActivateMutation = useBulkActivateUsers({
+    onSuccess: () => { toast.success(`Đã kích hoạt ${selectedIds.length} người dùng`); setSelectedIds([]) },
   })
-  const bulkDeactivateMutation = useMutation({
-    mutationFn: () => adminApi.bulkDeactivate(selectedIds),
-    onSuccess: () => { toast.success(`Đã vô hiệu hóa ${selectedIds.length} người dùng`); setSelectedIds([]); queryClient.invalidateQueries({ queryKey: ['admin-users'] }) },
+  const bulkDeactivateMutation = useBulkDeactivateUsers({
+    onSuccess: () => { toast.success(`Đã vô hiệu hóa ${selectedIds.length} người dùng`); setSelectedIds([]) },
   })
 
   const users = data?.content ?? []
@@ -139,14 +129,14 @@ export default function AdminUsersPage() {
             <div className="row" style={{ gap: 8 }}>
               <button
                 className="btn3d sm"
-                onClick={() => bulkActivateMutation.mutate()}
+                onClick={() => bulkActivateMutation.mutate(selectedIds)}
                 disabled={bulkActivateMutation.isPending}
               >
                 <UserCheck size={13} />Kích hoạt ({selectedIds.length})
               </button>
               <button
                 className="btn3d ghost sm"
-                onClick={() => bulkDeactivateMutation.mutate()}
+                onClick={() => bulkDeactivateMutation.mutate(selectedIds)}
                 disabled={bulkDeactivateMutation.isPending}
                 style={{ color: 'var(--hard)' }}
               >

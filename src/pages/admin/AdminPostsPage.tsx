@@ -1,6 +1,8 @@
 'use client'
 import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  useAdminPosts, useFeaturePost, usePinPost, usePublishPost, useArchivePost, useDeletePost,
+} from '@/hooks/queries/admin-posts'
 import {
   Search,
   Star,
@@ -16,7 +18,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { postsApi, type PostResponse } from '@/lib/api/posts'
+import { type PostResponse } from '@/lib/api/posts'
 import { formatRelativeTime } from '@/lib/utils'
 import { toast } from 'sonner'
 import { useDebounce } from '@/hooks/use-debounce'
@@ -59,34 +61,25 @@ export default function AdminPostsPage() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const debouncedSearch = useDebounce(search, 400)
-  const queryClient = useQueryClient()
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['admin-posts', page, debouncedSearch, statusFilter],
-    queryFn: () => postsApi.adminGetAll({ keyword: debouncedSearch || undefined, status: statusFilter || undefined, page, size: 15 }),
-  })
+  const { data, isLoading } = useAdminPosts({ page, search: debouncedSearch, status: statusFilter })
 
-  const featureMutation = useMutation({
-    mutationFn: ({ id, featured }: { id: number; featured: boolean }) => postsApi.adminFeature(id, featured),
-    onSuccess: () => { toast.success('Đã cập nhật'); queryClient.invalidateQueries({ queryKey: ['admin-posts'] }) },
+  const featureMutation = useFeaturePost({
+    onSuccess: () => { toast.success('Đã cập nhật') },
   })
-  const pinMutation = useMutation({
-    mutationFn: ({ id, pinned }: { id: number; pinned: boolean }) => postsApi.adminPin(id, pinned),
-    onSuccess: () => { toast.success('Đã cập nhật'); queryClient.invalidateQueries({ queryKey: ['admin-posts'] }) },
+  const pinMutation = usePinPost({
+    onSuccess: () => { toast.success('Đã cập nhật') },
   })
-  const publishMutation = useMutation({
-    mutationFn: (id: number) => postsApi.publish(id),
-    onSuccess: () => { toast.success('Đã publish bài viết'); setConfirm(null); queryClient.invalidateQueries({ queryKey: ['admin-posts'] }) },
+  const publishMutation = usePublishPost({
+    onSuccess: () => { toast.success('Đã publish bài viết'); setConfirm(null) },
     onError: () => toast.error('Không thể publish'),
   })
-  const archiveMutation = useMutation({
-    mutationFn: (id: number) => postsApi.archive(id),
-    onSuccess: () => { toast.success('Đã lưu trữ'); setConfirm(null); queryClient.invalidateQueries({ queryKey: ['admin-posts'] }) },
+  const archiveMutation = useArchivePost({
+    onSuccess: () => { toast.success('Đã lưu trữ'); setConfirm(null) },
     onError: () => toast.error('Không thể lưu trữ'),
   })
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => postsApi.delete(id),
-    onSuccess: () => { toast.success('Đã xoá'); setConfirm(null); queryClient.invalidateQueries({ queryKey: ['admin-posts'] }) },
+  const deleteMutation = useDeletePost({
+    onSuccess: () => { toast.success('Đã xoá'); setConfirm(null) },
     onError: () => toast.error('Không thể xoá'),
   })
 

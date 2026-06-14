@@ -1,5 +1,6 @@
 'use client'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import { useActiveSession, useStartExam, useStartPractice } from '@/hooks/queries/exam-sessions'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
@@ -44,21 +45,13 @@ function CreatePracticeDialog({
   domains: CertificationDomainResponse[]
 }) {
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
   const [questionCount, setQuestionCount] = useState<number>(20)
   const [selectedDomainIds, setSelectedDomainIds] = useState<number[]>(() => domains.map(d => d.id))
   const [difficulties, setDifficulties] = useState<string[]>(['EASY', 'MEDIUM', 'HARD'])
 
-  const startPracticeMutation = useMutation({
-    mutationFn: () => examSessionsApi.startPractice({
-      certificationId,
-      questionCount,
-      domainIds: selectedDomainIds,
-      difficulties,
-    }),
+  const startPracticeMutation = useStartPractice({
     onSuccess: (data) => {
       sessionStorage.setItem(EXAM_SESSION_KEY(data.id), JSON.stringify(data))
-      queryClient.invalidateQueries({ queryKey: ['exam-sessions', 'active'] })
       toast.success('Đã khởi tạo đề luyện tập!')
       onOpenChange(false)
       navigate(`/exam/${data.id}`)
@@ -191,7 +184,12 @@ function CreatePracticeDialog({
             Hủy
           </Button>
           <Button
-            onClick={() => startPracticeMutation.mutate()}
+            onClick={() => startPracticeMutation.mutate({
+              certificationId,
+              questionCount,
+              domainIds: selectedDomainIds,
+              difficulties,
+            })}
             disabled={startPracticeMutation.isPending || selectedDomainIds.length === 0}
             className="flex-1 bg-primary hover:bg-slate-800 text-white font-semibold cursor-pointer shadow-md shadow-blue-500/10"
           >
@@ -277,7 +275,6 @@ function DomainAccordion({ domain }: { domain: CertificationDomainResponse }) {
 export default function CertificationDetailPage() {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
   const [practiceDialogOpen, setPracticeDialogOpen] = useState(false)
 
   const { data: cert, isLoading } = useQuery({
@@ -285,17 +282,11 @@ export default function CertificationDetailPage() {
     queryFn: () => certificationsApi.getBySlug(slug),
   })
 
-  const { data: activeSessions = [] } = useQuery({
-    queryKey: ['exam-sessions', 'active'],
-    queryFn: () => examSessionsApi.getActive(),
-    refetchOnWindowFocus: true,
-  })
+  const { data: activeSessions = [] } = useActiveSession()
 
-  const startExamMutation = useMutation({
-    mutationFn: (examId: number) => examSessionsApi.startExam(examId),
+  const startExamMutation = useStartExam({
     onSuccess: (data) => {
       sessionStorage.setItem(EXAM_SESSION_KEY(data.id), JSON.stringify(data))
-      queryClient.invalidateQueries({ queryKey: ['exam-sessions', 'active'] })
       navigate(`/exam/${data.id}`)
     },
     onError: () => toast.error('Không thể bắt đầu bài thi. Vui lòng thử lại.'),

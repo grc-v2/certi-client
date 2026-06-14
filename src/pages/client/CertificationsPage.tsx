@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useInfiniteQuery, useQuery, useMutation } from '@tanstack/react-query'
+import { useInfiniteQuery, useMutation } from '@tanstack/react-query'
+import { useActiveSession } from '@/hooks/queries/exam-sessions'
 import { Search, GraduationCap, Clock, ChevronDown, Trophy, Star, ChevronRight, RotateCcw, BookOpen } from 'lucide-react'
 import { certificationsApi, type CertificationResponse } from '@/lib/api/certifications'
 import {
@@ -145,11 +146,7 @@ export default function CertificationsPage() {
   const [level, setLevel] = useState('')
   const debouncedSearch = useDebounce(search, 400)
 
-  const { data: activeSessions = [] } = useQuery({
-    queryKey: ['exam-sessions', 'active'],
-    queryFn: () => examSessionsApi.getActive(),
-    refetchOnWindowFocus: true,
-  })
+  const { data: activeSessions = [] } = useActiveSession()
 
   const [resumingId, setResumingId] = useState<number | null>(null)
   const resumeMutation = useMutation({

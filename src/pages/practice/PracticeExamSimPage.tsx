@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Clock, CheckCircle2, AlertTriangle, Play } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -8,13 +8,13 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { certificationsApi, type CertificationResponse, type ExamResponse } from '@/lib/api/certifications'
-import { examSessionsApi, EXAM_SESSION_KEY } from '@/lib/api/exam-sessions'
+import { EXAM_SESSION_KEY } from '@/lib/api/exam-sessions'
+import { useStartExam } from '@/hooks/queries/exam-sessions'
 import { toast } from 'sonner'
 import CertificationPicker from './CertificationPicker'
 
 export default function PracticeExamSimPage() {
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
   const [cert, setCert] = useState<CertificationResponse | null>(null)
   const [confirmExam, setConfirmExam] = useState<ExamResponse | null>(null)
 
@@ -24,11 +24,9 @@ export default function PracticeExamSimPage() {
     enabled: !!cert?.slug,
   })
 
-  const startExamMutation = useMutation({
-    mutationFn: (examId: number) => examSessionsApi.startExam(examId),
+  const startExamMutation = useStartExam({
     onSuccess: (data) => {
       sessionStorage.setItem(EXAM_SESSION_KEY(data.id), JSON.stringify(data))
-      queryClient.invalidateQueries({ queryKey: ['exam-sessions', 'active'] })
       toast.success('Bắt đầu thi thử!')
       navigate(`/exam/${data.id}`)
     },

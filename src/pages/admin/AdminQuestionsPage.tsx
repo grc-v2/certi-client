@@ -1,6 +1,10 @@
 'use client'
 import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
+import {
+  useAdminQuestions, useCreateQuestion, useUpdateQuestion,
+  useDeleteQuestion, useUpdateQuestionStatus, useBulkUpdateQuestionStatus,
+} from '@/hooks/queries/admin-questions'
 import {
   Search, Plus, Trash2, ChevronLeft, ChevronRight, Eye, Edit2,
   Sparkles, CheckCircle2, XCircle, Power,
@@ -14,7 +18,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { certificationsApi, type CertificationResponse } from '@/lib/api/certifications'
 import {
-  adminQuestionsApi,
   type AdminQuestionResponse,
   type QuestionCreateRequest,
   type QuestionOptionRequest,
@@ -65,19 +68,10 @@ export default function AdminQuestionsPage() {
   })
 
   const debouncedSearch = useDebounce(search, 400)
-  const queryClient = useQueryClient()
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['admin-questions', page, debouncedSearch, typeFilter, diffFilter, statusFilter, certFilter, domainFilter],
-    queryFn: () => adminQuestionsApi.search({
-      keyword: debouncedSearch || undefined,
-      type: typeFilter || undefined,
-      difficulty: diffFilter || undefined,
-      status: statusFilter || undefined,
-      certificationId: certFilter ? Number(certFilter) : undefined,
-      domainId: domainFilter ? Number(domainFilter) : undefined,
-      page, size: 15,
-    }),
+  const { data, isLoading } = useAdminQuestions({
+    page, search: debouncedSearch, type: typeFilter, difficulty: diffFilter,
+    status: statusFilter, certFilter, domainFilter,
   })
 
   const { data: certsData } = useQuery({
@@ -91,23 +85,22 @@ export default function AdminQuestionsPage() {
     enabled: !!certFilter,
   })
 
-  const createMutation = useMutation({
-    mutationFn: (data: QuestionCreateRequest) => adminQuestionsApi.create(data),
-    onSuccess: () => { toast.success('Đã tạo câu hỏi'); closeDialog(); queryClient.invalidateQueries({ queryKey: ['admin-questions'] }) },
+  const createMutation = useCreateQuestion({
+    onSuccess: () => { toast.success('Đã tạo câu hỏi'); closeDialog() },
     onError: () => toast.error('Không thể tạo câu hỏi'),
   })
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: QuestionCreateRequest }) => adminQuestionsApi.update(id, data),
-    onSuccess: () => { toast.success('Đã cập nhật'); closeDialog(); queryClient.invalidateQueries({ queryKey: ['admin-questions'] }) },
+  const updateMutation = useUpdateQuestion({
+    onSuccess: () => { toast.success('Đã cập nhật'); closeDialog() },
     onError: () => toast.error('Không thể cập nhật'),
   })
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => adminQuestionsApi.delete(id),
-    onSuccess: () => { toast.success('Đã xóa'); setConfirmDelete(null); queryClient.invalidateQueries({ queryKey: ['admin-questions'] }) },
+  const deleteMutation = useDeleteQuestion({
+    onSuccess: () => { toast.success('Đã xóa'); setConfirmDelete(null) },
   })
-  const statusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: number; status: string }) => adminQuestionsApi.updateStatus(id, status),
-    onSuccess: () => { toast.success('Đã cập nhật trạng thái'); queryClient.invalidateQueries({ queryKey: ['admin-questions'] }) },
+  const statusMutation = useUpdateQuestionStatus({
+    onSuccess: () => { toast.success('Đã cập nhật trạng thái') },
+  })
+  const bulkStatusMutation = useBulkUpdateQuestionStatus({
+    onSuccess: () => { toast.success(`Đã cập nhật ${selectedIds.length} câu hỏi`); setSelectedIds([]); setBulkStatusDialog(false) },
   })
 
   const questions = data?.content ?? []
@@ -176,15 +169,9 @@ export default function AdminQuestionsPage() {
     }))
   }
 
-  async function handleBulkStatus() {
+  function handleBulkStatus() {
     if (!bulkStatus || selectedIds.length === 0) return
-    for (const id of selectedIds) {
-      await adminQuestionsApi.updateStatus(id, bulkStatus)
-    }
-    toast.success(`Đã cập nhật ${selectedIds.length} câu hỏi`)
-    setSelectedIds([])
-    setBulkStatusDialog(false)
-    queryClient.invalidateQueries({ queryKey: ['admin-questions'] })
+    bulkStatusMutation.mutate({ ids: selectedIds, status: bulkStatus })
   }
 
   return (

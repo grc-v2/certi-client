@@ -32,7 +32,7 @@ export const QUERY_KEYS = {
   DASHBOARD: ['dashboard'],
   NOTIFICATIONS: ['notifications'],
   STUDY_PLANS: ['study-plans'],
-  EXAM_SESSIONS: ['exam-sessions'],
+  // EXAM_SESSIONS absorbed into the keys factory (lib/query-keys.ts: keys.examSessions)
   TAGS: ['tags'],
   BOOKMARKS: ['bookmarks'],
   STREAKS: ['streaks'],

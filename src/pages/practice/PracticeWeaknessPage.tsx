@@ -1,6 +1,6 @@
 'use client'
 import { useState, useMemo } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Zap, Play, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -8,7 +8,8 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { certificationsApi, type CertificationResponse } from '@/lib/api/certifications'
-import { examSessionsApi, EXAM_SESSION_KEY } from '@/lib/api/exam-sessions'
+import { EXAM_SESSION_KEY } from '@/lib/api/exam-sessions'
+import { useStartPractice } from '@/hooks/queries/exam-sessions'
 import { resultsApi } from '@/lib/api/results'
 import { useAuthStore } from '@/store/auth-store'
 import { toast } from 'sonner'
@@ -18,7 +19,6 @@ const WEAKNESS_THRESHOLD = 70
 
 export default function PracticeWeaknessPage() {
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
   const { user } = useAuthStore()
   const [cert, setCert] = useState<CertificationResponse | null>(null)
 
@@ -42,15 +42,9 @@ export default function PracticeWeaknessPage() {
       .sort((a, b) => a.percentage - b.percentage)
   }, [lastResult])
 
-  const startMutation = useMutation({
-    mutationFn: () => examSessionsApi.startPractice({
-      certificationId: cert!.id,
-      questionCount: 20,
-      domainIds: weakDomains.map(d => d.topicId),
-    }),
+  const startMutation = useStartPractice({
     onSuccess: (data) => {
       sessionStorage.setItem(EXAM_SESSION_KEY(data.id), JSON.stringify(data))
-      queryClient.invalidateQueries({ queryKey: ['exam-sessions', 'active'] })
       toast.success('Đã tạo phiên luyện tập tập trung vào điểm yếu!')
       navigate(`/exam/${data.id}`)
     },
@@ -155,7 +149,11 @@ export default function PracticeWeaknessPage() {
           </Card>
 
           <Button
-            onClick={() => startMutation.mutate()}
+            onClick={() => startMutation.mutate({
+              certificationId: cert!.id,
+              questionCount: 20,
+              domainIds: weakDomains.map(d => d.topicId),
+            })}
             disabled={startMutation.isPending}
             className="w-full bg-orange-500 hover:bg-orange-600 text-white cursor-pointer"
           >
