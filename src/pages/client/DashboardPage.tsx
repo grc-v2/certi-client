@@ -1,222 +1,94 @@
-import { useQuery } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
-import { BarChart2, CheckCircle2, XCircle, ChevronRight } from 'lucide-react'
-import { resultsApi } from '@/lib/api/results'
-import { examSessionsApi } from '@/lib/api/exam-sessions'
+import { useState } from 'react'
+import { LayoutGrid, Settings, RotateCcw } from 'lucide-react'
+import { ResourceHubSummaryCard } from '@/features/tracker/resources/resource-hub-summary-card'
+import { TodoCard } from '@/features/tracker/todo/todo-card'
+import { PomodoroCard } from '@/features/tracker/pomodoro/pomodoro-card'
+import { HabitCard } from '@/features/tracker/habits/habit-card'
+import { SettingsDialog } from '@/features/tracker/settings/settings-dialog'
+import { useResetTrackerData } from '@/hooks/queries/tracker-data'
 import { useAuthStore } from '@/store/auth-store'
 
-import { CertHero } from '@/components/dashboard/cert-hero'
-import { QuickStats } from '@/components/dashboard/quick-stats'
-import { DomainsBreakdown } from '@/components/dashboard/domains-breakdown'
-import { PracticeModes } from '@/components/dashboard/practice-modes'
-import { RecommendedNext } from '@/components/dashboard/recommended-next'
+const BOARD_TITLE_KEY = 'tracker.boardTitle'
 
+/**
+ * Personal Tracker dashboard. Replaces the former exam-focused dashboard at
+ * `/dashboard` — a bento grid of Todo, Pomodoro, Resource Hub plus coming-soon
+ * cards, with a header for board title + settings/reset.
+ */
 export default function DashboardPage() {
   const { user } = useAuthStore()
+  const defaultTitle = `Bảng của ${user?.fullName?.split(' ').pop() || 'bạn'}`
+  const [boardTitle, setBoardTitle] = useState(() => localStorage.getItem(BOARD_TITLE_KEY) || defaultTitle)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const resetData = useResetTrackerData()
 
-  const { data: historyData, isLoading: isHistoryLoading } = useQuery({
-    queryKey: ['results-history', user?.id],
-    queryFn: () => resultsApi.getHistory(user!.id, { size: 10 }),
-    enabled: !!user?.id,
+  const today = new Date().toLocaleDateString('vi-VN', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
   })
-  const history = historyData?.results ?? []
-  const stats = historyData?.statistics
 
-  const { data: activeSessions } = useQuery({
-    queryKey: ['active-sessions'],
-    queryFn: () => examSessionsApi.getActive(),
-    enabled: !!user?.id,
-  })
+  function updateBoardTitle(title: string) {
+    setBoardTitle(title)
+    localStorage.setItem(BOARD_TITLE_KEY, title)
+  }
+
+  function quickReset() {
+    if (window.confirm('Xoá toàn bộ task, tài nguyên và nhóm? Cài đặt được giữ lại. Không thể hoàn tác.')) {
+      resetData.mutate()
+    }
+  }
 
   return (
-    <div className="col" style={{ gap: 20 }}>
-      {/* Page header */}
-      <div>
-        <span className="eyebrow">Bảng điều khiển</span>
-        <h1 style={{ fontSize: 25, fontWeight: 800, marginTop: 6, color: 'var(--ink)' }}>
-          Chào {user?.fullName || 'bạn'} 👋
-        </h1>
-      </div>
-
-      {/* Hero */}
-      <CertHero
-        userName={user?.fullName?.split(' ').pop() || 'bạn'}
-        progress={65}
-        certName="AWS Certified Solutions Architect – Associate"
-        certCode="SAA-C03"
-      />
-
-      {/* Quick stats */}
-      <QuickStats
-        streak={12}
-        xp={2450}
-        accuracy={stats?.passRate ? Math.round(Number(stats.passRate) * 100) : 78}
-        timeSpent="14h 30m"
-        isLoading={isHistoryLoading}
-      />
-
-      {/* Main two-column grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.55fr 1fr', gap: 18 }} className="main-grid">
-
-        {/* Left column */}
-        <div className="col" style={{ gap: 18 }}>
-          <RecommendedNext />
-          <PracticeModes />
-
-          {/* Activity feed */}
-          <div className="card enter enter-3" style={{ padding: 0, overflow: 'hidden' }}>
-            <div className="row" style={{ justifyContent: 'space-between', alignItems: 'center', padding: '18px 20px 12px' }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--ink)', margin: 0 }}>
-                Hoạt động gần đây
-              </h3>
-              <Link
-                to="/certifications/exam-history"
-                className="row"
-                style={{ gap: 4, fontSize: 13, color: 'var(--brand-deep)', fontWeight: 600, alignItems: 'center' }}
-              >
-                Xem tất cả <ChevronRight size={14} />
-              </Link>
-            </div>
-
-            {isHistoryLoading ? (
-              <div style={{ padding: '0 20px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {[1, 2, 3].map(n => (
-                  <div key={n} style={{ height: 56, background: 'var(--surface-2)', borderRadius: 12, animation: 'pulse 1.5s ease-in-out infinite' }} />
-                ))}
-              </div>
-            ) : history.length > 0 ? (
-              <div>
-                {history.slice(0, 5).map((result) => {
-                  const isPassed = result.status === 'PASSED'
-                  const date = new Date(result.completedAt).toLocaleDateString('vi-VN', {
-                    month: 'short', day: 'numeric',
-                  })
-                  return (
-                    <Link
-                      key={result.resultId}
-                      to={`/certifications/results/${result.resultId}`}
-                      className="row"
-                      style={{
-                        padding: '12px 20px', gap: 12, alignItems: 'center',
-                        borderTop: '1px solid var(--border)', cursor: 'pointer',
-                        transition: 'background .15s', textDecoration: 'none',
-                      }}
-                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-2)')}
-                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                    >
-                      <div className="itile" style={{
-                        width: 36, height: 36, flexShrink: 0,
-                        background: isPassed ? 'var(--easy-soft)' : 'var(--hard-soft)',
-                      }}>
-                        {isPassed
-                          ? <CheckCircle2 size={19} style={{ color: 'var(--easy)' }} />
-                          : <XCircle size={19} style={{ color: 'var(--hard)' }} />
-                        }
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {result.examTitle}
-                        </div>
-                        <div className="row" style={{ gap: 7, fontSize: 11.5, color: 'var(--ink-3)', marginTop: 2 }}>
-                          <span className="mono">{result.correctAnswers}/{result.totalQuestions}</span>
-                          <span>·</span>
-                          <span>{date}</span>
-                        </div>
-                      </div>
-                      <div className="col" style={{ alignItems: 'flex-end' }}>
-                        <span className="mono tnum" style={{ fontSize: 16, fontWeight: 700, color: isPassed ? 'var(--brand-deep)' : 'var(--hard)' }}>
-                          {Math.round(Number(result.percentage))}%
-                        </span>
-                      </div>
-                    </Link>
-                  )
-                })}
-              </div>
-            ) : (
-              <div style={{ padding: '32px 20px', textAlign: 'center', color: 'var(--ink-3)' }}>
-                <BarChart2 size={32} style={{ marginBottom: 10, opacity: .4 }} />
-                <p style={{ fontWeight: 600, color: 'var(--ink-2)', fontSize: 13 }}>Chưa có kết quả thi nào</p>
-                <Link to="/certifications">
-                  <button className="btn-3d" style={{ marginTop: 14, padding: '10px 18px', fontSize: 13 }}>
-                    Luyện thi ngay
-                  </button>
-                </Link>
-              </div>
-            )}
+    <div className="col" style={{ gap: 16 }}>
+      {/* Page header — board title + date (left), actions (right) */}
+      <header className="row" style={{ justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
+        <div className="row" style={{ alignItems: 'center', gap: 12 }}>
+          <span className="itile" style={{ width: 40, height: 40, background: 'var(--color-accent-soft)', color: 'var(--color-accent-ink)' }}>
+            <LayoutGrid size={21} />
+          </span>
+          <div>
+            <h1 style={{ fontSize: 22, fontWeight: 800, color: 'var(--color-ink)' }}>{boardTitle}</h1>
+            <p style={{ fontSize: 12.5, color: 'var(--color-ink-faint)', marginTop: 2, textTransform: 'capitalize' }}>{today}</p>
           </div>
         </div>
+        <div className="row" style={{ gap: 8 }}>
+          <button onClick={quickReset} disabled={resetData.isPending} className="iconbtn" title="Đặt lại dữ liệu">
+            <RotateCcw size={18} />
+          </button>
+          <button onClick={() => setSettingsOpen(true)} className="iconbtn" title="Cài đặt">
+            <Settings size={18} />
+          </button>
+        </div>
+      </header>
 
-        {/* Right column */}
-        <div className="col" style={{ gap: 18 }}>
-          <DomainsBreakdown />
+      {/* Bento grid */}
+      <div className="tracker-grid">
+        {/* Todo — hero: 2 cols × full height (Kanban + Lịch) so tasks have room */}
+        <TodoCard className="enter enter-1" style={{ gridColumn: '1 / 3', gridRow: '1 / 3', minHeight: 0 }} />
 
-          {/* Active sessions */}
-          {activeSessions && activeSessions.length > 0 && (
-            <div className="card enter enter-2" style={{ padding: 0, overflow: 'hidden', borderColor: 'color-mix(in srgb, var(--brand) 40%, var(--border))' }}>
-              <div style={{ height: 4, background: 'var(--brand)' }} />
-              <div style={{ padding: '18px 20px' }}>
-                <div className="row" style={{ gap: 9, alignItems: 'center', marginBottom: 14 }}>
-                  <span className="pill brand" style={{ padding: '3px 9px', fontSize: 11 }}>
-                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--brand)', display: 'inline-block' }} />
-                    Đang làm · {activeSessions.length} phiên
-                  </span>
-                </div>
-                {activeSessions.slice(0, 2).map(session => (
-                  <div key={session.id} className="col" style={{ gap: 10, padding: '12px 14px', background: 'var(--surface-2)', borderRadius: 'var(--radius-sm)', marginBottom: 8 }}>
-                    <div>
-                      <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--ink)' }}>{session.examTitle}</div>
-                      <div style={{ fontSize: 11.5, color: 'var(--ink-3)', marginTop: 2 }}>{session.certificationName}</div>
-                    </div>
-                    <div className="row" style={{ gap: 8, alignItems: 'center' }}>
-                      <div className="ch-track" style={{ flex: 1, height: 7 }}>
-                        <i style={{ width: `${session.totalQuestions > 0 ? Math.round((session.answeredCount / session.totalQuestions) * 100) : 0}%` }} />
-                      </div>
-                      <span className="mono" style={{ fontSize: 11, color: 'var(--ink-3)' }}>
-                        {session.answeredCount}/{session.totalQuestions}
-                      </span>
-                    </div>
-                    <Link to={`/exam/${session.id}`}>
-                      <button className="btn-3d" style={{ width: '100%', padding: '9px 14px', fontSize: 13 }}>
-                        Tiếp tục
-                      </button>
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Quick links */}
-          <div className="card enter enter-4" style={{ padding: '18px 20px' }}>
-            <span className="eyebrow" style={{ marginBottom: 12, display: 'block' }}>Lối tắt nhanh</span>
-            <div className="col" style={{ gap: 4 }}>
-              {[
-                { href: '/certifications', label: 'Tra cứu chứng chỉ' },
-                { href: '/community',     label: 'Cộng đồng & Chia sẻ' },
-                { href: '/profile/me',    label: 'Thiết lập mục tiêu' },
-              ].map(link => (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  className="row"
-                  style={{
-                    padding: '10px 12px', borderRadius: 'var(--radius-sm)',
-                    justifyContent: 'space-between', alignItems: 'center',
-                    fontSize: 13.5, fontWeight: 600, color: 'var(--ink-2)',
-                    background: 'var(--surface-2)', transition: 'background .15s',
-                    textDecoration: 'none',
-                  }}
-                  onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-3)')}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'var(--surface-2)')}
-                >
-                  {link.label}
-                  <ChevronRight size={16} style={{ color: 'var(--ink-3)' }} />
-                </Link>
-              ))}
-            </div>
-          </div>
+        {/* Right rail — full height: Pomodoro on top, Resource Hub fills the rest */}
+        <div className="col" style={{ gridColumn: '3', gridRow: '1 / 3', gap: 14, minWidth: 0 }}>
+          <PomodoroCard className="enter enter-2" style={{ flexShrink: 0 }} />
+          <ResourceHubSummaryCard className="enter enter-3" style={{ flex: 1, minHeight: 0 }} />
         </div>
       </div>
+
+      {/* Habits — today's good habits with quick check-in */}
+      <HabitCard className="enter enter-3" />
+
+      {/* Roadmap hint — kept slim, off the prime grid */}
+      <p style={{ fontSize: 12, color: 'var(--color-ink-faint)', textAlign: 'center', margin: 0 }}>
+        Sắp ra mắt: Chi tiêu
+      </p>
+
+      <SettingsDialog
+        open={settingsOpen}
+        boardTitle={boardTitle}
+        onBoardTitleChange={updateBoardTitle}
+        onClose={() => setSettingsOpen(false)}
+      />
     </div>
   )
 }

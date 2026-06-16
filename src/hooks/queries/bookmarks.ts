@@ -11,25 +11,15 @@ export function useBookmarks(params: { search: string; page: number; size: numbe
   })
 }
 
-/** Bookmark a post (toggle endpoint). Returns the created `BookmarkResponse`. */
-export function useBookmarkPost(options?: Omit<UseMutationOptions<BookmarkResponse, Error, number>, 'mutationFn'>) {
+/**
+ * Toggle a post's bookmark. The backend endpoint adds the bookmark if absent and
+ * removes it if present, returning the created `BookmarkResponse` (or nothing on removal).
+ */
+export function useToggleBookmark(options?: Omit<UseMutationOptions<BookmarkResponse, Error, number>, 'mutationFn'>) {
   const queryClient = useQueryClient()
   return useMutation({
     ...options,
-    mutationFn: (postId: number) => postsApi.bookmarkPost(postId),
-    onSuccess: (...args) => {
-      queryClient.invalidateQueries({ queryKey: keys.bookmarks.all })
-      options?.onSuccess?.(...args)
-    },
-  })
-}
-
-/** Remove a post's bookmark. */
-export function useRemoveBookmark(options?: Omit<UseMutationOptions<unknown, Error, number>, 'mutationFn'>) {
-  const queryClient = useQueryClient()
-  return useMutation<unknown, Error, number>({
-    ...options,
-    mutationFn: (postId: number) => postsApi.removeBookmark(postId),
+    mutationFn: (postId: number) => postsApi.toggleBookmark(postId),
     onSuccess: (...args) => {
       queryClient.invalidateQueries({ queryKey: keys.bookmarks.all })
       options?.onSuccess?.(...args)

@@ -81,7 +81,7 @@ export function SelectTrigger({ className, children, ...props }: any) {
       type="button"
       ref={setRef}
       onClick={() => context.setOpen(!context.open)}
-      className={`flex h-10 w-full items-center justify-between rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary ${className}`}
+      className={`flex h-10 w-full items-center justify-between rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary ${className}`}
       {...props}
     >
       {children}
@@ -160,7 +160,7 @@ export function SelectContent({ className, children, style, ...props }: any) {
         onClick={() => context.setOpen(false)}
       />
       <div
-        className={`max-h-60 overflow-auto rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-1 shadow-md ${className ?? ''}`}
+        className={`max-h-60 overflow-auto rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-1 shadow-md ${className ?? ''}`}
         style={{ ...positionStyle, ...style }}
         {...props}
       >
@@ -182,10 +182,10 @@ export function SelectItem({ value, children, ...props }: any) {
         context.setValue(value)
         context.setOpen(false)
       }}
-      className={`relative flex w-full cursor-pointer select-none items-center rounded-md py-1.5 pl-3 pr-9 text-sm outline-none hover:bg-slate-100 dark:hover:bg-slate-800 ${
+      className={`relative flex w-full cursor-pointer select-none items-center rounded-md py-1.5 pl-3 pr-9 text-sm outline-none hover:bg-zinc-100 dark:hover:bg-zinc-800 ${
         isSelected
           ? 'bg-primary/10 text-primary font-semibold dark:bg-primary/20 dark:text-blue-400'
-          : 'text-slate-900 dark:text-slate-200'
+          : 'text-zinc-900 dark:text-zinc-200'
       }`}
       {...props}
     >

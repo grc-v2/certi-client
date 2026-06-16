@@ -75,7 +75,7 @@ export default function PracticeFlashcardPage() {
   if (!cert) {
     return (
       <div className="max-w-5xl mx-auto px-4 py-8">
-        <button onClick={() => navigate('/practice')} className="text-sm text-slate-500 hover:text-primary inline-flex items-center gap-1 mb-4 cursor-pointer">
+        <button onClick={() => navigate('/practice')} className="text-sm text-zinc-500 hover:text-accent inline-flex items-center gap-1 mb-4 cursor-pointer">
           <ArrowLeft className="w-4 h-4" />Quay lại
         </button>
         <CertificationPicker
@@ -91,7 +91,7 @@ export default function PracticeFlashcardPage() {
   if (!questions.length) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-        <button onClick={() => setCert(null)} className="text-sm text-slate-500 hover:text-primary inline-flex items-center gap-1 cursor-pointer">
+        <button onClick={() => setCert(null)} className="text-sm text-zinc-500 hover:text-accent inline-flex items-center gap-1 cursor-pointer">
           <ArrowLeft className="w-4 h-4" />Chọn chứng chỉ khác
         </button>
 
@@ -100,15 +100,15 @@ export default function PracticeFlashcardPage() {
             <Layers className="w-6 h-6 text-purple-500" />
           </div>
           <div>
-            <h1 className="text-xl font-extrabold text-slate-900 dark:text-white">Flashcard</h1>
-            <p className="text-sm text-slate-600 dark:text-slate-400">{cert.name}</p>
+            <h1 className="text-xl font-extrabold text-zinc-900 dark:text-white">Flashcard</h1>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">{cert.name}</p>
           </div>
         </div>
 
-        <Card className="border-slate-200 dark:border-slate-800">
+        <Card className="border-zinc-200 dark:border-zinc-800">
           <CardContent className="p-5 space-y-5">
             <div className="space-y-2">
-              <Label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Số lượng thẻ</Label>
+              <Label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Số lượng thẻ</Label>
               <div className="flex gap-2 flex-wrap">
                 {COUNT_OPTIONS.map(c => (
                   <button
@@ -118,7 +118,7 @@ export default function PracticeFlashcardPage() {
                       'px-4 py-2 rounded-lg border text-sm font-medium transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/40',
                       count === c
                         ? 'border-purple-500 bg-purple-500/10 text-purple-600 dark:text-purple-400'
-                        : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-purple-500/40',
+                        : 'border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:border-purple-500/40',
                     )}
                   >
                     {c}
@@ -128,7 +128,7 @@ export default function PracticeFlashcardPage() {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Độ khó</Label>
+              <Label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Độ khó</Label>
               <div className="flex gap-2 flex-wrap">
                 {DIFFICULTIES.map(d => {
                   const selected = difficulties.includes(d.value)
@@ -140,7 +140,7 @@ export default function PracticeFlashcardPage() {
                         'px-3 py-1.5 rounded-lg border text-sm font-medium transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500/40',
                         selected
                           ? d.color
-                          : 'border-slate-200 dark:border-slate-700 text-slate-500 hover:border-slate-300',
+                          : 'border-zinc-200 dark:border-zinc-700 text-zinc-500 hover:border-zinc-300',
                       )}
                     >
                       {d.label}
@@ -185,8 +185,8 @@ export default function PracticeFlashcardPage() {
           <div className="w-16 h-16 mx-auto rounded-2xl bg-purple-500/10 flex items-center justify-center">
             <Layers className="w-8 h-8 text-purple-500" />
           </div>
-          <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white">Hoàn thành phiên flashcard</h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400">
+          <h1 className="text-2xl font-extrabold text-zinc-900 dark:text-white">Hoàn thành phiên flashcard</h1>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">
             {cert.name} · {questions.length} thẻ · {masteryPct}% đã nắm vững
           </p>
         </div>
@@ -206,11 +206,11 @@ export default function PracticeFlashcardPage() {
               <p className="text-[11px] uppercase tracking-wider font-semibold text-orange-700 dark:text-orange-300">Cần ôn lại</p>
             </CardContent>
           </Card>
-          <Card className="border-slate-200 dark:border-slate-700">
+          <Card className="border-zinc-200 dark:border-zinc-700">
             <CardContent className="p-4 text-center space-y-1">
-              <Eye className="w-5 h-5 text-slate-400 mx-auto" />
-              <p className="text-2xl font-extrabold text-slate-600 dark:text-slate-300 tabular-nums">{skipped}</p>
-              <p className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Chưa đánh giá</p>
+              <Eye className="w-5 h-5 text-zinc-400 mx-auto" />
+              <p className="text-2xl font-extrabold text-zinc-600 dark:text-zinc-300 tabular-nums">{skipped}</p>
+              <p className="text-[11px] uppercase tracking-wider font-semibold text-zinc-500">Chưa đánh giá</p>
             </CardContent>
           </Card>
         </div>
@@ -233,7 +233,7 @@ export default function PracticeFlashcardPage() {
         </div>
         <button
           onClick={() => navigate('/practice')}
-          className="block mx-auto text-sm text-slate-500 hover:text-primary cursor-pointer"
+          className="block mx-auto text-sm text-zinc-500 hover:text-accent cursor-pointer"
         >
           Quay lại trang luyện tập
         </button>
@@ -262,18 +262,18 @@ export default function PracticeFlashcardPage() {
       <div className="flex items-center justify-between gap-3">
         <button
           onClick={resetSession}
-          className="text-sm text-slate-500 hover:text-primary inline-flex items-center gap-1 cursor-pointer"
+          className="text-sm text-zinc-500 hover:text-accent inline-flex items-center gap-1 cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />Thoát flashcard
         </button>
-        <div className="text-xs text-slate-500 tabular-nums">{index + 1} / {questions.length}</div>
+        <div className="text-xs text-zinc-500 tabular-nums">{index + 1} / {questions.length}</div>
       </div>
 
-      <div className="h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+      <div className="h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
         <div className="h-full bg-purple-500 transition-all duration-300" style={{ width: `${progress}%` }} />
       </div>
 
-      <Card className="border-slate-200 dark:border-slate-800 min-h-[280px]">
+      <Card className="border-zinc-200 dark:border-zinc-800 min-h-[280px]">
         <CardContent className="p-6 sm:p-8 space-y-4">
           <div className="flex items-center justify-between">
             <div className="text-[10px] uppercase tracking-wider font-bold text-purple-500">
@@ -291,10 +291,10 @@ export default function PracticeFlashcardPage() {
             )}
           </div>
 
-          <p className="text-base sm:text-lg text-slate-900 dark:text-white leading-relaxed">{q.content}</p>
+          <p className="text-base sm:text-lg text-zinc-900 dark:text-white leading-relaxed">{q.content}</p>
 
           {showAnswer ? (
-            <div className="pt-3 mt-3 border-t border-slate-200 dark:border-slate-700 space-y-3">
+            <div className="pt-3 mt-3 border-t border-zinc-200 dark:border-zinc-700 space-y-3">
               <div className="text-[10px] uppercase tracking-wider font-bold text-emerald-500">Đáp án</div>
               <div className="space-y-2">
                 {q.options.map((o, oi) => {
@@ -305,13 +305,13 @@ export default function PracticeFlashcardPage() {
                       className={cn(
                         'flex items-start gap-2 rounded-lg border px-3 py-2 text-sm leading-relaxed',
                         isCorrect
-                          ? 'border-emerald-300 dark:border-emerald-500/40 bg-emerald-50/60 dark:bg-emerald-500/10 text-slate-900 dark:text-white font-medium'
-                          : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 opacity-80',
+                          ? 'border-emerald-300 dark:border-emerald-500/40 bg-emerald-50/60 dark:bg-emerald-500/10 text-zinc-900 dark:text-white font-medium'
+                          : 'border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 opacity-80',
                       )}
                     >
                       <span className={cn(
                         'font-bold flex-shrink-0',
-                        isCorrect ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400',
+                        isCorrect ? 'text-emerald-600 dark:text-emerald-400' : 'text-zinc-400',
                       )}>
                         {String.fromCharCode(65 + oi)}.
                       </span>
@@ -323,9 +323,9 @@ export default function PracticeFlashcardPage() {
               </div>
 
               {q.explanation && (
-                <div className="rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-3 flex gap-2">
-                  <BookOpen className="w-4 h-4 flex-shrink-0 mt-0.5 text-slate-400" />
-                  <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">{q.explanation}</p>
+                <div className="rounded-lg bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 p-3 flex gap-2">
+                  <BookOpen className="w-4 h-4 flex-shrink-0 mt-0.5 text-zinc-400" />
+                  <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">{q.explanation}</p>
                 </div>
               )}
 
@@ -334,7 +334,7 @@ export default function PracticeFlashcardPage() {
                   href={q.referenceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                  className="inline-flex items-center gap-1 text-xs text-accent hover:underline"
                 >
                   <ExternalLink className="w-3 h-3" />Tham khảo
                 </a>
@@ -386,7 +386,7 @@ export default function PracticeFlashcardPage() {
           <Button
             variant="ghost"
             onClick={() => setShowAnswer(false)}
-            className="text-slate-500 cursor-pointer"
+            className="text-zinc-500 cursor-pointer"
           >
             <EyeOff className="w-4 h-4 mr-1" />Ẩn đáp án
           </Button>
@@ -394,7 +394,7 @@ export default function PracticeFlashcardPage() {
           <Button
             variant="ghost"
             onClick={() => { setIndex(0); setShowAnswer(false); setMarks({}) }}
-            className="text-slate-500 cursor-pointer"
+            className="text-zinc-500 cursor-pointer"
           >
             <RotateCcw className="w-4 h-4 mr-1" />Làm lại
           </Button>

@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { useBookmarks, useBookmarkPost } from '@/hooks/queries/bookmarks'
+import { useBookmarks, useToggleBookmark } from '@/hooks/queries/bookmarks'
 import { Link } from 'react-router-dom'
 import {
   Bookmark, BookmarkX, Search, Tag, Clock, Eye, Heart,
@@ -57,14 +57,14 @@ function Pagination({
 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-      <p className="text-sm text-slate-500 dark:text-slate-400 order-2 sm:order-1">
-        Hiển thị <span className="font-medium text-slate-700 dark:text-slate-200">{from}–{to}</span> trong tổng số <span className="font-medium text-slate-700 dark:text-slate-200">{totalElements}</span> bài viết
+      <p className="text-sm text-zinc-500 dark:text-zinc-400 order-2 sm:order-1">
+        Hiển thị <span className="font-medium text-zinc-700 dark:text-zinc-200">{from}–{to}</span> trong tổng số <span className="font-medium text-zinc-700 dark:text-zinc-200">{totalElements}</span> bài viết
       </p>
       <div className="flex items-center gap-1 order-1 sm:order-2">
         <button
           onClick={() => onPageChange(page - 1)}
           disabled={page === 0}
-          className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors text-slate-600 dark:text-slate-300"
+          className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors text-zinc-600 dark:text-zinc-300"
         >
           <ChevronLeft className="w-4 h-4" />
           <span className="hidden sm:inline">Trước</span>
@@ -72,7 +72,7 @@ function Pagination({
 
         {getPageNumbers().map((p, i) =>
           p === '...' ? (
-            <span key={`ellipsis-${i}`} className="px-2 text-slate-400 select-none">…</span>
+            <span key={`ellipsis-${i}`} className="px-2 text-zinc-400 select-none">…</span>
           ) : (
             <button
               key={p}
@@ -80,8 +80,8 @@ function Pagination({
               className={cn(
                 'w-8 h-8 text-sm rounded-lg transition-colors cursor-pointer',
                 p === page
-                  ? 'bg-primary text-white font-medium'
-                  : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300'
+                  ? 'bg-accent text-white font-medium'
+                  : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300'
               )}
             >
               {(p as number) + 1}
@@ -92,7 +92,7 @@ function Pagination({
         <button
           onClick={() => onPageChange(page + 1)}
           disabled={page === totalPages - 1}
-          className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors text-slate-600 dark:text-slate-300"
+          className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors text-zinc-600 dark:text-zinc-300"
         >
           <span className="hidden sm:inline">Sau</span>
           <ChevronRight className="w-4 h-4" />
@@ -108,7 +108,7 @@ function BookmarkCard({ item, onRemove, removing }: {
   item: BookmarkResponse; onRemove: (postId: number) => void; removing: boolean
 }) {
   return (
-    <Card className="border-slate-200 dark:border-slate-700 hover:border-primary/30 hover:shadow-sm transition-all duration-200">
+    <Card className="border-zinc-200 dark:border-zinc-700 hover:border-accent/30 hover:shadow-sm transition-all duration-200">
       <CardContent className="p-4 sm:p-5">
         {/* Header */}
         <div className="flex items-start justify-between gap-3 mb-3">
@@ -116,14 +116,14 @@ function BookmarkCard({ item, onRemove, removing }: {
             {item.pinned && <Pin className="w-3.5 h-3.5 text-orange-500" />}
             {item.featured && <Star className="w-3.5 h-3.5 text-yellow-500" />}
             {item.contentType && (
-              <Badge className={cn('text-xs', CONTENT_TYPE_COLORS[item.contentType] ?? 'bg-slate-100 text-slate-600')}>
+              <Badge className={cn('text-xs', CONTENT_TYPE_COLORS[item.contentType] ?? 'bg-zinc-100 text-zinc-600')}>
                 {CONTENT_TYPE_LABELS[item.contentType] ?? item.contentType}
               </Badge>
             )}
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">
-            <Link to={`/community/${item.slug}`} target="_blank">
-              <button className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800" title="Mở bài viết">
+            <Link to={`/blog/${item.slug}`} target="_blank">
+              <button className="p-1.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 cursor-pointer transition-colors rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800" title="Mở bài viết">
                 <ExternalLink className="w-4 h-4" />
               </button>
             </Link>
@@ -131,7 +131,7 @@ function BookmarkCard({ item, onRemove, removing }: {
               onClick={() => onRemove(item.postId)}
               disabled={removing}
               title="Bỏ lưu"
-              className="p-1.5 text-slate-400 hover:text-red-500 cursor-pointer transition-colors rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20"
+              className="p-1.5 text-zinc-400 hover:text-red-500 cursor-pointer transition-colors rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20"
             >
               <BookmarkX className="w-4 h-4" />
             </button>
@@ -139,12 +139,12 @@ function BookmarkCard({ item, onRemove, removing }: {
         </div>
 
         {/* Content */}
-        <Link to={`/community/${item.slug}`} className="block group cursor-pointer">
-          <h3 className="font-semibold text-slate-900 dark:text-white group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+        <Link to={`/blog/${item.slug}`} className="block group cursor-pointer">
+          <h3 className="font-semibold text-zinc-900 dark:text-white group-hover:text-accent transition-colors line-clamp-2 leading-snug">
             {item.title}
           </h3>
           {item.excerpt && (
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 line-clamp-2">{item.excerpt}</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1.5 line-clamp-2">{item.excerpt}</p>
           )}
         </Link>
 
@@ -153,7 +153,7 @@ function BookmarkCard({ item, onRemove, removing }: {
           <div className="flex flex-wrap gap-1.5 mt-3">
             {item.tags.slice(0, 4).map(tag => (
               <Link key={tag.id} to={`/tags/${tag.slug}`} className="cursor-pointer">
-                <Badge variant="secondary" className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary transition-colors cursor-pointer">
+                <Badge variant="secondary" className="text-xs bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-accent/10 hover:text-accent transition-colors cursor-pointer">
                   <Tag className="w-2.5 h-2.5 mr-1" />{tag.name}
                 </Badge>
               </Link>
@@ -162,8 +162,8 @@ function BookmarkCard({ item, onRemove, removing }: {
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-          <div className="flex items-center gap-3 text-xs text-slate-500">
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800">
+          <div className="flex items-center gap-3 text-xs text-zinc-500">
             <span className="flex items-center gap-1">
               <Clock className="w-3 h-3" />{formatRelativeTime(item.publishedAt)}
             </span>
@@ -172,7 +172,7 @@ function BookmarkCard({ item, onRemove, removing }: {
             )}
             <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" />{item.viewsCount}</span>
             <span className="flex items-center gap-1"><Heart className="w-3.5 h-3.5" />{item.likesCount}</span>
-            <Link to={`/community/${item.slug}#comments`} className="flex items-center gap-1 hover:text-primary cursor-pointer transition-colors">
+            <Link to={`/blog/${item.slug}#comments`} className="flex items-center gap-1 hover:text-accent cursor-pointer transition-colors">
               <MessageSquare className="w-3.5 h-3.5" />{item.commentsCount}
             </Link>
           </div>
@@ -188,11 +188,11 @@ function BookmarkSkeleton() {
   return (
     <div className="space-y-3">
       {Array(6).fill(0).map((_, i) => (
-        <Card key={i} className="border-slate-200 dark:border-slate-700">
+        <Card key={i} className="border-zinc-200 dark:border-zinc-700">
           <CardContent className="p-5 space-y-3 animate-pulse">
-            <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4" />
-            <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-full" />
-            <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/2" />
+            <div className="h-4 bg-zinc-200 dark:bg-zinc-700 rounded w-3/4" />
+            <div className="h-3 bg-zinc-200 dark:bg-zinc-700 rounded w-full" />
+            <div className="h-3 bg-zinc-200 dark:bg-zinc-700 rounded w-1/2" />
           </CardContent>
         </Card>
       ))}
@@ -213,7 +213,7 @@ export default function BookmarksPage() {
     search: debouncedSearch, page, size: PAGE_SIZE,
   })
 
-  const removeMutation = useBookmarkPost({
+  const removeMutation = useToggleBookmark({
     onSuccess: () => toast.success('Đã bỏ lưu bài viết'),
     onError: () => toast.error('Không thể bỏ lưu'),
   })
@@ -226,17 +226,17 @@ export default function BookmarksPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Bookmark className="w-6 h-6 text-primary" />
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+            <Bookmark className="w-6 h-6 text-accent" />
             Bài viết đã lưu
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">{total} bài viết</p>
+          <p className="text-zinc-500 dark:text-zinc-400 mt-1">{total} bài viết</p>
         </div>
       </div>
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
         <Input
           placeholder="Tìm kiếm bài viết đã lưu..."
           value={search}
@@ -272,7 +272,7 @@ export default function BookmarksPage() {
           )}
         </>
       ) : (
-        <div className="text-center py-16 text-slate-500">
+        <div className="text-center py-16 text-zinc-500">
           <Bookmark className="w-12 h-12 mx-auto mb-3 opacity-30" />
           {debouncedSearch ? (
             <>
@@ -283,8 +283,8 @@ export default function BookmarksPage() {
             <>
               <p className="font-medium">Chưa có bài viết nào được lưu</p>
               <p className="text-sm mt-1">Nhấn biểu tượng bookmark trên bài viết để lưu lại</p>
-              <Link to="/community">
-                <Button className="mt-4 bg-primary hover:bg-slate-800 text-white cursor-pointer">
+              <Link to="/blog">
+                <Button className="mt-4 bg-accent hover:bg-zinc-800 text-white cursor-pointer">
                   Khám phá cộng đồng
                 </Button>
               </Link>

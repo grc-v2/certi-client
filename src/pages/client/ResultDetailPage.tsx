@@ -36,9 +36,9 @@ function DifficultyBar({ label, data, color }: {
   return (
     <div className="space-y-1.5">
       <div className="flex justify-between text-sm">
-        <span className="text-slate-600 dark:text-slate-300">{label}</span>
-        <span className="font-medium text-slate-900 dark:text-white">
-          {data.correct}/{data.total} <span className="text-slate-400 font-normal">({data.percentage.toFixed(0)}%)</span>
+        <span className="text-zinc-600 dark:text-zinc-300">{label}</span>
+        <span className="font-medium text-zinc-900 dark:text-white">
+          {data.correct}/{data.total} <span className="text-zinc-400 font-normal">({data.percentage.toFixed(0)}%)</span>
         </span>
       </div>
       <Progress value={data.percentage} strokeWidth={8} strokeColor={color} />
@@ -55,23 +55,23 @@ function TopicCard({ topic }: { topic: TopicPerformance }) {
     'bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400'
 
   return (
-    <div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
+    <div className="border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden">
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors text-left"
+        className="w-full flex items-center gap-3 p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-colors text-left"
       >
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span className="font-medium text-slate-900 dark:text-white text-sm">{topic.topicName}</span>
+            <span className="font-medium text-zinc-900 dark:text-white text-sm">{topic.topicName}</span>
             <Badge className={cn('text-xs', statusColor)}>{topic.status}</Badge>
-            {topic.weight != null && <span className="text-xs text-slate-400">{topic.weight}%</span>}
+            {topic.weight != null && <span className="text-xs text-zinc-400">{topic.weight}%</span>}
           </div>
           <Progress
             value={topic.percentage}
             strokeWidth={6}
             strokeColor={topic.percentage >= 70 ? '#22C55E' : '#EF4444'}
           />
-          <div className="flex justify-between text-xs text-slate-500 mt-1">
+          <div className="flex justify-between text-xs text-zinc-500 mt-1">
             <span>{topic.correctAnswers}/{topic.totalQuestions} câu đúng</span>
             <span className={cn('font-semibold', topic.percentage >= 70 ? 'text-[#22C55E]' : 'text-red-500')}>
               {topic.percentage.toFixed(0)}%
@@ -79,15 +79,15 @@ function TopicCard({ topic }: { topic: TopicPerformance }) {
           </div>
         </div>
         {topic.recommendations?.length > 0 && (
-          open ? <ChevronUp className="w-4 h-4 text-slate-400 flex-shrink-0" />
-               : <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
+          open ? <ChevronUp className="w-4 h-4 text-zinc-400 flex-shrink-0" />
+               : <ChevronDown className="w-4 h-4 text-zinc-400 flex-shrink-0" />
         )}
       </button>
       {open && topic.recommendations?.length > 0 && (
-        <div className="px-4 pb-4 space-y-1 bg-slate-50/50 dark:bg-slate-800/20">
+        <div className="px-4 pb-4 space-y-1 bg-zinc-50/50 dark:bg-zinc-800/20">
           {topic.recommendations.map((r, i) => (
-            <p key={i} className="text-xs text-slate-600 dark:text-slate-400 flex items-start gap-1.5">
-              <span className="text-primary mt-0.5">•</span>{r}
+            <p key={i} className="text-xs text-zinc-600 dark:text-zinc-400 flex items-start gap-1.5">
+              <span className="text-accent mt-0.5">•</span>{r}
             </p>
           ))}
         </div>
@@ -112,24 +112,24 @@ function QuestionCard({ q }: { q: QuestionReportItem }) {
     <div className={cn(
       'border rounded-lg overflow-hidden',
       correct  ? 'border-[#22C55E]/40' :
-      skipped  ? 'border-slate-200 dark:border-slate-700' :
+      skipped  ? 'border-zinc-200 dark:border-zinc-700' :
                  'border-red-400/40',
     )}>
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-start gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors text-left"
+        className="w-full flex items-start gap-3 p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-colors text-left"
       >
         {/* Status icon */}
         <div className="flex-shrink-0 mt-0.5">
           {correct  ? <CheckCircle2 className="w-5 h-5 text-[#22C55E]" /> :
-           skipped  ? <Minus className="w-5 h-5 text-slate-400" /> :
+           skipped  ? <Minus className="w-5 h-5 text-zinc-400" /> :
                       <XCircle className="w-5 h-5 text-red-500" />}
         </div>
 
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1.5">
-            <span className="text-xs font-semibold text-slate-500">#{q.questionNumber}</span>
-            <Badge className="text-xs bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+            <span className="text-xs font-semibold text-zinc-500">#{q.questionNumber}</span>
+            <Badge className="text-xs bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
               {q.topicName}
             </Badge>
             {q.difficulty && (
@@ -139,20 +139,20 @@ function QuestionCard({ q }: { q: QuestionReportItem }) {
             )}
             {q.wasFlagged && <Flag className="w-3.5 h-3.5 text-orange-400" />}
           </div>
-          <p className="text-sm text-slate-800 dark:text-slate-200 line-clamp-2">{q.content}</p>
+          <p className="text-sm text-zinc-800 dark:text-zinc-200 line-clamp-2">{q.content}</p>
         </div>
 
         <div className="flex-shrink-0 mt-1">
-          {open ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+          {open ? <ChevronUp className="w-4 h-4 text-zinc-400" /> : <ChevronDown className="w-4 h-4 text-zinc-400" />}
         </div>
       </button>
 
       {open && (
-        <div className="px-4 pb-4 space-y-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
+        <div className="px-4 pb-4 space-y-3 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/20">
           {/* User answer status */}
           <div className="pt-3">
             {skipped ? (
-              <p className="text-xs text-slate-500 italic">Bạn đã bỏ qua câu này</p>
+              <p className="text-xs text-zinc-500 italic">Bạn đã bỏ qua câu này</p>
             ) : (
               <div className={cn(
                 'inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full',
@@ -167,15 +167,15 @@ function QuestionCard({ q }: { q: QuestionReportItem }) {
 
           {/* Explanation */}
           {q.explanation && (
-            <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-lg p-3">
-              <p className="text-xs font-semibold text-primary mb-1">Giải thích</p>
-              <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">{q.explanation}</p>
+            <div className="bg-accent/5 dark:bg-accent/10 border border-accent/20 rounded-lg p-3">
+              <p className="text-xs font-semibold text-accent mb-1">Giải thích</p>
+              <p className="text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed">{q.explanation}</p>
             </div>
           )}
 
           {/* Time spent */}
           {q.userAnswer.timeSpent > 0 && (
-            <p className="text-xs text-slate-400 flex items-center gap-1">
+            <p className="text-xs text-zinc-400 flex items-center gap-1">
               <Clock className="w-3 h-3" />Thời gian: {q.userAnswer.timeSpent}s
             </p>
           )}
@@ -204,16 +204,16 @@ function QuestionsSection({ resultId }: { resultId: string }) {
   const pagination = data?.pagination
 
   return (
-    <Card className="border-slate-200 dark:border-slate-700">
+    <Card className="border-zinc-200 dark:border-zinc-700">
       <CardHeader className="pb-3">
         <CardTitle className="text-sm font-semibold flex items-center gap-2">
-          <BookOpen className="w-4 h-4 text-primary" />Chi tiết từng câu hỏi
+          <BookOpen className="w-4 h-4 text-accent" />Chi tiết từng câu hỏi
         </CardTitle>
 
         {/* Summary chips */}
         {data?.summary && (
           <div className="flex flex-wrap gap-2 pt-1">
-            <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+            <span className="text-xs px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300">
               Tổng: {data.summary.totalQuestions}
             </span>
             <span className="text-xs px-2 py-0.5 rounded-full bg-[#22C55E]/10 text-[#22C55E]">
@@ -234,8 +234,8 @@ function QuestionsSection({ resultId }: { resultId: string }) {
               className={cn(
                 'text-xs px-3 py-1 rounded-full transition-colors cursor-pointer',
                 filter === tab.key
-                  ? 'bg-primary text-white'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700',
+                  ? 'bg-accent text-white'
+                  : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700',
               )}
             >
               {tab.label}
@@ -248,11 +248,11 @@ function QuestionsSection({ resultId }: { resultId: string }) {
         {isLoading ? (
           <div className="space-y-2">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-16 bg-slate-100 dark:bg-slate-800 rounded-lg animate-pulse" />
+              <div key={i} className="h-16 bg-zinc-100 dark:bg-zinc-800 rounded-lg animate-pulse" />
             ))}
           </div>
         ) : data?.questions?.length === 0 ? (
-          <p className="text-sm text-center text-slate-500 py-6">Không có câu hỏi nào</p>
+          <p className="text-sm text-center text-zinc-500 py-6">Không có câu hỏi nào</p>
         ) : (
           data?.questions?.map(q => <QuestionCard key={q.questionId} q={q} />)
         )}
@@ -269,7 +269,7 @@ function QuestionsSection({ resultId }: { resultId: string }) {
             >
               <ChevronLeft className="w-4 h-4 mr-1" />Trước
             </Button>
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-zinc-500">
               Trang {pagination.pageNumber + 1} / {pagination.totalPages}
             </span>
             <Button
@@ -298,15 +298,15 @@ export default function ExamResultPage() {
 
   if (isLoading) return (
     <div className="space-y-6 animate-pulse">
-      <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-1/3" />
-      <div className="h-56 bg-slate-200 dark:bg-slate-700 rounded-2xl" />
+      <div className="h-8 bg-zinc-200 dark:bg-zinc-700 rounded w-1/3" />
+      <div className="h-56 bg-zinc-200 dark:bg-zinc-700 rounded-2xl" />
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {[1,2,3].map(i => <div key={i} className="h-24 bg-slate-200 dark:bg-slate-700 rounded-xl" />)}
+        {[1,2,3].map(i => <div key={i} className="h-24 bg-zinc-200 dark:bg-zinc-700 rounded-xl" />)}
       </div>
     </div>
   )
 
-  if (!result) return <div className="text-center py-16 text-slate-500">Không tìm thấy kết quả</div>
+  if (!result) return <div className="text-center py-16 text-zinc-500">Không tìm thấy kết quả</div>
 
   const { summary, difficultyAnalysis: diff } = result
   const passed = summary.status === 'PASSED'
@@ -314,10 +314,10 @@ export default function ExamResultPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <Link to="/certifications" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 cursor-pointer transition-colors">
+        <Link to="/certifications" className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 cursor-pointer transition-colors">
           <ArrowLeft className="w-4 h-4" />Về danh mục
         </Link>
-        <Link to="/certifications/exam-history" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-primary cursor-pointer transition-colors">
+        <Link to="/certifications/exam-history" className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-accent cursor-pointer transition-colors">
           <History className="w-4 h-4" />Lịch sử thi
         </Link>
       </div>
@@ -360,13 +360,13 @@ export default function ExamResultPage() {
           { icon: CheckCircle2, label: 'Câu đúng',    value: `${summary.correctAnswers}/${summary.totalQuestions}`, color: 'text-[#22C55E]' },
           { icon: XCircle,      label: 'Câu sai',     value: String(summary.wrongAnswers),   color: 'text-red-500' },
           { icon: Clock,        label: 'Thời gian',   value: formatSeconds(summary.totalTimeSpent), color: 'text-purple-500' },
-          { icon: Target,       label: 'TB/câu',      value: `${summary.averageTimePerQuestion}s`, color: 'text-primary' },
+          { icon: Target,       label: 'TB/câu',      value: `${summary.averageTimePerQuestion}s`, color: 'text-accent' },
         ].map((s, i) => (
-          <Card key={i} className="border-slate-200 dark:border-slate-700">
+          <Card key={i} className="border-zinc-200 dark:border-zinc-700">
             <CardContent className="p-4 text-center">
               <s.icon className={cn('w-5 h-5 mx-auto mb-1.5', s.color)} />
-              <div className="text-lg font-bold text-slate-900 dark:text-white">{s.value}</div>
-              <div className="text-xs text-slate-500">{s.label}</div>
+              <div className="text-lg font-bold text-zinc-900 dark:text-white">{s.value}</div>
+              <div className="text-xs text-zinc-500">{s.label}</div>
             </CardContent>
           </Card>
         ))}
@@ -374,10 +374,10 @@ export default function ExamResultPage() {
 
       {/* Difficulty analysis */}
       {diff && (
-        <Card className="border-slate-200 dark:border-slate-700">
+        <Card className="border-zinc-200 dark:border-zinc-700">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-primary" />Phân tích theo độ khó
+              <BarChart3 className="w-4 h-4 text-accent" />Phân tích theo độ khó
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -390,10 +390,10 @@ export default function ExamResultPage() {
 
       {/* Topic performance */}
       {result.topicPerformance?.length > 0 && (
-        <Card className="border-slate-200 dark:border-slate-700">
+        <Card className="border-zinc-200 dark:border-zinc-700">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <ListChecks className="w-4 h-4 text-primary" />Kết quả theo chủ đề
+              <ListChecks className="w-4 h-4 text-accent" />Kết quả theo chủ đề
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -413,7 +413,7 @@ export default function ExamResultPage() {
                 </h3>
                 <ul className="space-y-1.5">
                   {result.strengths.map((s, i) => (
-                    <li key={i} className="text-xs text-slate-600 dark:text-slate-400 flex items-start gap-1.5">
+                    <li key={i} className="text-xs text-zinc-600 dark:text-zinc-400 flex items-start gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-[#22C55E] flex-shrink-0 mt-0.5" />{s}
                     </li>
                   ))}
@@ -429,7 +429,7 @@ export default function ExamResultPage() {
                 </h3>
                 <ul className="space-y-1.5">
                   {result.weaknesses.map((w, i) => (
-                    <li key={i} className="text-xs text-slate-600 dark:text-slate-400 flex items-start gap-1.5">
+                    <li key={i} className="text-xs text-zinc-600 dark:text-zinc-400 flex items-start gap-1.5">
                       <XCircle className="w-3.5 h-3.5 text-red-500 flex-shrink-0 mt-0.5" />{w}
                     </li>
                   ))}
@@ -442,15 +442,15 @@ export default function ExamResultPage() {
 
       {/* Next steps */}
       {result.nextSteps?.length > 0 && (
-        <Card className="border-primary/30 bg-primary/5 dark:bg-primary/10">
+        <Card className="border-accent/30 bg-accent/5 dark:bg-accent/10">
           <CardContent className="p-4">
-            <h3 className="text-sm font-semibold text-primary dark:text-blue-400 flex items-center gap-1.5 mb-3">
+            <h3 className="text-sm font-semibold text-accent dark:text-blue-400 flex items-center gap-1.5 mb-3">
               <Target className="w-4 h-4" />Bước tiếp theo
             </h3>
             <ul className="space-y-2">
               {result.nextSteps.map((s, i) => (
-                <li key={i} className="text-xs text-slate-600 dark:text-slate-400 flex items-start gap-2">
-                  <span className="flex-shrink-0 w-4 h-4 rounded-full bg-primary/20 dark:bg-blue-500/20 text-primary dark:text-blue-400 flex items-center justify-center text-[10px] font-bold mt-0.5">{i + 1}</span>
+                <li key={i} className="text-xs text-zinc-600 dark:text-zinc-400 flex items-start gap-2">
+                  <span className="flex-shrink-0 w-4 h-4 rounded-full bg-accent/20 dark:bg-blue-500/20 text-accent dark:text-blue-400 flex items-center justify-center text-[10px] font-bold mt-0.5">{i + 1}</span>
                   {s}
                 </li>
               ))}
@@ -470,7 +470,7 @@ export default function ExamResultPage() {
           </Button>
         </Link>
         <Link to={`/certifications`} className="flex-1">
-          <Button className="w-full bg-primary hover:bg-slate-800 text-white cursor-pointer">
+          <Button className="w-full bg-accent hover:bg-zinc-800 text-white cursor-pointer">
             <RotateCcw className="w-4 h-4 mr-2" />Thi lại
           </Button>
         </Link>

@@ -1,11 +1,11 @@
 'use client'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { useBookmarkPost, useRemoveBookmark } from '@/hooks/queries/bookmarks'
+import { useToggleBookmark } from '@/hooks/queries/bookmarks'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import {
   MessageSquare, Bookmark, BookmarkCheck, TrendingUp, Star, Pin, Search,
-  Plus, Tag, Clock, User as UserIcon, ChevronLeft, ChevronRight,
+  Tag, Clock, User as UserIcon, ChevronLeft, ChevronRight,
   Eye, Heart, Flame
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -62,14 +62,14 @@ function Pagination({
 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-      <p className="text-sm text-slate-500 dark:text-slate-400 order-2 sm:order-1">
-        Hiển thị <span className="font-medium text-slate-700 dark:text-slate-200">{from}–{to}</span> trong tổng số <span className="font-medium text-slate-700 dark:text-slate-200">{totalElements}</span> bài viết
+      <p className="text-sm text-zinc-500 dark:text-zinc-400 order-2 sm:order-1">
+        Hiển thị <span className="font-medium text-zinc-700 dark:text-zinc-200">{from}–{to}</span> trong tổng số <span className="font-medium text-zinc-700 dark:text-zinc-200">{totalElements}</span> bài viết
       </p>
       <div className="flex items-center gap-1 order-1 sm:order-2">
         <button
           onClick={() => onPageChange(page - 1)}
           disabled={page === 0}
-          className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors text-slate-600 dark:text-slate-300"
+          className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors text-zinc-600 dark:text-zinc-300"
         >
           <ChevronLeft className="w-4 h-4" />
           <span className="hidden sm:inline">Trước</span>
@@ -77,7 +77,7 @@ function Pagination({
 
         {getPageNumbers().map((p, i) =>
           p === '...' ? (
-            <span key={`ellipsis-${i}`} className="px-2 text-slate-400 select-none">…</span>
+            <span key={`ellipsis-${i}`} className="px-2 text-zinc-400 select-none">…</span>
           ) : (
             <button
               key={p}
@@ -85,8 +85,8 @@ function Pagination({
               className={cn(
                 'w-8 h-8 text-sm rounded-lg transition-colors cursor-pointer',
                 p === page
-                  ? 'bg-primary text-white font-medium'
-                  : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300'
+                  ? 'bg-accent text-white font-medium'
+                  : 'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300'
               )}
             >
               {(p as number) + 1}
@@ -97,7 +97,7 @@ function Pagination({
         <button
           onClick={() => onPageChange(page + 1)}
           disabled={page === totalPages - 1}
-          className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors text-slate-600 dark:text-slate-300"
+          className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors text-zinc-600 dark:text-zinc-300"
         >
           <span className="hidden sm:inline">Sau</span>
           <ChevronRight className="w-4 h-4" />
@@ -113,51 +113,45 @@ function PostCard({ post }: { post: PostResponse }) {
   const [bookmarkId, setBookmarkId] = useState<number | null>(null)
   const isBookmarked = bookmarkId !== null
 
-  const addMutation = useBookmarkPost({
+  const toggleMutation = useToggleBookmark({
     onSuccess: (data) => {
-      setBookmarkId(data.id)
-      toast.success('Đã lưu bài viết')
+      // Add returns the created bookmark; removal returns nothing (204).
+      setBookmarkId(data?.id ?? null)
+      toast.success(data?.id ? 'Đã lưu bài viết' : 'Đã bỏ lưu')
     },
-    onError: () => toast.error('Không thể lưu bài viết'),
-  })
-  const removeMutation = useRemoveBookmark({
-    onSuccess: () => {
-      setBookmarkId(null)
-      toast.success('Đã bỏ lưu')
-    },
-    onError: () => toast.error('Không thể bỏ lưu'),
+    onError: () => toast.error('Không thể cập nhật bookmark'),
   })
 
-  const isPending = addMutation.isPending || removeMutation.isPending
+  const isPending = toggleMutation.isPending
   const handleBookmark = (e: React.MouseEvent) => {
     e.preventDefault()
     if (isPending) return
-    isBookmarked ? removeMutation.mutate(bookmarkId!) : addMutation.mutate(post.id)
+    toggleMutation.mutate(post.id)
   }
 
   return (
-    <Card className="border-slate-200 dark:border-slate-700 hover:border-primary/30 hover:shadow-sm transition-all duration-200">
+    <Card className="border-zinc-200 dark:border-zinc-700 hover:border-accent/30 hover:shadow-sm transition-all duration-200">
       <CardContent className="p-4 sm:p-5">
         {/* Header */}
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-center gap-2.5 min-w-0">
             <Avatar className="w-8 h-8 flex-shrink-0">
-              <AvatarFallback className="text-xs bg-primary/10 text-primary">
+              <AvatarFallback className="text-xs bg-accent/10 text-accent">
                 <UserIcon className="w-4 h-4" />
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0">
-              <Link to={`/profile/${post.authorId}`} className="text-sm font-medium text-slate-900 dark:text-white hover:text-primary cursor-pointer transition-colors truncate block">
+              <Link to={`/profile/${post.authorId}`} className="text-sm font-medium text-zinc-900 dark:text-white hover:text-accent cursor-pointer transition-colors truncate block">
                 #{post.authorId}
               </Link>
-              <p className="text-xs text-slate-400">{formatRelativeTime(post.publishedAt)}</p>
+              <p className="text-xs text-zinc-400">{formatRelativeTime(post.publishedAt)}</p>
             </div>
           </div>
           <div className="flex items-center gap-1.5 flex-shrink-0">
             {post.pinned && <Pin className="w-3.5 h-3.5 text-orange-500" />}
             {post.featured && <Star className="w-3.5 h-3.5 text-yellow-500" />}
             {post.contentType && (
-              <Badge className={cn('text-xs', CONTENT_TYPE_COLORS[post.contentType] ?? 'bg-slate-100 text-slate-600')}>
+              <Badge className={cn('text-xs', CONTENT_TYPE_COLORS[post.contentType] ?? 'bg-zinc-100 text-zinc-600')}>
                 {CONTENT_TYPE_LABELS[post.contentType] ?? post.contentType}
               </Badge>
             )}
@@ -165,12 +159,12 @@ function PostCard({ post }: { post: PostResponse }) {
         </div>
 
         {/* Content */}
-        <Link to={`/community/${post.slug}`} className="block group cursor-pointer">
-          <h2 className="font-semibold text-slate-900 dark:text-white group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+        <Link to={`/blog/${post.slug}`} className="block group cursor-pointer">
+          <h2 className="font-semibold text-zinc-900 dark:text-white group-hover:text-accent transition-colors line-clamp-2 leading-snug">
             {post.title}
           </h2>
           {post.excerpt && (
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 line-clamp-2">{post.excerpt}</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1.5 line-clamp-2">{post.excerpt}</p>
           )}
         </Link>
 
@@ -179,7 +173,7 @@ function PostCard({ post }: { post: PostResponse }) {
           <div className="flex flex-wrap gap-1.5 mt-3">
             {post.tags.slice(0, 4).map(tag => (
               <Link key={tag.id} to={`/tags/${tag.slug}`} className="cursor-pointer">
-                <Badge variant="secondary" className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-primary/10 hover:text-primary transition-colors cursor-pointer">
+                <Badge variant="secondary" className="text-xs bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-accent/10 hover:text-accent transition-colors cursor-pointer">
                   <Tag className="w-2.5 h-2.5 mr-1" />{tag.name}
                 </Badge>
               </Link>
@@ -188,9 +182,9 @@ function PostCard({ post }: { post: PostResponse }) {
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-          <div className="flex items-center gap-3 text-xs text-slate-500">
-            <Link to={`/community/${post.slug}#comments`} className="flex items-center gap-1 hover:text-primary cursor-pointer transition-colors">
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800">
+          <div className="flex items-center gap-3 text-xs text-zinc-500">
+            <Link to={`/blog/${post.slug}#comments`} className="flex items-center gap-1 hover:text-accent cursor-pointer transition-colors">
               <MessageSquare className="w-3.5 h-3.5" />{post.commentsCount}
             </Link>
             <span className="flex items-center gap-1">
@@ -207,8 +201,8 @@ function PostCard({ post }: { post: PostResponse }) {
             className={cn(
               'p-1.5 rounded-lg cursor-pointer transition-colors',
               isBookmarked
-                ? 'text-primary bg-primary/10 hover:bg-primary/20'
-                : 'text-slate-400 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800'
+                ? 'text-accent bg-accent/10 hover:bg-accent/20'
+                : 'text-zinc-400 hover:text-accent hover:bg-zinc-100 dark:hover:bg-zinc-800'
             )}
           >
             {isBookmarked
@@ -228,18 +222,18 @@ function PostSkeleton() {
   return (
     <div className="space-y-4">
       {Array(PAGE_SIZE).fill(0).map((_, i) => (
-        <Card key={i} className="border-slate-200 dark:border-slate-700">
+        <Card key={i} className="border-zinc-200 dark:border-zinc-700">
           <CardContent className="p-5 space-y-3 animate-pulse">
             <div className="flex gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex-shrink-0" />
+              <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-700 flex-shrink-0" />
               <div className="flex-1 space-y-1.5">
-                <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/4" />
-                <div className="h-2.5 bg-slate-200 dark:bg-slate-700 rounded w-1/5" />
+                <div className="h-3 bg-zinc-200 dark:bg-zinc-700 rounded w-1/4" />
+                <div className="h-2.5 bg-zinc-200 dark:bg-zinc-700 rounded w-1/5" />
               </div>
             </div>
-            <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4" />
-            <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-full" />
-            <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-2/3" />
+            <div className="h-4 bg-zinc-200 dark:bg-zinc-700 rounded w-3/4" />
+            <div className="h-3 bg-zinc-200 dark:bg-zinc-700 rounded w-full" />
+            <div className="h-3 bg-zinc-200 dark:bg-zinc-700 rounded w-2/3" />
           </CardContent>
         </Card>
       ))}
@@ -257,16 +251,16 @@ function TagsSidebar() {
   })
 
   return (
-    <Card className="border-slate-200 dark:border-slate-700">
+    <Card className="border-zinc-200 dark:border-zinc-700">
       <CardContent className="p-5">
-        <h3 className="font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-          <Tag className="w-4 h-4 text-primary" />
+        <h3 className="font-semibold text-zinc-900 dark:text-white mb-4 flex items-center gap-2">
+          <Tag className="w-4 h-4 text-accent" />
           Chủ đề nổi bật
         </h3>
         {isLoading ? (
           <div className="flex flex-wrap gap-2">
             {Array(10).fill(0).map((_, i) => (
-              <div key={i} className="h-7 bg-slate-200 dark:bg-slate-700 rounded-md animate-pulse" style={{ width: Math.random() * 40 + 40 + 'px' }} />
+              <div key={i} className="h-7 bg-zinc-200 dark:bg-zinc-700 rounded-md animate-pulse" style={{ width: Math.random() * 40 + 40 + 'px' }} />
             ))}
           </div>
         ) : (
@@ -276,15 +270,15 @@ function TagsSidebar() {
                 <Badge variant="secondary" className={cn(
                   "px-3 py-1 text-sm font-normal transition-colors cursor-pointer",
                   slug === tag.slug
-                    ? "bg-primary text-white hover:bg-primary/90 hover:text-white"
-                    : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-primary/10 hover:text-primary"
+                    ? "bg-accent text-white hover:bg-accent/90 hover:text-white"
+                    : "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-accent/10 hover:text-accent"
                 )}>
                   {tag.name}
                 </Badge>
               </Link>
             ))}
             {(!data?.content || data.content.length === 0) && (
-              <p className="text-sm text-slate-500">Chưa có chủ đề nào</p>
+              <p className="text-sm text-zinc-500">Chưa có chủ đề nào</p>
             )}
           </div>
         )}
@@ -295,7 +289,7 @@ function TagsSidebar() {
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
-export default function CommunityPage() {
+export default function BlogPage() {
   const { slug } = useParams<{ slug?: string }>()
   const navigate = useNavigate()
   const [tab, setTab] = useState<'latest' | 'trending' | 'featured'>('latest')
@@ -345,8 +339,8 @@ export default function CommunityPage() {
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Cộng đồng</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Chia sẻ kiến thức, kinh nghiệm thi cử</p>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Blog</h1>
+          <p className="text-zinc-500 dark:text-zinc-400 mt-1">Ghi chép & chia sẻ kiến thức công nghệ</p>
         </div>
       </div>
 
@@ -354,18 +348,18 @@ export default function CommunityPage() {
         <div className="lg:col-span-8 space-y-6">
           {/* Search + Tabs */}
           {slug ? (
-            <div className="flex items-center justify-between w-full p-3 bg-primary/5 border border-primary/20 rounded-xl">
-              <span className="font-medium text-primary flex items-center gap-2">
+            <div className="flex items-center justify-between w-full p-3 bg-accent/5 border border-accent/20 rounded-xl">
+              <span className="font-medium text-accent flex items-center gap-2">
                 <Tag className="w-4 h-4" /> Bài viết với thẻ: {tagDetailQuery.data?.name || slug}
               </span>
-              <Button variant="ghost" size="sm" onClick={() => { navigate('/community'); setPage(0); }} className="h-8 px-3 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">
+              <Button variant="ghost" size="sm" onClick={() => { navigate('/blog'); setPage(0); }} className="h-8 px-3 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300">
                 Xóa bộ lọc
               </Button>
             </div>
           ) : (
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
                 <Input
                   placeholder="Tìm kiếm bài viết, câu hỏi..."
                   value={search}
@@ -397,7 +391,7 @@ export default function CommunityPage() {
               {posts.map(post => <PostCard key={post.id} post={post} />)}
             </div>
           ) : (
-            <div className="text-center py-16 text-slate-500">
+            <div className="text-center py-16 text-zinc-500">
               <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-30" />
               <p className="font-medium">Chưa có bài viết nào</p>
               <p className="text-sm mt-1">Hãy là người đầu tiên chia sẻ!</p>

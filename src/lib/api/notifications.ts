@@ -48,37 +48,46 @@ export interface NotificationTemplateRequest {
   body: string
 }
 
+interface NotificationPage {
+  content: NotificationResponse[]
+  totalElements: number
+  totalPages: number
+  pageNumber: number
+  pageSize: number
+  last: boolean
+  first: boolean
+  empty: boolean
+}
+
 export const notificationsApi = {
-  getAll: (params?: NotificationListParams) => {
-    return Promise.resolve({
-      content: [
-        {
-          id: 'notif-1',
-          type: 'INFO',
-          title: 'Chào mừng bạn đến với CertiMaster!',
-          message: 'Hệ thống ôn thi chứng chỉ chuẩn quốc tế của bạn đã sẵn sàng. Hãy chọn một chứng chỉ và bắt đầu làm bài thi thử ngay!',
-          read: false,
-          createdAt: new Date().toISOString(),
-        }
-      ] as NotificationResponse[],
-      totalElements: 1,
-      totalPages: 1,
-      pageNumber: 0,
-      pageSize: 20,
-      last: true,
-      first: true,
-      empty: false
-    })
-  },
-  markAsRead: (id: string) => Promise.resolve(),
-  markAllAsRead: () => Promise.resolve(),
+  getAll: (params?: NotificationListParams) =>
+    apiClient.get<NotificationPage>('/api/v1/notifications', {
+      params: {
+        unreadOnly: params?.unreadOnly ?? false,
+        page: params?.page ?? 0,
+        size: params?.size ?? 20,
+      },
+    }).then(r => r.data),
+  markAsRead: (id: string | number) =>
+    apiClient.patch(`/api/v1/notifications/${id}/read`).then(r => r.data),
+  markAllAsRead: () =>
+    apiClient.post('/api/v1/notifications/read-all').then(r => r.data),
+  // Preferences / push tokens are not yet backed by the API.
   getPreferences: () => Promise.resolve([] as NotificationPreference[]),
-  updatePreferences: (data: NotificationPreferenceRequest) => Promise.resolve([] as NotificationPreference[]),
-  registerPushToken: (data: PushTokenRequest) => Promise.resolve(),
-  // Admin
-  broadcast: (data: BroadcastNotificationRequest) => Promise.resolve({} as any),
+  updatePreferences: (_data: NotificationPreferenceRequest) => Promise.resolve([] as NotificationPreference[]),
+  registerPushToken: (_data: PushTokenRequest) => Promise.resolve(),
+  // Admin broadcast — fans out one in-app notification per recipient asynchronously.
+  // Recipients are resolved by the identity module via shared domain events.
+  broadcast: (data: BroadcastNotificationRequest) =>
+    apiClient.post('/api/v1/admin/notifications/broadcast', {
+      title: data.title,
+      message: data.message,
+      type: data.type,
+      targetRole: data.targetRole || undefined,
+    }).then(r => r.data),
+  // Templates are not yet backed by the API (no consumer in the notification pipeline yet).
   listTemplates: () => Promise.resolve([] as NotificationTemplateResponse[]),
-  updateTemplate: (key: string, data: NotificationTemplateRequest) => Promise.resolve({} as any),
+  updateTemplate: (_key: string, _data: NotificationTemplateRequest) => Promise.resolve({} as any),
 }
 
 

@@ -11,8 +11,8 @@ import { cn } from '@/lib/utils'
 
 const LEVEL_COLORS: Record<string, string> = {
   BEGINNER: 'bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400',
-  INTERMEDIATE: 'bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400',
-  ADVANCED: 'bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-400',
+  INTERMEDIATE: 'bg-surface-muted text-ink-soft',
+  ADVANCED: 'bg-accent-soft text-accent-ink',
   EXPERT: 'bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400',
 }
 
@@ -36,12 +36,12 @@ export default function CertificationPicker({
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{title}</h2>
-        {subtitle && <p className="text-sm text-slate-600 dark:text-slate-400">{subtitle}</p>}
+        <h2 className="text-lg font-bold text-ink mb-1">{title}</h2>
+        {subtitle && <p className="text-sm text-ink-soft">{subtitle}</p>}
       </div>
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-faint pointer-events-none" />
         <Input
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
@@ -53,11 +53,11 @@ export default function CertificationPicker({
       {isLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-24 rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse" />
+            <div key={i} className="h-24 rounded-[var(--radius-inner)] bg-surface-muted animate-pulse" />
           ))}
         </div>
       ) : !data?.content?.length ? (
-        <div className="text-center py-12 text-sm text-slate-500">
+        <div className="text-center py-12 text-sm text-ink-soft">
           Không có chứng chỉ phù hợp.
         </div>
       ) : (
@@ -66,23 +66,23 @@ export default function CertificationPicker({
             <button
               key={cert.id}
               onClick={() => onSelect(cert)}
-              className="text-left group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-xl"
+              className="text-left group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 rounded-[var(--radius-inner)]"
             >
-              <Card className="border-slate-200 dark:border-slate-700 hover:border-primary/50 hover:shadow-md transition-all duration-200 h-full">
+              <Card className="border-line shadow-none hover:border-accent/50 transition-all duration-200 h-full rounded-[var(--radius-card)]">
                 <CardContent className="p-4 flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0">
-                    <GraduationCap className="w-5 h-5 text-primary" />
+                  <div className="w-10 h-10 rounded-[var(--radius-inner)] bg-surface-muted flex items-center justify-center flex-shrink-0">
+                    <GraduationCap className="w-5 h-5 text-accent" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <Badge variant="secondary" className={cn('text-[10px] mb-1.5', LEVEL_COLORS[cert.level] ?? 'bg-slate-100 text-slate-600')}>
+                    <Badge variant="secondary" className={cn('text-[10px] mb-1.5', LEVEL_COLORS[cert.level] ?? 'bg-surface-muted text-ink-soft')}>
                       {cert.level}
                     </Badge>
-                    <h3 className="font-semibold text-slate-900 dark:text-white text-sm leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                    <h3 className="font-semibold text-ink text-sm leading-snug line-clamp-2 group-hover:text-accent transition-colors">
                       {cert.name}
                     </h3>
-                    <p className="text-xs text-slate-500 mt-1">{cert.provider}</p>
+                    <p className="text-xs text-ink-soft mt-1">{cert.provider}</p>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-primary self-center transition-colors" />
+                  <ChevronRight className="w-4 h-4 text-ink-faint group-hover:text-accent self-center transition-colors" />
                 </CardContent>
               </Card>
             </button>

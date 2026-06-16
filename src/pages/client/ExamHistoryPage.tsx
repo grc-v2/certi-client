@@ -16,7 +16,7 @@ function formatSeconds(s: number) {
 }
 
 const scoreColor = (s: number) =>
-  s >= 72 ? 'var(--brand-deep)' : s >= 60 ? 'var(--medium)' : 'var(--hard)'
+  s >= 72 ? 'var(--color-accent-ink)' : s >= 60 ? '#d97706' : '#dc2626'
 
 export default function ExamHistoryPage() {
   const { user } = useAuthStore()
@@ -62,7 +62,7 @@ export default function ExamHistoryPage() {
       {/* Header */}
       <div>
         <span className="eyebrow">Kết quả</span>
-        <h1 style={{ fontSize: 25, fontWeight: 800, color: 'var(--ink)', marginTop: 6 }}>
+        <h1 style={{ fontSize: 25, fontWeight: 800, color: 'var(--color-ink)', marginTop: 6 }}>
           Lịch sử thi &amp; luyện tập
         </h1>
       </div>
@@ -76,7 +76,7 @@ export default function ExamHistoryPage() {
                 <span className="eyebrow">{s.label}</span>
                 <s.icon size={16} style={{ color: `var(--${s.tone})` }} />
               </div>
-              <span className="mono tnum" style={{ fontSize: 26, fontWeight: 700, color: 'var(--ink)' }}>
+              <span className="mono tnum" style={{ fontSize: 26, fontWeight: 700, color: 'var(--color-ink)' }}>
                 {s.value}
               </span>
             </div>
@@ -87,38 +87,38 @@ export default function ExamHistoryPage() {
       {/* Table */}
       <div className="card enter enter-2" style={{ padding: 0, overflow: 'hidden' }}>
         {/* Toolbar */}
-        <div className="row" style={{ padding: '14px 16px', gap: 10, alignItems: 'center', flexWrap: 'wrap', borderBottom: '1px solid var(--border)' }}>
+        <div className="row" style={{ padding: '14px 16px', gap: 10, alignItems: 'center', flexWrap: 'wrap', borderBottom: '1px solid var(--color-line)' }}>
           {/* Search */}
           <div className="row" style={{
             alignItems: 'center', gap: 9, padding: '0 13px', height: 40,
-            borderRadius: 'var(--radius-sm)', background: 'var(--surface-2)',
-            border: '1px solid var(--border)', flex: '1 1 200px',
+            borderRadius: 'var(--radius-inner)', background: 'var(--color-surface-muted)',
+            border: '1px solid var(--color-line)', flex: '1 1 200px',
           }}>
-            <Search size={16} style={{ color: 'var(--ink-3)' }} />
+            <Search size={16} style={{ color: 'var(--color-ink-faint)' }} />
             <input
               value={q}
               onChange={e => setQ(e.target.value)}
               placeholder="Tìm theo đề thi, chứng chỉ…"
               style={{
                 border: 'none', background: 'transparent', outline: 'none',
-                color: 'var(--ink)', fontSize: 13.5, width: '100%',
-                fontFamily: 'var(--font-body)',
+                color: 'var(--color-ink)', fontSize: 13.5, width: '100%',
+                fontFamily: 'var(--font-sans)',
               }}
             />
           </div>
 
           {/* Status filter */}
-          <div className="row" style={{ gap: 4, padding: 4, borderRadius: 'var(--radius-sm)', background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
+          <div className="row" style={{ gap: 4, padding: 4, borderRadius: 'var(--radius-inner)', background: 'var(--color-surface-muted)', border: '1px solid var(--color-line)' }}>
             {FILTERS.map(([k, l]) => (
               <button
                 key={k}
                 onClick={() => { setStatus(k as typeof status); setPage(0) }}
                 style={{
                   padding: '7px 13px', borderRadius: 9, border: 'none', cursor: 'pointer',
-                  fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12.5, transition: 'all .12s',
-                  background: status === k ? 'var(--surface)' : 'transparent',
-                  color: status === k ? 'var(--ink)' : 'var(--ink-3)',
-                  boxShadow: status === k ? 'var(--shadow-sm)' : 'none',
+                  fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 12.5, transition: 'all .12s',
+                  background: status === k ? 'var(--color-surface)' : 'transparent',
+                  color: status === k ? 'var(--color-ink)' : 'var(--color-ink-faint)',
+                  boxShadow: status === k ? 'none' : 'none',
                 }}
               >
                 {l}
@@ -127,7 +127,7 @@ export default function ExamHistoryPage() {
           </div>
 
           {pagination && (
-            <span className="mono" style={{ fontSize: 11.5, color: 'var(--ink-3)', marginLeft: 'auto' }}>
+            <span className="mono" style={{ fontSize: 11.5, color: 'var(--color-ink-faint)', marginLeft: 'auto' }}>
               {pagination.totalElements} kết quả
             </span>
           )}
@@ -139,8 +139,8 @@ export default function ExamHistoryPage() {
             {/* Table header */}
             <div className="row" style={{
               padding: '10px 18px', gap: 12, fontSize: 11, fontWeight: 800, letterSpacing: '.07em',
-              textTransform: 'uppercase', color: 'var(--ink-3)', background: 'var(--surface-2)',
-              borderBottom: '1px solid var(--border)',
+              textTransform: 'uppercase', color: 'var(--color-ink-faint)', background: 'var(--color-surface-muted)',
+              borderBottom: '1px solid var(--color-line)',
             }}>
               <span style={{ width: 90 }}>Ngày</span>
               <span style={{ flex: 1 }}>Bài thi</span>
@@ -152,7 +152,7 @@ export default function ExamHistoryPage() {
             {isLoading ? (
               <div className="col" style={{ gap: 0 }}>
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} style={{ height: 62, background: i % 2 ? 'var(--surface)' : 'var(--surface-2)', borderBottom: '1px solid var(--border)' }} />
+                  <div key={i} style={{ height: 62, background: i % 2 ? 'var(--color-surface)' : 'var(--color-surface-muted)', borderBottom: '1px solid var(--color-line)' }} />
                 ))}
               </div>
             ) : filtered.length > 0 ? (
@@ -166,29 +166,29 @@ export default function ExamHistoryPage() {
                     className="row"
                     style={{
                       padding: '13px 18px', gap: 12, alignItems: 'center',
-                      borderBottom: i < filtered.length - 1 ? '1px solid var(--border)' : 'none',
+                      borderBottom: i < filtered.length - 1 ? '1px solid var(--color-line)' : 'none',
                       cursor: 'pointer', transition: 'background .12s', textDecoration: 'none',
                     }}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--surface-2)')}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-surface-muted)')}
                     onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                   >
                     <div style={{ width: 90 }}>
-                      <div className="mono" style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--ink)' }}>
+                      <div className="mono" style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--color-ink)' }}>
                         {formatDate(r.completedAt)}
                       </div>
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {r.examTitle}
                       </div>
                       <span className="codechip" style={{ marginTop: 3, display: 'inline-block', fontSize: 10.5 }}>
                         {r.certificationName}
                       </span>
                     </div>
-                    <span className="mono tnum" style={{ width: 78, textAlign: 'center', fontSize: 13, color: 'var(--ink-2)' }}>
+                    <span className="mono tnum" style={{ width: 78, textAlign: 'center', fontSize: 13, color: 'var(--color-ink-soft)' }}>
                       {r.correctAnswers}/{r.totalQuestions}
                     </span>
-                    <span className="mono tnum" style={{ width: 84, textAlign: 'right', fontSize: 13, color: 'var(--ink-2)' }}>
+                    <span className="mono tnum" style={{ width: 84, textAlign: 'right', fontSize: 13, color: 'var(--color-ink-soft)' }}>
                       {formatSeconds(r.timeSpent)}
                     </span>
                     <div style={{ width: 96, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8 }}>
@@ -196,17 +196,17 @@ export default function ExamHistoryPage() {
                         {score}%
                       </span>
                       {passed
-                        ? <CheckCircle2 size={17} style={{ color: 'var(--brand)' }} />
-                        : <XCircle size={17} style={{ color: 'var(--hard)' }} />
+                        ? <CheckCircle2 size={17} style={{ color: 'var(--color-accent)' }} />
+                        : <XCircle size={17} style={{ color: '#dc2626' }} />
                       }
                     </div>
                   </Link>
                 )
               })
             ) : (
-              <div style={{ padding: 48, textAlign: 'center', color: 'var(--ink-3)' }}>
+              <div style={{ padding: 48, textAlign: 'center', color: 'var(--color-ink-faint)' }}>
                 <Trophy size={28} style={{ marginBottom: 10 }} />
-                <p style={{ fontWeight: 600, color: 'var(--ink-2)' }}>
+                <p style={{ fontWeight: 600, color: 'var(--color-ink-soft)' }}>
                   {q ? 'Không có kết quả phù hợp' : 'Chưa có lịch sử thi nào'}
                 </p>
                 {!q && (
@@ -232,7 +232,7 @@ export default function ExamHistoryPage() {
           >
             <ChevronLeft size={16} /> Trước
           </button>
-          <span className="mono" style={{ fontSize: 13, color: 'var(--ink-2)' }}>
+          <span className="mono" style={{ fontSize: 13, color: 'var(--color-ink-soft)' }}>
             Trang {pagination.pageNumber + 1} / {pagination.totalPages}
           </span>
           <button

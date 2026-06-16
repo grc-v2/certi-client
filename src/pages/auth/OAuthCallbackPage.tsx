@@ -8,11 +8,11 @@ import { useAuthStore } from '@/store/auth-store'
 
 function LoadingScreen() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-slate-50 dark:bg-slate-900">
-      <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+    <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-surface-sunken">
+      <div className="w-10 h-10 bg-accent rounded-[var(--radius-inner)] flex items-center justify-center">
         <span className="text-white font-bold text-lg">C</span>
       </div>
-      <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+      <div className="flex items-center gap-2 text-ink-soft">
         <Loader2 className="w-5 h-5 animate-spin" />
         <span>Đang xử lý đăng nhập...</span>
       </div>

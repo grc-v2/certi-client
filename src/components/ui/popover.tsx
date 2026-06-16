@@ -1,50 +1,31 @@
-import { Popover as AntdPopover } from 'antd'
-import React, { createContext, useContext, useState } from 'react'
+import React from 'react'
+import * as PopoverPrimitive from '@radix-ui/react-popover'
+import { cn } from '@/lib/utils'
 
-const PopoverContext = createContext<{
-  open: boolean
-  setOpen: (open: boolean) => void
-} | null>(null)
+// Flat, token-driven popover on Radix (ADR-0002 + ADR-0003). shadcn structure:
+// <Popover open onOpenChange><PopoverTrigger asChild>…</PopoverTrigger><PopoverContent>…</PopoverContent></Popover>
 
-export function Popover({ open, onOpenChange, children }: any) {
-  const [localOpen, setLocalOpen] = useState(false)
-  const isControlled = open !== undefined
-  const currentOpen = isControlled ? open : localOpen
-  const setCurrentOpen = onOpenChange || setLocalOpen
+export const Popover = PopoverPrimitive.Root
 
-  return (
-    <PopoverContext.Provider value={{ open: currentOpen, setOpen: setCurrentOpen }}>
-      {children}
-    </PopoverContext.Provider>
-  )
+export function PopoverTrigger({ children, asChild = true }: { children: React.ReactElement; asChild?: boolean }) {
+  return <PopoverPrimitive.Trigger asChild={asChild}>{children}</PopoverPrimitive.Trigger>
 }
 
-export function PopoverTrigger({ children, asChild }: any) {
-  const context = useContext(PopoverContext)
-  if (!context) return null
+interface PopoverContentProps extends React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content> {}
 
-  // Ant Design handles the trigger inside its Popover component,
-  // but to preserve Shadcn's structure we just render the children
-  return children
-}
-
-export function PopoverContent({ children, className, ...props }: any) {
-  const context = useContext(PopoverContext)
-  if (!context) return null
-
+export function PopoverContent({ className, align = 'center', sideOffset = 6, ...props }: PopoverContentProps) {
   return (
-    <AntdPopover
-      open={context.open}
-      onOpenChange={context.setOpen}
-      content={<div className={className}>{children}</div>}
-      trigger="click"
-      {...props}
-    >
-      {/* We need a trigger element, so we render a small transparent anchor if needed, 
-          but usually the Popover wraps the PopoverTrigger. 
-          To support Shadcn's nested JSX structure perfectly in AntD, we can render 
-          the children directly inside a popover panel if needed. */}
-      {children}
-    </AntdPopover>
+    <PopoverPrimitive.Portal>
+      <PopoverPrimitive.Content
+        align={align}
+        sideOffset={sideOffset}
+        className={cn(
+          'z-50 rounded-[var(--radius-inner)] border border-line bg-surface p-3 text-ink',
+          'data-[state=open]:animate-pop-in',
+          className,
+        )}
+        {...props}
+      />
+    </PopoverPrimitive.Portal>
   )
 }

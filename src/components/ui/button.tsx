@@ -1,63 +1,51 @@
-import { Button as AntdButton } from 'antd'
-import type { ButtonProps as AntdButtonProps } from 'antd'
 import React from 'react'
+import { cva, type VariantProps } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
 
-export interface ButtonProps extends Omit<AntdButtonProps, 'type' | 'size' | 'variant'> {
-  variant?: 'default' | 'outline' | 'secondary' | 'ghost' | 'destructive' | 'link'
-  size?: 'default' | 'xs' | 'sm' | 'lg' | 'icon' | 'icon-xs' | 'icon-sm' | 'icon-lg'
-  type?: 'submit' | 'button' | 'reset' | AntdButtonProps['type']
-}
+// Flat, token-driven button (personal-tracker style, ADR-0002 + ADR-0003).
+// No antd, no shadows. `default` is the solid dark primary; `link` uses the accent.
+const buttonVariants = cva(
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium ' +
+    'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 ' +
+    'disabled:opacity-50 disabled:pointer-events-none',
+  {
+    variants: {
+      variant: {
+        default: 'bg-[var(--color-btn)] text-[var(--color-btn-ink)] hover:opacity-90',
+        outline: 'border border-line bg-surface text-ink hover:bg-surface-muted',
+        secondary: 'bg-surface-muted text-ink hover:bg-surface-hover',
+        ghost: 'text-ink hover:bg-surface-muted',
+        destructive: 'bg-red-600 text-white hover:bg-red-700',
+        link: 'text-accent underline-offset-4 hover:underline',
+      },
+      size: {
+        default: 'h-9 px-4',
+        xs: 'h-7 px-2.5 text-xs',
+        sm: 'h-8 px-3',
+        lg: 'h-11 px-6',
+        icon: 'h-9 w-9 p-0',
+        'icon-xs': 'h-7 w-7 p-0',
+        'icon-sm': 'h-8 w-8 p-0',
+        'icon-lg': 'h-11 w-11 p-0',
+      },
+    },
+    defaultVariants: { variant: 'default', size: 'default' },
+  },
+)
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {}
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = 'default', size = 'default', className, children, ...props }, ref) => {
-    let type: 'primary' | 'dashed' | 'link' | 'text' | 'default' = 'default'
-    let danger = false
-    let ghost = false
-
-    if (variant === 'default') {
-      type = 'primary'
-    } else if (variant === 'outline') {
-      type = 'default'
-    } else if (variant === 'secondary') {
-      type = 'default'
-    } else if (variant === 'ghost') {
-      type = 'text'
-    } else if (variant === 'destructive') {
-      type = 'primary'
-      danger = true
-    } else if (variant === 'link') {
-      type = 'link'
-    }
-
-    let antdSize: 'small' | 'middle' | 'large' = 'middle'
-    if (size === 'sm' || size === 'xs' || size === 'icon-xs' || size === 'icon-sm') {
-      antdSize = 'small'
-    } else if (size === 'lg' || size === 'icon-lg') {
-      antdSize = 'large'
-    }
-
-    let htmlType: 'submit' | 'button' | 'reset' | undefined = undefined
-    if (props.type === 'submit' || props.type === 'button' || props.type === 'reset') {
-      htmlType = props.type as any
-    }
-
-    const { type: _, ...restProps } = props
-
-    return (
-      <AntdButton
-        ref={ref as any}
-        type={type}
-        danger={danger}
-        ghost={ghost}
-        size={antdSize}
-        htmlType={htmlType}
-        className={className}
-        {...restProps}
-      >
-        {children}
-      </AntdButton>
-    )
-  }
+  ({ variant, size, className, type, ...props }, ref) => (
+    <button
+      ref={ref}
+      type={type ?? 'button'}
+      className={cn(buttonVariants({ variant, size }), className)}
+      {...props}
+    />
+  ),
 )
 
 Button.displayName = 'Button'

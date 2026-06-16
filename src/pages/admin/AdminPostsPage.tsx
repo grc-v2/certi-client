@@ -104,26 +104,26 @@ export default function AdminPostsPage() {
       <div className="row enter" style={{ alignItems: 'flex-start', gap: 12 }}>
         <div>
           <span className="eyebrow">Quản trị</span>
-          <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--ink)', marginTop: 6 }}>
+          <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-ink)', marginTop: 6 }}>
             <span className="row" style={{ alignItems: 'center', gap: 8 }}>
-              <FileText size={22} style={{ color: 'var(--violet)' }} />
+              <FileText size={22} style={{ color: 'var(--color-accent)' }} />
               Quản lý bài viết
             </span>
           </h1>
-          <p style={{ color: 'var(--ink-3)', fontSize: 13.5, marginTop: 4 }}>{total} bài viết</p>
+          <p style={{ color: 'var(--color-ink-faint)', fontSize: 13.5, marginTop: 4 }}>{total} bài viết</p>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="card enter enter-1" style={{ padding: '14px 16px' }}>
+      <div className="bg-surface rounded-[var(--radius-card)] border border-line enter enter-1" style={{ padding: '14px 16px' }}>
         <div className="row" style={{ gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-          <div className="row" style={{ alignItems: 'center', gap: 8, flex: 1, minWidth: 180, background: 'var(--surface-2)', borderRadius: 'var(--radius-sm)', padding: '7px 12px', border: '1px solid var(--border)' }}>
-            <Search size={14} style={{ color: 'var(--ink-3)', flexShrink: 0 }} />
+          <div className="row" style={{ alignItems: 'center', gap: 8, flex: 1, minWidth: 180, background: 'var(--color-surface-muted)', borderRadius: 'var(--radius-inner)', padding: '7px 12px', border: '1px solid var(--color-line)' }}>
+            <Search size={14} style={{ color: 'var(--color-ink-faint)', flexShrink: 0 }} />
             <input
               placeholder="Tìm bài viết..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13.5, color: 'var(--ink)', width: '100%', fontFamily: 'var(--font-body)' }}
+              style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13.5, color: 'var(--color-ink)', width: '100%', fontFamily: 'var(--font-sans)' }}
             />
           </div>
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? '')}>
@@ -139,21 +139,21 @@ export default function AdminPostsPage() {
       </div>
 
       {/* Table */}
-      <div className="card enter enter-2" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="bg-surface rounded-[var(--radius-card)] border border-line enter enter-2" style={{ padding: 0, overflow: 'hidden' }}>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', fontSize: 13.5, borderCollapse: 'collapse' }}>
             <thead>
               <tr>
                 {['Bài viết', 'Tác giả', 'Trạng thái', 'Ngày đăng', 'Thao tác'].map(h => (
-                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 800, letterSpacing: '.07em', textTransform: 'uppercase', color: 'var(--ink-3)', background: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}>{h}</th>
+                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 800, letterSpacing: '.07em', textTransform: 'uppercase', color: 'var(--color-ink-faint)', background: 'var(--color-surface-muted)', borderBottom: '1px solid var(--color-line)' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 Array(6).fill(0).map((_, i) => (
-                  <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
-                    {[1,2,3,4,5].map(j => <td key={j} style={{ padding: '12px 14px' }}><div style={{ height: 14, background: 'var(--surface-3)', borderRadius: 6 }} /></td>)}
+                  <tr key={i} style={{ borderBottom: '1px solid var(--color-line)' }}>
+                    {[1,2,3,4,5].map(j => <td key={j} style={{ padding: '12px 14px' }}><div style={{ height: 14, background: 'var(--color-surface-hover)', borderRadius: 6 }} /></td>)}
                   </tr>
                 ))
               ) : posts.map((post: PostResponse) => (
@@ -170,11 +170,11 @@ export default function AdminPostsPage() {
             </tbody>
           </table>
         </div>
-        <div className="row" style={{ alignItems: 'center', justifyContent: 'space-between', padding: '12px 18px', borderTop: '1px solid var(--border)' }}>
-          <p style={{ fontSize: 13, color: 'var(--ink-3)' }}>Trang {page + 1} / {totalPages || 1}</p>
+        <div className="row" style={{ alignItems: 'center', justifyContent: 'space-between', padding: '12px 18px', borderTop: '1px solid var(--color-line)' }}>
+          <p style={{ fontSize: 13, color: 'var(--color-ink-faint)' }}>Trang {page + 1} / {totalPages || 1}</p>
           <div className="row" style={{ gap: 8 }}>
-            <button className="btn3d ghost sm" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}><ChevronLeft size={15} /></button>
-            <button className="btn3d ghost sm" onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1}><ChevronRight size={15} /></button>
+            <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}><ChevronLeft size={15} /></Button>
+            <Button variant="outline" size="sm" onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1}><ChevronRight size={15} /></Button>
           </div>
         </div>
       </div>
@@ -185,7 +185,7 @@ export default function AdminPostsPage() {
           <DialogHeader>
             <DialogTitle>{confirm ? CONFIRM_COPY[confirm.type].title : ''}</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-slate-600 dark:text-slate-300">
+          <p className="text-sm text-zinc-600 dark:text-zinc-300">
             {confirm ? CONFIRM_COPY[confirm.type].description(confirm.post.title) : ''}
           </p>
           <DialogFooter className="gap-2">
@@ -196,7 +196,7 @@ export default function AdminPostsPage() {
               className={
                 confirm && CONFIRM_COPY[confirm.type].tone === 'hard'
                   ? 'bg-red-600 hover:bg-red-700 text-white cursor-pointer'
-                  : 'bg-primary hover:bg-slate-800 text-white cursor-pointer'
+                  : 'bg-accent hover:bg-zinc-800 text-white cursor-pointer'
               }
               disabled={isMutating}
               onClick={runConfirm}
@@ -224,15 +224,15 @@ function PostRow({ post, onFeature, onPin, onPublish, onArchive, onDelete }: {
 
   return (
     <tr
-      style={{ borderBottom: '1px solid var(--border)', background: hovered ? 'var(--surface-2)' : 'transparent', transition: 'background .12s' }}
+      style={{ borderBottom: '1px solid var(--color-line)', background: hovered ? 'var(--color-surface-muted)' : 'transparent', transition: 'background .12s' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
       <td style={{ padding: '10px 14px', maxWidth: 280 }}>
         <div className="row" style={{ alignItems: 'center', gap: 6 }}>
-          {post.pinned && <Pin size={13} style={{ color: 'var(--medium)', flexShrink: 0 }} />}
-          {post.featured && <Star size={13} style={{ color: 'var(--gold)', flexShrink: 0 }} />}
-          <p style={{ fontWeight: 600, fontSize: 13.5, color: 'var(--ink)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{post.title}</p>
+          {post.pinned && <Pin size={13} style={{ color: 'var(--color-ink-soft)', flexShrink: 0 }} />}
+          {post.featured && <Star size={13} style={{ color: 'var(--color-accent)', flexShrink: 0 }} />}
+          <p style={{ fontWeight: 600, fontSize: 13.5, color: 'var(--color-ink)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{post.title}</p>
         </div>
       </td>
       <td style={{ padding: '10px 14px' }}>
@@ -241,10 +241,10 @@ function PostRow({ post, onFeature, onPin, onPublish, onArchive, onDelete }: {
       <td style={{ padding: '10px 14px' }}>
         <StatusPill status={post.status} />
       </td>
-      <td style={{ padding: '10px 14px', fontSize: 12, color: 'var(--ink-3)' }}>{formatRelativeTime(post.publishedAt)}</td>
+      <td style={{ padding: '10px 14px', fontSize: 12, color: 'var(--color-ink-faint)' }}>{formatRelativeTime(post.publishedAt)}</td>
       <td style={{ padding: '10px 14px' }}>
         <div className="row" style={{ alignItems: 'center', gap: 4 }}>
-          <Link to={`/community/${post.slug}`} target="_blank">
+          <Link to={`/blog/${post.slug}`} target="_blank">
             <button className="iconbtn" style={{ width: 30, height: 30 }} title="Xem bài viết">
               <Eye size={14} />
             </button>
@@ -252,7 +252,7 @@ function PostRow({ post, onFeature, onPin, onPublish, onArchive, onDelete }: {
           <button
             onClick={onFeature}
             className="iconbtn"
-            style={{ width: 30, height: 30, color: post.featured ? 'var(--gold)' : 'var(--ink-3)' }}
+            style={{ width: 30, height: 30, color: post.featured ? 'var(--color-accent)' : 'var(--color-ink-faint)' }}
             title={post.featured ? 'Bỏ nổi bật' : 'Đánh dấu nổi bật'}
           >
             <Star size={14} />
@@ -260,7 +260,7 @@ function PostRow({ post, onFeature, onPin, onPublish, onArchive, onDelete }: {
           <button
             onClick={onPin}
             className="iconbtn"
-            style={{ width: 30, height: 30, color: post.pinned ? 'var(--medium)' : 'var(--ink-3)' }}
+            style={{ width: 30, height: 30, color: post.pinned ? 'var(--color-ink-soft)' : 'var(--color-ink-faint)' }}
             title={post.pinned ? 'Bỏ ghim' : 'Ghim bài viết'}
           >
             <Pin size={14} />
@@ -269,7 +269,7 @@ function PostRow({ post, onFeature, onPin, onPublish, onArchive, onDelete }: {
             <button
               onClick={onPublish}
               className="iconbtn"
-              style={{ width: 30, height: 30, color: 'var(--brand)' }}
+              style={{ width: 30, height: 30, color: 'var(--color-accent)' }}
               title="Duyệt & publish"
             >
               <CheckCircle2 size={14} />
@@ -279,7 +279,7 @@ function PostRow({ post, onFeature, onPin, onPublish, onArchive, onDelete }: {
             <button
               onClick={onArchive}
               className="iconbtn"
-              style={{ width: 30, height: 30, color: 'var(--ink-3)' }}
+              style={{ width: 30, height: 30, color: 'var(--color-ink-faint)' }}
               title="Lưu trữ"
             >
               <Archive size={14} />
@@ -288,7 +288,7 @@ function PostRow({ post, onFeature, onPin, onPublish, onArchive, onDelete }: {
           <button
             onClick={onDelete}
             className="iconbtn"
-            style={{ width: 30, height: 30, color: 'var(--hard)' }}
+            style={{ width: 30, height: 30, color: '#ef4444' }}
             title="Xoá"
           >
             <Trash2 size={14} />

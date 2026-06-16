@@ -268,8 +268,6 @@ export const examSessionsApi = {
     apiClient.post(`/api/v1/exam-sessions/${sessionId}/abandon`),
   timeoutSession: (sessionId: string | number) =>
     apiClient.post<ExamResultResponse>(`/api/v1/exam-sessions/${sessionId}/timeout`).then(r => r.data),
-  getResult: (sessionId: string | number) =>
-    apiClient.get(`/api/v1/exam-sessions/${sessionId}/result`).then(r => r.data),
 }
 
 

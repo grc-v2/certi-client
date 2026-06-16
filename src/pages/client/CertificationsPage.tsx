@@ -9,6 +9,7 @@ import {
 } from '@/lib/api/exam-sessions'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDebounce } from '@/hooks/use-debounce'
+import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { useLookups } from '@/hooks/use-lookups'
 
@@ -23,49 +24,64 @@ const LEVEL_LABEL: Record<string, string> = {
   BEGINNER: 'Cơ bản', INTERMEDIATE: 'Trung cấp', ADVANCED: 'Nâng cao', EXPERT: 'Chuyên gia',
 }
 
+const DIFFICULTY_COLOR: Record<string, { fg: string; bg: string }> = {
+  easy:   { fg: '#16a34a', bg: 'rgba(22,163,74,.12)' },
+  medium: { fg: '#d97706', bg: 'rgba(217,119,6,.12)' },
+  hard:   { fg: '#dc2626', bg: 'rgba(220,38,38,.12)' },
+}
+
 function CertCard({ cert, onStart }: { cert: CertificationResponse; onStart: () => void }) {
-  const tone = LEVEL_TONE[cert.level] || 'brand'
+  const tone = LEVEL_TONE[cert.level] || 'accent'
+  const diff = DIFFICULTY_COLOR[tone]
   return (
     <div
-      className="card enter"
-      style={{ padding: 0, overflow: 'hidden', cursor: 'pointer', transition: 'transform .12s, box-shadow .12s' }}
+      className="enter bg-surface rounded-[var(--radius-card)] border border-line"
+      style={{ padding: 0, overflow: 'hidden', cursor: 'pointer' }}
       onClick={() => window.location.assign(`/certifications/${cert.slug}`)}
-      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)'; (e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-lg)' }}
-      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'none'; (e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-sm)' }}
     >
       <div style={{ padding: '18px 18px 0' }}>
         <div className="row" style={{ justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
-          <div className="itile" style={{ width: 48, height: 48, background: `var(--${tone}-soft, var(--brand-soft))` }}>
-            <Trophy size={25} style={{ color: `var(--${tone}, var(--brand))` }} />
+          <div
+            className="itile"
+            style={{ width: 48, height: 48, background: diff?.bg ?? 'var(--color-accent-soft)' }}
+          >
+            <Trophy size={25} style={{ color: diff?.fg ?? 'var(--color-accent)' }} />
           </div>
         </div>
         <div className="row" style={{ gap: 7, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
           {cert.code && <span className="codechip">{cert.code}</span>}
-          <span className={`pill ${tone}`} style={{ padding: '3px 9px' }}>
+          <span
+            className="inline-flex items-center rounded-full text-xs font-semibold"
+            style={{
+              padding: '3px 9px',
+              color: diff?.fg ?? 'var(--color-accent-ink)',
+              background: diff?.bg ?? 'var(--color-accent-soft)',
+            }}
+          >
             {LEVEL_LABEL[cert.level] || cert.level}
           </span>
         </div>
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--ink)', lineHeight: 1.3, marginBottom: 6, minHeight: 42 }}>
+        <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-ink)', lineHeight: 1.3, marginBottom: 6, minHeight: 42 }}>
           {cert.name}
         </h3>
         {cert.provider && (
-          <p style={{ fontSize: 12, color: 'var(--ink-3)', marginBottom: 8 }}>{cert.provider}</p>
+          <p style={{ fontSize: 12, color: 'var(--color-ink-faint)', marginBottom: 8 }}>{cert.provider}</p>
         )}
         <div className="row" style={{ gap: 13, flexWrap: 'wrap', marginBottom: 14 }}>
           {cert.totalQuestions && (
-            <span className="row" style={{ gap: 5, alignItems: 'center', fontSize: 12, color: 'var(--ink-3)' }}>
+            <span className="row" style={{ gap: 5, alignItems: 'center', fontSize: 12, color: 'var(--color-ink-faint)' }}>
               <GraduationCap size={13} />
               <span className="mono">{cert.totalQuestions}</span> câu
             </span>
           )}
           {cert.durationMinutes && (
-            <span className="row" style={{ gap: 5, alignItems: 'center', fontSize: 12, color: 'var(--ink-3)' }}>
+            <span className="row" style={{ gap: 5, alignItems: 'center', fontSize: 12, color: 'var(--color-ink-faint)' }}>
               <Clock size={13} />
               <span className="mono">{cert.durationMinutes}</span> phút
             </span>
           )}
           {cert.passingScore && (
-            <span className="row" style={{ gap: 5, alignItems: 'center', fontSize: 12, color: 'var(--gold-deep)' }}>
+            <span className="row" style={{ gap: 5, alignItems: 'center', fontSize: 12, color: 'var(--color-accent-ink)' }}>
               <Star size={13} />
               <span className="mono">{cert.passingScore}%</span>
             </span>
@@ -75,15 +91,15 @@ function CertCard({ cert, onStart }: { cert: CertificationResponse; onStart: () 
 
       <div className="row" style={{
         padding: '13px 18px', alignItems: 'center', justifyContent: 'space-between',
-        gap: 10, borderTop: '1px solid var(--border)', background: 'var(--surface-2)',
+        gap: 10, borderTop: '1px solid var(--color-line)', background: 'var(--color-surface-muted)',
       }}>
-        <button
-          className="btn3d sm"
-          style={{ flex: 1 }}
+        <Button
+          size="sm"
+          className="flex-1"
           onClick={e => { e.stopPropagation(); onStart() }}
         >
           Bắt đầu học <ChevronRight size={14} strokeWidth={2.4} />
-        </button>
+        </Button>
       </div>
     </div>
   )
@@ -100,38 +116,44 @@ function ActiveSessionCard({ session, onResume, resuming }: {
   const remainingMins = Math.max(0, Math.round((session.durationMinutes * 60 - session.timeSpentSeconds) / 60))
 
   return (
-    <div className="card" style={{ padding: '14px 16px', borderColor: 'color-mix(in srgb, var(--brand) 40%, var(--border))' }}>
+    <div
+      className="bg-surface rounded-[var(--radius-card)] border"
+      style={{ padding: '14px 16px', borderColor: 'color-mix(in srgb, var(--color-accent) 40%, var(--color-line))' }}
+    >
       <div className="row" style={{ justifyContent: 'space-between', alignItems: 'flex-start', gap: 14 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="row" style={{ alignItems: 'center', gap: 8, marginBottom: 6 }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--brand)', display: 'inline-block', animation: 'pulse 2s ease-in-out infinite' }} />
-            <span className="pill brand" style={{ padding: '2px 8px', fontSize: 10.5 }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--color-accent)', display: 'inline-block', animation: 'pulse 2s ease-in-out infinite' }} />
+            <span
+              className="inline-flex items-center rounded-full font-semibold"
+              style={{ padding: '2px 8px', fontSize: 10.5, color: 'var(--color-accent-ink)', background: 'var(--color-accent-soft)' }}
+            >
               {session.mode === 'PRACTICE' ? 'Luyện tập' : 'Thi thật'} · đang làm
             </span>
           </div>
-          <p style={{ fontWeight: 700, fontSize: 13.5, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <p style={{ fontWeight: 700, fontSize: 13.5, color: 'var(--color-ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {session.examTitle}
           </p>
-          <p style={{ fontSize: 11.5, color: 'var(--ink-3)', marginTop: 2 }}>{session.certificationName}</p>
+          <p style={{ fontSize: 11.5, color: 'var(--color-ink-faint)', marginTop: 2 }}>{session.certificationName}</p>
           <div style={{ marginTop: 10 }}>
-            <div className="row" style={{ justifyContent: 'space-between', fontSize: 11, color: 'var(--ink-3)', marginBottom: 6 }}>
+            <div className="row" style={{ justifyContent: 'space-between', fontSize: 11, color: 'var(--color-ink-faint)', marginBottom: 6 }}>
               <span className="mono">{session.answeredCount}/{session.totalQuestions} câu</span>
               <span className="mono">{remainingMins} phút còn lại</span>
             </div>
-            <div className="ch-track" style={{ height: 7 }}>
-              <i style={{ width: `${progress}%` }} />
+            <div style={{ height: 7, borderRadius: 99, background: 'var(--color-surface-muted)', overflow: 'hidden' }}>
+              <div style={{ width: `${progress}%`, height: '100%', borderRadius: 99, background: 'var(--color-accent)' }} />
             </div>
           </div>
         </div>
-        <button
-          className="btn3d sm"
+        <Button
+          size="sm"
           onClick={() => onResume(session.id)}
           disabled={resuming}
           style={{ flexShrink: 0 }}
         >
           <RotateCcw size={14} />
           {resuming ? 'Đang tải...' : 'Tiếp tục'}
-        </button>
+        </Button>
       </div>
     </div>
   )
@@ -182,8 +204,8 @@ export default function CertificationsPage() {
       {/* Header */}
       <div>
         <span className="eyebrow">Danh mục</span>
-        <h1 style={{ fontSize: 25, fontWeight: 800, color: 'var(--ink)', marginTop: 6 }}>Khám phá chứng chỉ</h1>
-        <p style={{ fontSize: 14, color: 'var(--ink-2)', marginTop: 6 }}>
+        <h1 style={{ fontSize: 25, fontWeight: 800, color: 'var(--color-ink)', marginTop: 6 }}>Khám phá chứng chỉ</h1>
+        <p style={{ fontSize: 14, color: 'var(--color-ink-soft)', marginTop: 6 }}>
           Chọn chứng chỉ bạn muốn chinh phục — luyện đề, flashcard và mô phỏng thi thật.
         </p>
       </div>
@@ -204,39 +226,38 @@ export default function CertificationsPage() {
       )}
 
       {/* Filters */}
-      <div className="card enter" style={{ padding: '14px 16px' }}>
+      <div className="enter bg-surface rounded-[var(--radius-card)] border border-line" style={{ padding: '14px 16px' }}>
         <div className="row" style={{ gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
           {/* Search */}
           <div className="row" style={{
             alignItems: 'center', gap: 9, padding: '0 13px', height: 42,
-            borderRadius: 'var(--radius-sm)', background: 'var(--surface-2)',
-            border: '1px solid var(--border)', flex: '1 1 220px',
+            borderRadius: 'var(--radius-inner)', background: 'var(--color-surface-muted)',
+            border: '1px solid var(--color-line)', flex: '1 1 220px',
           }}>
-            <Search size={17} style={{ color: 'var(--ink-3)' }} />
+            <Search size={17} style={{ color: 'var(--color-ink-faint)' }} />
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Tìm chứng chỉ…"
               style={{
                 border: 'none', background: 'transparent', outline: 'none',
-                color: 'var(--ink)', fontSize: 13.5, width: '100%',
-                fontFamily: 'var(--font-body)',
+                color: 'var(--color-ink)', fontSize: 13.5, width: '100%',
+                fontFamily: 'var(--font-sans)',
               }}
             />
           </div>
 
           {/* Level filter pills */}
-          <div className="row" style={{ gap: 4, padding: 4, borderRadius: 'var(--radius-sm)', background: 'var(--surface-2)', border: '1px solid var(--border)', flexWrap: 'wrap' }}>
+          <div className="row" style={{ gap: 4, padding: 4, borderRadius: 'var(--radius-inner)', background: 'var(--color-surface-muted)', border: '1px solid var(--color-line)', flexWrap: 'wrap' }}>
             {LEVELS.map(([k, l]) => (
               <button
                 key={k}
                 onClick={() => setLevel(k)}
                 style={{
                   padding: '7px 12px', borderRadius: 9, border: 'none', cursor: 'pointer',
-                  fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12.5, transition: 'all .12s',
-                  background: level === k ? 'var(--surface)' : 'transparent',
-                  color: level === k ? 'var(--ink)' : 'var(--ink-3)',
-                  boxShadow: level === k ? 'var(--shadow-sm)' : 'none',
+                  fontFamily: 'var(--font-heading)', fontWeight: 700, fontSize: 12.5, transition: 'all .12s',
+                  background: level === k ? 'var(--color-surface)' : 'transparent',
+                  color: level === k ? 'var(--color-ink)' : 'var(--color-ink-faint)',
                 }}
               >
                 {l}
@@ -248,7 +269,7 @@ export default function CertificationsPage() {
           <Link
             to="/certifications/exam-history"
             className="row"
-            style={{ gap: 6, alignItems: 'center', fontSize: 13, fontWeight: 600, color: 'var(--ink-2)', textDecoration: 'none' }}
+            style={{ gap: 6, alignItems: 'center', fontSize: 13, fontWeight: 600, color: 'var(--color-ink-soft)', textDecoration: 'none' }}
           >
             <BookOpen size={15} /> Lịch sử thi
           </Link>
@@ -257,7 +278,7 @@ export default function CertificationsPage() {
 
       {/* Results count */}
       {!isLoading && (
-        <p style={{ fontSize: 13, color: 'var(--ink-3)' }}>
+        <p style={{ fontSize: 13, color: 'var(--color-ink-faint)' }}>
           {total} chứng chỉ
           {search || level ? ` phù hợp với bộ lọc` : ' có sẵn'}
         </p>
@@ -267,10 +288,10 @@ export default function CertificationsPage() {
       {isLoading ? (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(264px, 1fr))', gap: 16 }}>
           {Array(6).fill(0).map((_, i) => (
-            <div key={i} className="card" style={{ padding: '18px', height: 220 }}>
-              <div style={{ height: 48, width: 48, borderRadius: 12, background: 'var(--surface-2)', marginBottom: 14, animation: 'pulse 1.5s ease-in-out infinite' }} />
-              <div style={{ height: 12, width: '60%', background: 'var(--surface-2)', borderRadius: 6, marginBottom: 8, animation: 'pulse 1.5s ease-in-out infinite' }} />
-              <div style={{ height: 16, width: '80%', background: 'var(--surface-2)', borderRadius: 6, animation: 'pulse 1.5s ease-in-out infinite' }} />
+            <div key={i} className="bg-surface rounded-[var(--radius-card)] border border-line" style={{ padding: '18px', height: 220 }}>
+              <div style={{ height: 48, width: 48, borderRadius: 12, background: 'var(--color-surface-muted)', marginBottom: 14, animation: 'pulse 1.5s ease-in-out infinite' }} />
+              <div style={{ height: 12, width: '60%', background: 'var(--color-surface-muted)', borderRadius: 6, marginBottom: 8, animation: 'pulse 1.5s ease-in-out infinite' }} />
+              <div style={{ height: 16, width: '80%', background: 'var(--color-surface-muted)', borderRadius: 6, animation: 'pulse 1.5s ease-in-out infinite' }} />
             </div>
           ))}
         </div>
@@ -287,14 +308,14 @@ export default function CertificationsPage() {
           </div>
           {hasNextPage && (
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
-              <button
-                className="btn3d ghost"
+              <Button
+                variant="outline"
                 onClick={() => fetchNextPage()}
                 disabled={isFetchingNextPage}
               >
                 {isFetchingNextPage ? (
                   <span className="row" style={{ gap: 8, alignItems: 'center' }}>
-                    <span style={{ width: 16, height: 16, border: '2px solid var(--ink-3)', borderTopColor: 'var(--brand)', borderRadius: '50%', animation: 'spin 1s linear infinite', display: 'inline-block' }} />
+                    <span style={{ width: 16, height: 16, border: '2px solid var(--color-ink-faint)', borderTopColor: 'var(--color-accent)', borderRadius: '50%', animation: 'spin 1s linear infinite', display: 'inline-block' }} />
                     Đang tải...
                   </span>
                 ) : (
@@ -302,15 +323,15 @@ export default function CertificationsPage() {
                     <ChevronDown size={16} /> Xem thêm
                   </span>
                 )}
-              </button>
+              </Button>
             </div>
           )}
         </>
       ) : (
-        <div className="card" style={{ padding: 56, textAlign: 'center', color: 'var(--ink-3)' }}>
+        <div className="bg-surface rounded-[var(--radius-card)] border border-line" style={{ padding: 56, textAlign: 'center', color: 'var(--color-ink-faint)' }}>
           <Search size={30} style={{ marginBottom: 10 }} />
-          <p style={{ fontWeight: 600, color: 'var(--ink-2)' }}>Không tìm thấy chứng chỉ phù hợp</p>
-          <p style={{ fontSize: 13, marginTop: 4, color: 'var(--ink-3)' }}>Thử thay đổi bộ lọc hoặc từ khóa</p>
+          <p style={{ fontWeight: 600, color: 'var(--color-ink-soft)' }}>Không tìm thấy chứng chỉ phù hợp</p>
+          <p style={{ fontSize: 13, marginTop: 4, color: 'var(--color-ink-faint)' }}>Thử thay đổi bộ lọc hoặc từ khóa</p>
         </div>
       )}
     </div>

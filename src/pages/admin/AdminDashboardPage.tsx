@@ -6,6 +6,7 @@ import {
   Users, FileText, GraduationCap, Sparkles,
   RefreshCw, UserCheck,
 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { adminApi, type UserSummaryResponse } from '@/lib/api/admin'
 import { postsApi, type PostResponse } from '@/lib/api/posts'
 import { certificationsApi } from '@/lib/api/certifications'
@@ -62,8 +63,8 @@ export default function AdminDashboardPage() {
       label: 'Người dùng',
       value: users?.totalElements ?? 0,
       icon: Users,
-      iconBg: 'var(--brand-soft)',
-      iconColor: 'var(--brand)',
+      iconBg: 'var(--color-accent-soft)',
+      iconColor: 'var(--color-accent)',
       href: '/admin/users',
       enterClass: 'enter enter-1',
     },
@@ -71,8 +72,8 @@ export default function AdminDashboardPage() {
       label: 'Bài viết',
       value: posts?.totalElements ?? 0,
       icon: FileText,
-      iconBg: 'var(--violet-soft)',
-      iconColor: 'var(--violet)',
+      iconBg: 'var(--color-surface-muted)',
+      iconColor: 'var(--color-ink-soft)',
       href: '/admin/posts',
       enterClass: 'enter enter-2',
     },
@@ -80,8 +81,8 @@ export default function AdminDashboardPage() {
       label: 'Chứng chỉ',
       value: certifications?.totalElements ?? 0,
       icon: GraduationCap,
-      iconBg: 'var(--gold-soft)',
-      iconColor: 'var(--gold)',
+      iconBg: 'var(--color-accent-soft)',
+      iconColor: 'var(--color-accent)',
       href: '/admin/certifications',
       enterClass: 'enter enter-3',
     },
@@ -89,8 +90,8 @@ export default function AdminDashboardPage() {
       label: 'Câu hỏi',
       value: questions?.totalElements ?? 0,
       icon: Sparkles,
-      iconBg: '#2E7DF618',
-      iconColor: '#2E7DF6',
+      iconBg: 'var(--color-surface-muted)',
+      iconColor: 'var(--color-ink-soft)',
       href: '/admin/questions',
       enterClass: 'enter enter-4',
     },
@@ -102,18 +103,19 @@ export default function AdminDashboardPage() {
       <div className="row enter" style={{ alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <span className="eyebrow">Hệ thống</span>
-          <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--ink)', marginTop: 6 }}>Tổng quan quản trị</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-ink)', marginTop: 6 }}>Tổng quan quản trị</h1>
         </div>
         <div className="row" style={{ gap: 8 }}>
-          <button
-            className="btn3d ghost sm"
+          <Button
+            variant="outline"
+            size="sm"
             onClick={refreshAll}
             disabled={isFetching > 0}
             title="Làm mới các số liệu trên trang"
           >
             <RefreshCw size={14} style={isFetching > 0 ? { animation: 'spin 1s linear infinite' } : undefined} />
             {isFetching > 0 ? 'Đang tải...' : 'Làm mới'}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -121,7 +123,7 @@ export default function AdminDashboardPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }} className="stat-grid">
         {statsData.map((s, i) => (
           <Link key={i} to={s.href} style={{ textDecoration: 'none' }}>
-            <div className={`card ${s.enterClass}`} style={{ padding: 18, cursor: 'pointer' }}>
+            <div className={`bg-surface rounded-[var(--radius-card)] border border-line ${s.enterClass}`} style={{ padding: 18, cursor: 'pointer' }}>
               <div className="row" style={{ alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
                 <div
                   className="itile"
@@ -130,7 +132,7 @@ export default function AdminDashboardPage() {
                   <s.icon size={20} />
                 </div>
               </div>
-              <div className="mono tnum" style={{ fontSize: 28, fontWeight: 800, color: 'var(--ink)', lineHeight: 1 }}>
+              <div className="mono tnum" style={{ fontSize: 28, fontWeight: 800, color: 'var(--color-ink)', lineHeight: 1 }}>
                 {typeof s.value === 'number' ? s.value.toLocaleString('vi-VN') : s.value}
               </div>
               <span className="eyebrow" style={{ marginTop: 6, display: 'block' }}>{s.label}</span>
@@ -144,45 +146,45 @@ export default function AdminDashboardPage() {
         {/* Left col */}
         <div className="col" style={{ gap: 16 }}>
           {/* Real registration trend (last 12 months) */}
-          <div className="card enter enter-3" style={{ padding: 20 }}>
+          <div className="bg-surface rounded-[var(--radius-card)] border border-line enter enter-3" style={{ padding: 20 }}>
             <div className="row" style={{ alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div>
                 <span className="eyebrow">Tăng trưởng</span>
-                <h3 style={{ fontSize: 15, fontWeight: 700, color: 'var(--ink)', marginTop: 2 }}>Người dùng mới — 12 tháng gần nhất</h3>
+                <h3 style={{ fontSize: 15, fontWeight: 700, color: 'var(--color-ink)', marginTop: 2 }}>Người dùng mới — 12 tháng gần nhất</h3>
               </div>
             </div>
             <RegistrationTrendChart users={trendUsers?.content ?? []} />
           </div>
 
           {/* Recent users */}
-          <div className="card enter enter-4" style={{ padding: 0, overflow: 'hidden' }}>
-            <div className="row" style={{ alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', borderBottom: '1px solid var(--border)' }}>
+          <div className="bg-surface rounded-[var(--radius-card)] border border-line enter enter-4" style={{ padding: 0, overflow: 'hidden' }}>
+            <div className="row" style={{ alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', borderBottom: '1px solid var(--color-line)' }}>
               <div className="row" style={{ alignItems: 'center', gap: 8 }}>
-                <UserCheck size={16} style={{ color: 'var(--brand)' }} />
-                <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--ink)' }}>Người dùng mới</span>
+                <UserCheck size={16} style={{ color: 'var(--color-accent)' }} />
+                <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--color-ink)' }}>Người dùng mới</span>
               </div>
               <Link to="/admin/users">
-                <button className="btn3d ghost sm" style={{ fontSize: 12, padding: '5px 10px' }}>Xem tất cả</button>
+                <Button variant="outline" size="sm" style={{ fontSize: 12 }}>Xem tất cả</Button>
               </Link>
             </div>
             <div>
               {recentUsers.length === 0 ? (
-                <p style={{ textAlign: 'center', padding: '24px 0', color: 'var(--ink-3)', fontSize: 13 }}>Chưa có dữ liệu</p>
+                <p style={{ textAlign: 'center', padding: '24px 0', color: 'var(--color-ink-faint)', fontSize: 13 }}>Chưa có dữ liệu</p>
               ) : recentUsers.map((u: UserSummaryResponse) => (
                 <div
                   key={u.id}
                   className="row"
-                  style={{ alignItems: 'center', padding: '10px 18px', borderBottom: '1px solid var(--border)', gap: 12 }}
+                  style={{ alignItems: 'center', padding: '10px 18px', borderBottom: '1px solid var(--color-line)', gap: 12 }}
                 >
                   <div
                     className="itile"
-                    style={{ width: 34, height: 34, background: 'var(--brand-soft)', color: 'var(--brand)', fontWeight: 700, fontSize: 12, flexShrink: 0, fontFamily: 'var(--font-mono)' }}
+                    style={{ width: 34, height: 34, background: 'var(--color-accent-soft)', color: 'var(--color-accent)', fontWeight: 700, fontSize: 12, flexShrink: 0, fontFamily: 'var(--font-mono)' }}
                   >
                     {u.fullName?.slice(0, 2).toUpperCase()}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontWeight: 600, fontSize: 13.5, color: 'var(--ink)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.fullName}</p>
-                    <p style={{ fontSize: 11.5, color: 'var(--ink-3)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.email}</p>
+                    <p style={{ fontWeight: 600, fontSize: 13.5, color: 'var(--color-ink)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.fullName}</p>
+                    <p style={{ fontSize: 11.5, color: 'var(--color-ink-faint)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.email}</p>
                   </div>
                   <StatusPill status={u.status} />
                   <RolePill role={u.roleCode} />
@@ -195,28 +197,28 @@ export default function AdminDashboardPage() {
         {/* Right col */}
         <div className="col" style={{ gap: 16 }}>
           {/* Moderation queue */}
-          <div className="card enter enter-3" style={{ padding: 0, overflow: 'hidden' }}>
-            <div className="row" style={{ alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', borderBottom: '1px solid var(--border)' }}>
+          <div className="bg-surface rounded-[var(--radius-card)] border border-line enter enter-3" style={{ padding: 0, overflow: 'hidden' }}>
+            <div className="row" style={{ alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', borderBottom: '1px solid var(--color-line)' }}>
               <div className="row" style={{ alignItems: 'center', gap: 8 }}>
-                <FileText size={15} style={{ color: 'var(--violet)' }} />
-                <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--ink)' }}>Bài viết chờ duyệt</span>
+                <FileText size={15} style={{ color: 'var(--color-accent)' }} />
+                <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--color-ink)' }}>Bài viết chờ duyệt</span>
               </div>
               <Link to="/admin/posts">
-                <button className="btn3d ghost sm" style={{ fontSize: 12, padding: '5px 10px' }}>Xem tất cả</button>
+                <Button variant="outline" size="sm" style={{ fontSize: 12 }}>Xem tất cả</Button>
               </Link>
             </div>
             <div>
               {recentPosts.length === 0 ? (
-                <p style={{ textAlign: 'center', padding: '24px 0', color: 'var(--ink-3)', fontSize: 13 }}>Chưa có dữ liệu</p>
+                <p style={{ textAlign: 'center', padding: '24px 0', color: 'var(--color-ink-faint)', fontSize: 13 }}>Chưa có dữ liệu</p>
               ) : recentPosts.map((p: PostResponse) => (
                 <div
                   key={p.id}
                   className="row"
-                  style={{ alignItems: 'center', padding: '10px 18px', borderBottom: '1px solid var(--border)', gap: 12 }}
+                  style={{ alignItems: 'center', padding: '10px 18px', borderBottom: '1px solid var(--color-line)', gap: 12 }}
                 >
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.title}</p>
-                    <p style={{ fontSize: 11, color: 'var(--ink-3)', margin: 0 }}>{formatRelativeTime(p.publishedAt)}</p>
+                    <p style={{ fontWeight: 600, fontSize: 13, color: 'var(--color-ink)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.title}</p>
+                    <p style={{ fontSize: 11, color: 'var(--color-ink-faint)', margin: 0 }}>{formatRelativeTime(p.publishedAt)}</p>
                   </div>
                   <StatusPill status={p.status} />
                 </div>
@@ -262,13 +264,13 @@ function RegistrationTrendChart({ users }: { users: UserSummaryResponse[] }) {
               width: '100%',
               height: `${(b.count / max) * 80}px`,
               minHeight: b.count > 0 ? 4 : 1,
-              background: b.count > 0 ? 'var(--violet-soft)' : 'var(--surface-3)',
+              background: b.count > 0 ? 'var(--color-accent-soft)' : 'var(--color-surface-hover)',
               borderRadius: 6,
-              border: b.count > 0 ? '1.5px solid var(--violet)' : '1px solid var(--border)',
+              border: b.count > 0 ? '1.5px solid var(--color-accent)' : '1px solid var(--color-line)',
               transition: 'height .5s ease',
             }}
           />
-          <span style={{ fontSize: 9, color: 'var(--ink-3)', fontFamily: 'var(--font-mono)' }}>{b.label}</span>
+          <span style={{ fontSize: 9, color: 'var(--color-ink-faint)', fontFamily: 'var(--font-mono)' }}>{b.label}</span>
         </div>
       ))}
     </div>

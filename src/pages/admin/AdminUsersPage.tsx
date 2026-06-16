@@ -70,13 +70,13 @@ export default function AdminUsersPage() {
       <div className="row enter" style={{ alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <span className="eyebrow">Quản trị</span>
-          <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--ink)', marginTop: 6 }}>
+          <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-ink)', marginTop: 6 }}>
             <span className="row" style={{ alignItems: 'center', gap: 8 }}>
-              <Users size={22} style={{ color: 'var(--violet)' }} />
+              <Users size={22} style={{ color: 'var(--color-accent)' }} />
               Quản lý người dùng
             </span>
           </h1>
-          <p style={{ color: 'var(--ink-3)', fontSize: 13.5, marginTop: 4 }}>{total} người dùng</p>
+          <p style={{ color: 'var(--color-ink-faint)', fontSize: 13.5, marginTop: 4 }}>{total} người dùng</p>
         </div>
       </div>
 
@@ -84,13 +84,13 @@ export default function AdminUsersPage() {
       <div className="card enter enter-1" style={{ padding: '14px 16px' }}>
         <div className="row" style={{ gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
           {/* Search */}
-          <div className="row" style={{ alignItems: 'center', gap: 8, flex: 1, minWidth: 180, background: 'var(--surface-2)', borderRadius: 'var(--radius-sm)', padding: '7px 12px', border: '1px solid var(--border)' }}>
-            <Search size={14} style={{ color: 'var(--ink-3)', flexShrink: 0 }} />
+          <div className="row" style={{ alignItems: 'center', gap: 8, flex: 1, minWidth: 180, background: 'var(--color-surface-muted)', borderRadius: 'var(--radius-inner)', padding: '7px 12px', border: '1px solid var(--color-line)' }}>
+            <Search size={14} style={{ color: 'var(--color-ink-faint)', flexShrink: 0 }} />
             <input
               placeholder="Tìm theo tên, email..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13.5, color: 'var(--ink)', width: '100%', fontFamily: 'var(--font-body)' }}
+              style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13.5, color: 'var(--color-ink)', width: '100%', fontFamily: 'var(--font-sans)' }}
             />
           </div>
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? '')}>
@@ -103,7 +103,7 @@ export default function AdminUsersPage() {
           </Select>
           <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v ?? '')}>
             <SelectTrigger className="w-full sm:w-32 cursor-pointer">
-              <Shield className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
+              <Shield className="w-3.5 h-3.5 mr-1.5 text-zinc-400" />
               <SelectValue placeholder="Role" />
             </SelectTrigger>
             <SelectContent>
@@ -114,7 +114,7 @@ export default function AdminUsersPage() {
           </Select>
           <Select value={sortBy} onValueChange={(v) => setSortBy(v ?? '')}>
             <SelectTrigger className="w-full sm:w-40 cursor-pointer">
-              <ArrowUpDown className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
+              <ArrowUpDown className="w-3.5 h-3.5 mr-1.5 text-zinc-400" />
               <SelectValue placeholder="Sắp xếp" />
             </SelectTrigger>
             <SelectContent>
@@ -138,7 +138,7 @@ export default function AdminUsersPage() {
                 className="btn3d ghost sm"
                 onClick={() => bulkDeactivateMutation.mutate(selectedIds)}
                 disabled={bulkDeactivateMutation.isPending}
-                style={{ color: 'var(--hard)' }}
+                style={{ color: '#dc2626' }}
               >
                 <UserX size={13} />Vô hiệu ({selectedIds.length})
               </button>
@@ -153,7 +153,7 @@ export default function AdminUsersPage() {
           <table style={{ width: '100%', fontSize: 13.5, borderCollapse: 'collapse' }}>
             <thead>
               <tr>
-                <th style={{ padding: '10px 14px', textAlign: 'left', width: 40, background: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}>
+                <th style={{ padding: '10px 14px', textAlign: 'left', width: 40, background: 'var(--color-surface-muted)', borderBottom: '1px solid var(--color-line)' }}>
                   <Checkbox
                     checked={selectedIds.length === users.length && users.length > 0}
                     onCheckedChange={toggleAll}
@@ -161,17 +161,17 @@ export default function AdminUsersPage() {
                   />
                 </th>
                 {['Người dùng', 'Role', 'Ngày đăng ký', 'Trạng thái', 'Thao tác'].map(h => (
-                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 800, letterSpacing: '.07em', textTransform: 'uppercase', color: 'var(--ink-3)', background: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}>{h}</th>
+                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 800, letterSpacing: '.07em', textTransform: 'uppercase', color: 'var(--color-ink-faint)', background: 'var(--color-surface-muted)', borderBottom: '1px solid var(--color-line)' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 Array(8).fill(0).map((_, i) => (
-                  <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
+                  <tr key={i} style={{ borderBottom: '1px solid var(--color-line)' }}>
                     {[1,2,3,4,5,6].map(j => (
                       <td key={j} style={{ padding: '12px 14px' }}>
-                        <div style={{ height: 14, background: 'var(--surface-3)', borderRadius: 6 }} />
+                        <div style={{ height: 14, background: 'var(--color-surface-hover)', borderRadius: 6 }} />
                       </td>
                     ))}
                   </tr>
@@ -193,8 +193,8 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Pagination */}
-        <div className="row" style={{ alignItems: 'center', justifyContent: 'space-between', padding: '12px 18px', borderTop: '1px solid var(--border)' }}>
-          <p style={{ fontSize: 13, color: 'var(--ink-3)' }}>Trang {page + 1} / {totalPages || 1}</p>
+        <div className="row" style={{ alignItems: 'center', justifyContent: 'space-between', padding: '12px 18px', borderTop: '1px solid var(--color-line)' }}>
+          <p style={{ fontSize: 13, color: 'var(--color-ink-faint)' }}>Trang {page + 1} / {totalPages || 1}</p>
           <div className="row" style={{ gap: 8 }}>
             <button className="btn3d ghost sm" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}>
               <ChevronLeft size={15} />
@@ -220,20 +220,20 @@ export default function AdminUsersPage() {
                 <div className="flex items-center gap-3">
                   <Avatar className="w-12 h-12">
                     <AvatarImage src={detailUser.avatarUrl ?? undefined} />
-                    <AvatarFallback className="bg-primary text-white">{detailUser.fullName?.slice(0,2).toUpperCase()}</AvatarFallback>
+                    <AvatarFallback className="bg-accent text-white">{detailUser.fullName?.slice(0,2).toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-semibold text-slate-900 dark:text-white">{detailUser.fullName}</p>
-                    <p className="text-sm text-slate-500">{detailUser.email}</p>
+                    <p className="font-semibold text-zinc-900 dark:text-white">{detailUser.fullName}</p>
+                    <p className="text-sm text-zinc-500">{detailUser.email}</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div className="flex items-center gap-2"><span className="text-slate-500">Role:</span> <RolePill role={detailUser.roleCode} /></div>
-                  <div className="flex items-center gap-2"><span className="text-slate-500">Trạng thái:</span> <StatusPill status={detailUser.status} /></div>
-                  <div><span className="text-slate-500">Bài viết:</span> <span className="font-medium">{detailUser.postCount}</span></div>
-                  <div><span className="text-slate-500">Chứng chỉ:</span> <span className="font-medium">{detailUser.certificationCount}</span></div>
+                  <div className="flex items-center gap-2"><span className="text-zinc-500">Role:</span> <RolePill role={detailUser.roleCode} /></div>
+                  <div className="flex items-center gap-2"><span className="text-zinc-500">Trạng thái:</span> <StatusPill status={detailUser.status} /></div>
+                  <div><span className="text-zinc-500">Bài viết:</span> <span className="font-medium">{detailUser.postCount}</span></div>
+                  <div><span className="text-zinc-500">Chứng chỉ:</span> <span className="font-medium">{detailUser.certificationCount}</span></div>
                 </div>
-                {detailUser.bio && <div><p className="text-sm text-slate-500 font-medium">Giới thiệu:</p><p className="text-sm mt-0.5">{detailUser.bio}</p></div>}
+                {detailUser.bio && <div><p className="text-sm text-zinc-500 font-medium">Giới thiệu:</p><p className="text-sm mt-0.5">{detailUser.bio}</p></div>}
                 <div className="flex gap-2 pt-2">
                   <Button size="sm" variant="outline" className="cursor-pointer" onClick={() => {
                     setEditUser(detailUser)
@@ -269,7 +269,7 @@ export default function AdminUsersPage() {
               <Input id="edit-bio" value={editForm.bio} onChange={e => setEditForm(f => ({ ...f, bio: e.target.value }))} />
             </div>
             <Button
-              className="w-full bg-primary hover:bg-slate-800 text-white cursor-pointer"
+              className="w-full bg-accent hover:bg-zinc-800 text-white cursor-pointer"
               disabled={updateMutation.isPending}
               onClick={() => editUser && updateMutation.mutate({ id: editUser.id, data: editForm })}
             >
@@ -288,7 +288,7 @@ export default function AdminUsersPage() {
                confirmAction?.type === 'deactivate' ? 'Vô hiệu hóa người dùng' : 'Kích hoạt người dùng'}
             </DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-slate-600 dark:text-slate-300">
+          <p className="text-sm text-zinc-600 dark:text-zinc-300">
             {confirmAction?.type === 'delete'
               ? `Bạn có chắc chắn muốn xóa người dùng "${confirmAction?.name}"? Hành động này không thể hoàn tác.`
               : confirmAction?.type === 'deactivate'
@@ -328,7 +328,7 @@ function UserRow({ user, selected, onToggle, onView, onDeactivate, onActivate, o
   const [hovered, setHovered] = useState(false)
   return (
     <tr
-      style={{ borderBottom: '1px solid var(--border)', background: hovered ? 'var(--surface-2)' : 'transparent', transition: 'background .12s' }}
+      style={{ borderBottom: '1px solid var(--color-line)', background: hovered ? 'var(--color-surface-muted)' : 'transparent', transition: 'background .12s' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -339,20 +339,20 @@ function UserRow({ user, selected, onToggle, onView, onDeactivate, onActivate, o
         <div className="row" style={{ alignItems: 'center', gap: 10 }}>
           <div
             className="itile"
-            style={{ width: 32, height: 32, background: 'var(--brand-soft)', color: 'var(--brand)', fontWeight: 700, fontSize: 11, flexShrink: 0, fontFamily: 'var(--font-mono)' }}
+            style={{ width: 32, height: 32, background: 'var(--color-accent-soft)', color: 'var(--color-accent)', fontWeight: 700, fontSize: 11, flexShrink: 0, fontFamily: 'var(--font-mono)' }}
           >
             {user.fullName?.slice(0,2).toUpperCase()}
           </div>
           <div style={{ minWidth: 0 }}>
-            <p style={{ fontWeight: 600, fontSize: 13.5, color: 'var(--ink)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.fullName}</p>
-            <p style={{ fontSize: 11.5, color: 'var(--ink-3)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</p>
+            <p style={{ fontWeight: 600, fontSize: 13.5, color: 'var(--color-ink)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.fullName}</p>
+            <p style={{ fontSize: 11.5, color: 'var(--color-ink-faint)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</p>
           </div>
         </div>
       </td>
       <td style={{ padding: '10px 14px' }}>
         <RolePill role={user.roleCode} />
       </td>
-      <td style={{ padding: '10px 14px', fontSize: 12, color: 'var(--ink-3)' }}>
+      <td style={{ padding: '10px 14px', fontSize: 12, color: 'var(--color-ink-faint)' }}>
         {formatDate(user.registrationDate)}
       </td>
       <td style={{ padding: '10px 14px' }}>
@@ -364,15 +364,15 @@ function UserRow({ user, selected, onToggle, onView, onDeactivate, onActivate, o
             <Eye size={14} />
           </button>
           {user.status === 'ACTIVE' ? (
-            <button onClick={onDeactivate} className="iconbtn" style={{ width: 30, height: 30, color: 'var(--hard)' }} title="Vô hiệu hóa">
+            <button onClick={onDeactivate} className="iconbtn" style={{ width: 30, height: 30, color: '#dc2626' }} title="Vô hiệu hóa">
               <UserX size={14} />
             </button>
           ) : (
-            <button onClick={onActivate} className="iconbtn" style={{ width: 30, height: 30, color: 'var(--brand)' }} title="Kích hoạt">
+            <button onClick={onActivate} className="iconbtn" style={{ width: 30, height: 30, color: 'var(--color-accent)' }} title="Kích hoạt">
               <UserCheck size={14} />
             </button>
           )}
-          <button onClick={onDelete} className="iconbtn" style={{ width: 30, height: 30, color: 'var(--hard)' }} title="Xóa">
+          <button onClick={onDelete} className="iconbtn" style={{ width: 30, height: 30, color: '#dc2626' }} title="Xóa">
             <Trash2 size={14} />
           </button>
         </div>
@@ -389,19 +389,19 @@ function SessionsList({ userId }: { userId: string }) {
 
   const sessionList = sessions ?? []
 
-  if (isLoading) return <div className="space-y-2">{Array(3).fill(0).map((_, i) => <div key={i} className="h-10 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />)}</div>
+  if (isLoading) return <div className="space-y-2">{Array(3).fill(0).map((_, i) => <div key={i} className="h-10 bg-zinc-200 dark:bg-zinc-700 rounded animate-pulse" />)}</div>
 
-  if (sessionList.length === 0) return <p className="text-center py-6 text-slate-500 text-sm">Không có phiên hoạt động</p>
+  if (sessionList.length === 0) return <p className="text-center py-6 text-zinc-500 text-sm">Không có phiên hoạt động</p>
 
   return (
     <div className="space-y-2">
       {sessionList.map((s) => {
         const sessionId = s.sessionId ?? s.id
         return (
-          <div key={sessionId} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 text-sm">
+          <div key={sessionId} className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/50 text-sm">
             <div className="min-w-0 flex-1">
-              <p className="text-slate-700 dark:text-slate-300 truncate text-xs">{s.userAgent ?? 'Unknown device'}</p>
-              <p className="text-slate-400 text-xs mt-0.5">{s.ipAddress} - {formatDate(s.createdAt)}</p>
+              <p className="text-zinc-700 dark:text-zinc-300 truncate text-xs">{s.userAgent ?? 'Unknown device'}</p>
+              <p className="text-zinc-400 text-xs mt-0.5">{s.ipAddress} - {formatDate(s.createdAt)}</p>
             </div>
             <Button
               size="sm"

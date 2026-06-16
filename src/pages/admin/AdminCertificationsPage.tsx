@@ -20,9 +20,9 @@ type CertForm = {
 }
 
 function CertStatusPill({ status }: { status: string }) {
-  if (status === 'ACTIVE') return <span className="pill brand">Active</span>
-  if (status === 'DRAFT') return <span className="pill gold">Draft</span>
-  return <span className="pill" style={{ background: 'var(--surface-3)', color: 'var(--ink-3)' }}>Inactive</span>
+  if (status === 'ACTIVE') return <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-emerald-50 text-emerald-700">Active</span>
+  if (status === 'DRAFT') return <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-amber-50 text-amber-700">Draft</span>
+  return <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-surface-muted text-ink-soft">Inactive</span>
 }
 
 export default function AdminCertificationsPage() {
@@ -106,50 +106,50 @@ export default function AdminCertificationsPage() {
       <div className="row enter" style={{ alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <span className="eyebrow">Quản trị</span>
-          <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--ink)', marginTop: 6 }}>
+          <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-ink)', marginTop: 6 }}>
             <span className="row" style={{ alignItems: 'center', gap: 8 }}>
-              <GraduationCap size={22} style={{ color: 'var(--gold)' }} />
+              <GraduationCap size={22} style={{ color: 'var(--color-accent)' }} />
               Quản lý chứng chỉ
             </span>
           </h1>
-          <p style={{ color: 'var(--ink-3)', fontSize: 13.5, marginTop: 4 }}>{total} chứng chỉ</p>
+          <p style={{ color: 'var(--color-ink-faint)', fontSize: 13.5, marginTop: 4 }}>{total} chứng chỉ</p>
         </div>
-        <button className="btn3d sm" onClick={openCreate}>
+        <Button size="sm" onClick={openCreate}>
           <Plus size={15} />Thêm chứng chỉ
-        </button>
+        </Button>
       </div>
 
       {/* Filter bar */}
-      <div className="card enter enter-1" style={{ padding: '14px 16px' }}>
+      <div className="bg-surface rounded-[var(--radius-card)] border border-line enter enter-1" style={{ padding: '14px 16px' }}>
         <div className="row" style={{ gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-          <div className="row" style={{ alignItems: 'center', gap: 8, flex: 1, minWidth: 180, background: 'var(--surface-2)', borderRadius: 'var(--radius-sm)', padding: '7px 12px', border: '1px solid var(--border)' }}>
-            <Search size={14} style={{ color: 'var(--ink-3)', flexShrink: 0 }} />
+          <div className="row" style={{ alignItems: 'center', gap: 8, flex: 1, minWidth: 180, background: 'var(--color-surface-muted)', borderRadius: 'var(--radius-inner)', padding: '7px 12px', border: '1px solid var(--color-line)' }}>
+            <Search size={14} style={{ color: 'var(--color-ink-faint)', flexShrink: 0 }} />
             <input
               placeholder="Tìm chứng chỉ..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13.5, color: 'var(--ink)', width: '100%', fontFamily: 'var(--font-body)' }}
+              style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13.5, color: 'var(--color-ink)', width: '100%', fontFamily: 'var(--font-sans)' }}
             />
           </div>
         </div>
       </div>
 
       {/* Table */}
-      <div className="card enter enter-2" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="bg-surface rounded-[var(--radius-card)] border border-line enter enter-2" style={{ padding: 0, overflow: 'hidden' }}>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', fontSize: 13.5, borderCollapse: 'collapse' }}>
             <thead>
               <tr>
                 {['Chứng chỉ', 'Provider', 'Cấp độ', 'Trạng thái', 'Thao tác'].map(h => (
-                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 800, letterSpacing: '.07em', textTransform: 'uppercase', color: 'var(--ink-3)', background: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}>{h}</th>
+                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 800, letterSpacing: '.07em', textTransform: 'uppercase', color: 'var(--color-ink-faint)', background: 'var(--color-surface-muted)', borderBottom: '1px solid var(--color-line)' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 Array(6).fill(0).map((_, i) => (
-                  <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
-                    {[1,2,3,4,5].map(j => <td key={j} style={{ padding: '12px 14px' }}><div style={{ height: 14, background: 'var(--surface-3)', borderRadius: 6 }} /></td>)}
+                  <tr key={i} style={{ borderBottom: '1px solid var(--color-line)' }}>
+                    {[1,2,3,4,5].map(j => <td key={j} style={{ padding: '12px 14px' }}><div style={{ height: 14, background: 'var(--color-surface-hover)', borderRadius: 6 }} /></td>)}
                   </tr>
                 ))
               ) : certs.map((cert: CertificationResponse) => (
@@ -164,11 +164,11 @@ export default function AdminCertificationsPage() {
             </tbody>
           </table>
         </div>
-        <div className="row" style={{ alignItems: 'center', justifyContent: 'space-between', padding: '12px 18px', borderTop: '1px solid var(--border)' }}>
-          <p style={{ fontSize: 13, color: 'var(--ink-3)' }}>Trang {page + 1} / {totalPages || 1}</p>
+        <div className="row" style={{ alignItems: 'center', justifyContent: 'space-between', padding: '12px 18px', borderTop: '1px solid var(--color-line)' }}>
+          <p style={{ fontSize: 13, color: 'var(--color-ink-faint)' }}>Trang {page + 1} / {totalPages || 1}</p>
           <div className="row" style={{ gap: 8 }}>
-            <button className="btn3d ghost sm" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}><ChevronLeft size={15} /></button>
-            <button className="btn3d ghost sm" onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1}><ChevronRight size={15} /></button>
+            <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}><ChevronLeft size={15} /></Button>
+            <Button variant="outline" size="sm" onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1}><ChevronRight size={15} /></Button>
           </div>
         </div>
       </div>
@@ -203,7 +203,7 @@ export default function AdminCertificationsPage() {
               <div><Label htmlFor="price">Giá ($)</Label><Input id="price" type="number" {...form.register('price', { valueAsNumber: true })} /></div>
             </div>
             <div><Label htmlFor="description">Mô tả</Label><Textarea id="description" {...form.register('description')} placeholder="Mô tả về chứng chỉ" rows={3} /></div>
-            <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="w-full bg-primary hover:bg-slate-800 text-white cursor-pointer">
+            <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="w-full bg-accent hover:bg-zinc-800 text-white cursor-pointer">
               {(createMutation.isPending || updateMutation.isPending) ? 'Đang lưu...' : editingCert ? 'Cập nhật' : 'Tạo chứng chỉ'}
             </Button>
           </form>
@@ -214,7 +214,7 @@ export default function AdminCertificationsPage() {
       <Dialog open={!!confirmDelete} onOpenChange={() => setConfirmDelete(null)}>
         <DialogContent className="max-w-sm">
           <DialogHeader><DialogTitle>Xóa chứng chỉ</DialogTitle></DialogHeader>
-          <p className="text-sm text-slate-600 dark:text-slate-300">Bạn có chắc chắn muốn xóa &quot;{confirmDelete?.name}&quot;? Hành động này không thể hoàn tác.</p>
+          <p className="text-sm text-zinc-600 dark:text-zinc-300">Bạn có chắc chắn muốn xóa &quot;{confirmDelete?.name}&quot;? Hành động này không thể hoàn tác.</p>
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setConfirmDelete(null)} className="cursor-pointer">Hủy</Button>
             <Button className="bg-red-600 hover:bg-red-700 text-white cursor-pointer" disabled={deleteMutation.isPending} onClick={() => confirmDelete && deleteMutation.mutate(confirmDelete.id)}>
@@ -236,22 +236,22 @@ function CertRow({ cert, onEdit, onToggleStatus, onDelete }: {
   const [hovered, setHovered] = useState(false)
   return (
     <tr
-      style={{ borderBottom: '1px solid var(--border)', background: hovered ? 'var(--surface-2)' : 'transparent', transition: 'background .12s' }}
+      style={{ borderBottom: '1px solid var(--color-line)', background: hovered ? 'var(--color-surface-muted)' : 'transparent', transition: 'background .12s' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
       <td style={{ padding: '10px 14px' }}>
         <div className="row" style={{ alignItems: 'center', gap: 10 }}>
-          <div className="itile" style={{ width: 34, height: 34, background: 'var(--gold-soft)', color: 'var(--gold)', flexShrink: 0 }}>
+          <div className="itile" style={{ width: 34, height: 34, background: 'var(--color-accent-soft)', color: 'var(--color-accent)', flexShrink: 0 }}>
             <GraduationCap size={16} />
           </div>
           <div style={{ minWidth: 0 }}>
-            <p style={{ fontWeight: 600, fontSize: 13.5, color: 'var(--ink)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cert.name}</p>
+            <p style={{ fontWeight: 600, fontSize: 13.5, color: 'var(--color-ink)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cert.name}</p>
             <span className="codechip" style={{ fontSize: 10.5 }}>{cert.code}</span>
           </div>
         </div>
       </td>
-      <td style={{ padding: '10px 14px', fontSize: 12.5, color: 'var(--ink-2)' }}>{cert.provider}</td>
+      <td style={{ padding: '10px 14px', fontSize: 12.5, color: 'var(--color-ink-soft)' }}>{cert.provider}</td>
       <td style={{ padding: '10px 14px' }}>
         <span className="codechip" style={{ fontSize: 11 }}>{cert.level}</span>
       </td>
@@ -268,10 +268,10 @@ function CertRow({ cert, onEdit, onToggleStatus, onDelete }: {
           <button onClick={onEdit} className="iconbtn" style={{ width: 30, height: 30 }} title="Sửa">
             <Edit2 size={14} />
           </button>
-          <button onClick={onToggleStatus} className="iconbtn" style={{ width: 30, height: 30, color: cert.status === 'ACTIVE' ? 'var(--brand)' : 'var(--ink-3)' }} title="Đổi trạng thái">
+          <button onClick={onToggleStatus} className="iconbtn" style={{ width: 30, height: 30, color: cert.status === 'ACTIVE' ? 'var(--color-accent)' : 'var(--color-ink-faint)' }} title="Đổi trạng thái">
             <Power size={14} />
           </button>
-          <button onClick={onDelete} className="iconbtn" style={{ width: 30, height: 30, color: 'var(--hard)' }} title="Xóa">
+          <button onClick={onDelete} className="iconbtn" style={{ width: 30, height: 30, color: '#ef4444' }} title="Xóa">
             <Trash2 size={14} />
           </button>
         </div>

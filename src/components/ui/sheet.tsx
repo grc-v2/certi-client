@@ -1,63 +1,70 @@
-import { Drawer } from 'antd'
-import React, { createContext, useContext } from 'react'
+import React from 'react'
+import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { cn } from '@/lib/utils'
 
-const SheetContext = createContext<{
-  open: boolean
-  setOpen: (open: boolean) => void
-} | null>(null)
+// Edge sheet on Radix Dialog (ADR-0002 + ADR-0003), flat + token-driven.
+// Public API preserved: Sheet(open/onOpenChange), SheetTrigger, SheetContent(side),
+// SheetHeader/Title/Description.
 
-export function Sheet({ open, onOpenChange, children }: any) {
+export function Sheet({ open, onOpenChange, children }: {
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  children: React.ReactNode
+}) {
   return (
-    <SheetContext.Provider value={{ open: !!open, setOpen: onOpenChange || (() => {}) }}>
+    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       {children}
-    </SheetContext.Provider>
+    </DialogPrimitive.Root>
   )
 }
 
-export function SheetTrigger({ children }: any) {
-  const context = useContext(SheetContext)
-  if (!context) return null
-  return React.cloneElement(children, {
-    onClick: (e: any) => {
-      if (children.props.onClick) children.props.onClick(e)
-      context.setOpen(true)
-    }
-  })
+export function SheetTrigger({ children }: { children: React.ReactElement }) {
+  return <DialogPrimitive.Trigger asChild>{children}</DialogPrimitive.Trigger>
 }
 
-export function SheetContent({ side = 'right', children, className, ...props }: any) {
-  const context = useContext(SheetContext)
-  if (!context) return null
+type Side = 'left' | 'right' | 'top' | 'bottom'
 
-  let placement: 'left' | 'right' | 'top' | 'bottom' = 'right'
-  if (side === 'left') placement = 'left'
-  else if (side === 'top') placement = 'top'
-  else if (side === 'bottom') placement = 'bottom'
+const SIDE_CLASSES: Record<Side, string> = {
+  right: 'inset-y-0 right-0 h-full w-80 max-w-[85vw]',
+  left: 'inset-y-0 left-0 h-full w-80 max-w-[85vw]',
+  top: 'inset-x-0 top-0 w-full',
+  bottom: 'inset-x-0 bottom-0 w-full',
+}
 
+interface SheetContentProps extends React.HTMLAttributes<HTMLDivElement> {
+  side?: Side
+}
+
+export function SheetContent({ side = 'right', children, className, ...props }: SheetContentProps) {
   return (
-    <Drawer
-      open={context.open}
-      onClose={() => context.setOpen(false)}
-      placement={placement}
-      width={320}
-      headerStyle={{ display: 'none' }}
-      bodyStyle={{ padding: '1.5rem' }}
-      className={className}
-      {...props}
-    >
-      {children}
-    </Drawer>
+    <DialogPrimitive.Portal>
+      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" />
+      <DialogPrimitive.Content
+        className={cn('fixed z-50 overflow-y-auto bg-surface p-6 text-ink shadow-none', SIDE_CLASSES[side], className)}
+        {...props}
+      >
+        {children}
+      </DialogPrimitive.Content>
+    </DialogPrimitive.Portal>
   )
 }
 
-export function SheetHeader({ className, children, ...props }: any) {
-  return <div className={`flex flex-col space-y-2 text-left ${className}`} {...props}>{children}</div>
+export function SheetHeader({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+  return <div className={cn('flex flex-col space-y-2 text-left', className)} {...props}>{children}</div>
 }
 
-export function SheetTitle({ className, children, ...props }: any) {
-  return <h2 className={`text-lg font-bold text-slate-900 dark:text-white ${className}`} {...props}>{children}</h2>
+export function SheetTitle({ className, children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
+  return (
+    <DialogPrimitive.Title className={cn('text-lg font-bold text-ink', className)} {...props}>
+      {children}
+    </DialogPrimitive.Title>
+  )
 }
 
-export function SheetDescription({ className, children, ...props }: any) {
-  return <p className={`text-sm text-slate-500 dark:text-slate-400 ${className}`} {...props}>{children}</p>
+export function SheetDescription({ className, children, ...props }: React.HTMLAttributes<HTMLParagraphElement>) {
+  return (
+    <DialogPrimitive.Description className={cn('text-sm text-ink-soft', className)} {...props}>
+      {children}
+    </DialogPrimitive.Description>
+  )
 }

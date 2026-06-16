@@ -9,7 +9,7 @@ export const ROUTES = {
   HOME: '/dashboard',
   CERTIFICATIONS: '/certifications',
   LEARN: '/learn',
-  COMMUNITY: '/community',
+  COMMUNITY: '/blog',
   BOOKMARKS: '/bookmarks',
   NOTIFICATIONS: '/notifications',
   PROFILE: '/profile',

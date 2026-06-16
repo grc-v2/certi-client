@@ -38,15 +38,6 @@ export interface ExamResponse {
   certificationName: string
 }
 
-export interface AdminLessonTemplateResponse {
-  id: number
-  domainId: number
-  title: string
-  estimatedMinutes?: number
-  orderIndex: number
-  status?: string
-}
-
 export interface CertificationDetailResponse extends CertificationResponse {
   domains: CertificationDomainResponse[]
   exams: ExamResponse[]
@@ -111,8 +102,6 @@ export const certificationsApi = {
     apiClient.patch(`/api/v1/admin/certifications/${id}/status`, null, { params: { status } }),
   createDomain: (certificationId: string | number, data: CertificationDomainRequest) =>
     apiClient.post<CertificationDomainResponse>(`/api/v1/admin/certifications/${certificationId}/domains`, data).then(r => r.data),
-  getAdminDomainLessons: (domainId: string | number) =>
-    apiClient.get<AdminLessonTemplateResponse[]>(`/api/v1/admin/domains/${domainId}/lessons`).then(r => r.data),
   updateDomain: (id: string | number, data: CertificationDomainRequest) => apiClient.put<CertificationDomainResponse>(`/api/v1/admin/domains/${id}`, data).then(r => r.data),
   deleteDomain: (id: string | number) => apiClient.delete(`/api/v1/admin/domains/${id}`),
 }

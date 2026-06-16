@@ -1,42 +1,31 @@
-import { Tooltip as AntdTooltip } from 'antd'
 import React from 'react'
+import * as TooltipPrimitive from '@radix-ui/react-tooltip'
+import { cn } from '@/lib/utils'
 
-export function TooltipProvider({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+// Flat tooltip on Radix (ADR-0002 + ADR-0003). shadcn structure:
+// <TooltipProvider><Tooltip><TooltipTrigger asChild>…</TooltipTrigger><TooltipContent>…</TooltipContent></Tooltip></TooltipProvider>
+
+export const TooltipProvider = TooltipPrimitive.Provider
+export const Tooltip = TooltipPrimitive.Root
+
+export function TooltipTrigger({ children, asChild = true }: { children: React.ReactElement; asChild?: boolean }) {
+  return <TooltipPrimitive.Trigger asChild={asChild}>{children}</TooltipPrimitive.Trigger>
 }
 
-export function Tooltip({ children, ...props }: any) {
-  // Find trigger and content
-  let triggerElement: React.ReactNode = null
-  let contentElement: React.ReactNode = null
+interface TooltipContentProps extends React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content> {}
 
-  React.Children.forEach(children, (child) => {
-    if (React.isValidElement(child)) {
-      const element = child as React.ReactElement<any>
-      if ((element.type as any).displayName === 'TooltipTrigger' || (element.type as any).name === 'TooltipTrigger') {
-        triggerElement = element.props.children
-      } else if ((element.type as any).displayName === 'TooltipContent' || (element.type as any).name === 'TooltipContent') {
-        contentElement = element.props.children
-      }
-    }
-  })
-
-  // Fallback if not used exactly with trigger/content children
-  if (!triggerElement) triggerElement = children
-
+export function TooltipContent({ className, sideOffset = 6, ...props }: TooltipContentProps) {
   return (
-    <AntdTooltip title={contentElement} {...props}>
-      <span className="cursor-pointer">{triggerElement}</span>
-    </AntdTooltip>
+    <TooltipPrimitive.Portal>
+      <TooltipPrimitive.Content
+        sideOffset={sideOffset}
+        className={cn(
+          'z-50 rounded-[var(--radius-inner)] bg-[var(--color-btn)] px-2.5 py-1.5 text-xs text-[var(--color-btn-ink)]',
+          'data-[state=delayed-open]:animate-pop-in',
+          className,
+        )}
+        {...props}
+      />
+    </TooltipPrimitive.Portal>
   )
 }
-
-export function TooltipTrigger({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
-}
-TooltipTrigger.displayName = 'TooltipTrigger'
-
-export function TooltipContent({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
-}
-TooltipContent.displayName = 'TooltipContent'

@@ -17,16 +17,16 @@ export default function AuthLayout() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0A66C2]/10 via-slate-50 to-[#22C55E]/10 dark:from-[#0A66C2]/15 dark:via-slate-950 dark:to-slate-900 px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0A66C2]/10 via-zinc-50 to-[#22C55E]/10 dark:from-[#0A66C2]/15 dark:via-zinc-950 dark:to-zinc-900 px-4 py-12">
       <div className="w-full max-w-md space-y-8">
         <div className="flex flex-col items-center">
           <div className="w-12 h-12 bg-[#0A66C2] rounded-2xl flex items-center justify-center shadow-lg shadow-[#0A66C2]/20">
             <span className="text-white font-extrabold text-xl">C</span>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-zinc-900 dark:text-white tracking-tight">
             CertiMaster
           </h2>
-          <p className="mt-2 text-center text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-2 text-center text-sm text-zinc-600 dark:text-zinc-400">
             Chinh phục chứng chỉ học tập chuyên sâu
           </p>
         </div>

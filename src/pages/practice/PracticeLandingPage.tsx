@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Play, CheckCircle2, Layers, Zap, ArrowRight, Target } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 const MODES = [
   {
@@ -8,10 +9,7 @@ const MODES = [
     desc: 'Học theo tốc độ của bạn, không giới hạn thời gian. Có giải thích chi tiết sau mỗi câu.',
     meta: 'Không giới hạn · Có giải thích',
     icon: Play,
-    iconColor: 'var(--blue)',
-    iconBg: 'var(--blue-soft)',
     link: '/practice/free',
-    tone: 'blue',
     featured: false,
   },
   {
@@ -20,10 +18,7 @@ const MODES = [
     desc: 'Mô phỏng đúng kỳ thi thật: đồng hồ đếm ngược, không xem đáp án ngay.',
     meta: '65 câu · 130 phút',
     icon: CheckCircle2,
-    iconColor: 'var(--brand)',
-    iconBg: 'var(--brand-soft)',
     link: '/practice/exam',
-    tone: 'brand',
     featured: true,
   },
   {
@@ -32,10 +27,7 @@ const MODES = [
     desc: 'Ôn tập nhanh các khái niệm và định nghĩa. Lật thẻ để xem đáp án.',
     meta: 'Lật thẻ · ghi nhớ nhanh',
     icon: Layers,
-    iconColor: 'var(--violet)',
-    iconBg: 'var(--violet-soft)',
     link: '/practice/flashcard',
-    tone: 'violet',
     featured: false,
   },
   {
@@ -44,72 +36,58 @@ const MODES = [
     desc: 'Tự động chọn chủ đề bạn đang yếu nhất dựa trên lịch sử làm bài.',
     meta: 'Dựa trên phân tích AI',
     icon: Zap,
-    iconColor: 'var(--gold-deep)',
-    iconBg: 'var(--gold-soft)',
     link: '/practice/weakness',
-    tone: 'gold',
     featured: false,
   },
 ]
 
 export default function PracticeLandingPage() {
   return (
-    <div className="col" style={{ gap: 20 }}>
+    <div className="flex flex-col gap-5">
       {/* Header */}
       <div>
-        <span className="eyebrow">Luyện tập</span>
-        <h1 style={{ fontSize: 25, fontWeight: 800, color: 'var(--ink)', marginTop: 6 }}>
+        <span className="text-xs font-semibold uppercase tracking-wider text-accent">Luyện tập</span>
+        <h1 className="text-[25px] font-extrabold text-ink mt-1.5">
           Chọn cách bạn muốn luyện hôm nay
         </h1>
-        <p style={{ fontSize: 14, color: 'var(--ink-2)', marginTop: 6 }}>
+        <p className="text-sm text-ink-soft mt-1.5">
           Mỗi chế độ phù hợp với một mục tiêu khác nhau — từ học thư giãn đến mô phỏng áp lực phòng thi.
         </p>
       </div>
 
       {/* Mode cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
-        {MODES.map((m, i) => (
+      <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
+        {MODES.map((m) => (
           <div
             key={m.key}
-            className={`card enter enter-${i + 1}`}
-            style={{
-              padding: 0, overflow: 'hidden', position: 'relative',
-              borderColor: m.featured
-                ? 'color-mix(in srgb, var(--brand) 40%, var(--border))'
-                : 'var(--border)',
-            }}
+            className={`relative overflow-hidden rounded-[var(--radius-card)] bg-surface border ${m.featured ? 'border-accent/40' : 'border-line'}`}
           >
             {m.featured && (
-              <div style={{ position: 'absolute', top: 14, right: 14, zIndex: 2 }}>
-                <span className="pill brand" style={{ padding: '3px 9px', fontSize: 10.5 }}>
+              <div className="absolute top-3.5 right-3.5 z-[2]">
+                <span className="inline-flex items-center gap-1 rounded-full bg-accent-soft text-accent-ink px-2 py-0.5 text-[10.5px] font-semibold">
                   <Zap size={11} strokeWidth={2.4} /> Phổ biến
                 </span>
               </div>
             )}
 
-            <div style={{ padding: '22px 22px 0' }}>
-              <div className="itile" style={{ width: 54, height: 54, background: m.iconBg, marginBottom: 16 }}>
-                <m.icon size={28} style={{ color: m.iconColor }} />
+            <div className="px-[22px] pt-[22px]">
+              <div className="flex items-center justify-center w-[54px] h-[54px] rounded-[var(--radius-inner)] bg-surface-muted text-ink mb-4">
+                <m.icon size={28} />
               </div>
-              <h3 style={{ fontSize: 19, fontWeight: 700, color: 'var(--ink)', marginBottom: 6 }}>
+              <h3 className="text-[19px] font-bold text-ink mb-1.5">
                 {m.title}
               </h3>
-              <p style={{ fontSize: 13.5, color: 'var(--ink-2)', lineHeight: 1.55, marginBottom: 14, minHeight: 42 }}>
+              <p className="text-[13.5px] text-ink-soft leading-[1.55] mb-3.5 min-h-[42px]">
                 {m.desc}
               </p>
             </div>
 
-            <div className="row" style={{
-              padding: '14px 22px', alignItems: 'center', justifyContent: 'space-between',
-              gap: 10, borderTop: '1px solid var(--border)', background: 'var(--surface-2)',
-            }}>
-              <span className="mono" style={{ fontSize: 12, color: 'var(--ink-3)' }}>{m.meta}</span>
+            <div className="flex items-center justify-between gap-2.5 px-[22px] py-3.5 border-t border-line bg-surface-muted">
+              <span className="font-mono text-xs text-ink-faint">{m.meta}</span>
               <Link to={m.link}>
-                <button
-                  className={`btn3d sm${m.tone === 'violet' ? ' violet' : m.tone === 'gold' ? ' gold' : m.featured ? '' : ' ghost'}`}
-                >
+                <Button size="sm" variant={m.featured ? 'default' : 'outline'}>
                   Bắt đầu <ArrowRight size={14} strokeWidth={2.4} />
-                </button>
+                </Button>
               </Link>
             </div>
           </div>
@@ -117,33 +95,23 @@ export default function PracticeLandingPage() {
       </div>
 
       {/* Weakness banner */}
-      <div
-        className="card enter enter-4"
-        style={{
-          padding: '20px 22px', position: 'relative', overflow: 'hidden',
-          borderColor: 'color-mix(in srgb, var(--gold) 35%, var(--border))',
-        }}
-      >
-        <div style={{
-          position: 'absolute', top: -40, right: -30, width: 180, height: 180, borderRadius: '50%',
-          background: 'radial-gradient(circle, var(--gold-soft), transparent 70%)',
-        }} />
-        <div className="row" style={{ gap: 16, alignItems: 'center', flexWrap: 'wrap', position: 'relative' }}>
-          <div className="itile" style={{ width: 52, height: 52, background: 'var(--gold-soft)', flexShrink: 0 }}>
-            <Target size={28} style={{ color: 'var(--gold-deep)' }} />
+      <div className="relative overflow-hidden rounded-[var(--radius-card)] bg-surface border border-accent/30 px-[22px] py-5">
+        <div className="flex flex-wrap items-center gap-4 relative">
+          <div className="flex items-center justify-center w-[52px] h-[52px] rounded-[var(--radius-inner)] bg-accent-soft text-accent flex-shrink-0">
+            <Target size={28} />
           </div>
-          <div style={{ flex: 1, minWidth: 220 }}>
-            <h3 style={{ fontSize: 17, fontWeight: 700, color: 'var(--ink)', marginBottom: 4 }}>
+          <div className="flex-1 min-w-[220px]">
+            <h3 className="text-[17px] font-bold text-ink mb-1">
               Tập trung vào điểm yếu ngay hôm nay
             </h3>
-            <p style={{ fontSize: 13.5, color: 'var(--ink-2)' }}>
+            <p className="text-[13.5px] text-ink-soft">
               AI phân tích lịch sử thi của bạn và chọn ra các câu cần ôn lại ở những chủ đề còn yếu.
             </p>
           </div>
           <Link to="/practice/weakness">
-            <button className="btn3d gold">
+            <Button>
               <Zap size={16} strokeWidth={2.4} /> Ôn ngay
-            </button>
+            </Button>
           </Link>
         </div>
       </div>

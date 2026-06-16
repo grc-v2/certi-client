@@ -34,4 +34,13 @@ export const keys = {
     list: (p: { search: string; page: number }) =>
       [...keys.bookmarks.all, p.search, p.page] as const,
   },
+  tracker: {
+    all: ['tracker'] as const,
+    resources: () => [...keys.tracker.all, 'resources'] as const,
+    collections: () => [...keys.tracker.all, 'collections'] as const,
+    tasks: () => [...keys.tracker.all, 'tasks'] as const,
+    pomodoro: () => [...keys.tracker.all, 'pomodoro'] as const,
+    habits: () => [...keys.tracker.all, 'habits'] as const,
+    habitHistory: (id: number) => [...keys.tracker.all, 'habits', id, 'history'] as const,
+  },
 } as const

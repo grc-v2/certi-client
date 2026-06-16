@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { ConfigProvider, theme as antdTheme } from 'antd'
-import { AppThemeProvider, useAppTheme } from '@/providers/theme-provider'
+import { AppThemeProvider } from '@/providers/theme-provider'
 import { QueryProvider } from '@/providers/query-provider'
 import { Toaster } from 'sonner'
 
@@ -23,17 +22,15 @@ import OAuthCallbackPage from '@/pages/auth/OAuthCallbackPage'
 import DashboardPage from '@/pages/client/DashboardPage'
 import CertificationsPage from '@/pages/client/CertificationsPage'
 import CertificationDetailPage from '@/pages/client/CertificationDetailPage'
-import CoursesPage from '@/pages/client/CoursesPage'
-import CourseDetailPage from '@/pages/client/CourseDetailPage'
-import CourseLearningPage from '@/pages/client/CourseLearningPage'
 import ResultDetailPage from '@/pages/client/ResultDetailPage'
 import ExamHistoryPage from '@/pages/client/ExamHistoryPage'
-import CommunityPage from '@/pages/client/CommunityPage'
+import BlogPage from '@/pages/client/BlogPage'
+import ResourcesPage from '@/pages/client/ResourcesPage'
+import HabitsPage from '@/pages/client/HabitsPage'
 import PostDetailPage from '@/pages/client/PostDetailPage'
 import BookmarksPage from '@/pages/client/BookmarksPage'
 import NotificationsPage from '@/pages/client/NotificationsPage'
 import ProfilePage from '@/pages/client/ProfilePage'
-import TagDetailPage from '@/pages/client/TagDetailPage'
 
 // Exam Pages
 import ExamPage from '@/pages/exam/ExamPage'
@@ -50,45 +47,14 @@ import AdminDashboardPage from '@/pages/admin/AdminDashboardPage'
 import AdminUsersPage from '@/pages/admin/AdminUsersPage'
 import AdminCertificationsPage from '@/pages/admin/AdminCertificationsPage'
 import AdminCertificationDetailPage from '@/pages/admin/AdminCertificationDetailPage'
-import AdminCoursesPage from '@/pages/admin/AdminCoursesPage'
-import AdminCoursesListPage from '@/pages/admin/AdminCoursesListPage'
 import AdminQuestionsPage from '@/pages/admin/AdminQuestionsPage'
 import AdminPostsPage from '@/pages/admin/AdminPostsPage'
 import AdminNotificationsPage from '@/pages/admin/AdminNotificationsPage'
 import AdminAuditPage from '@/pages/admin/AdminAuditPage'
 
 function AppRoutes() {
-  const { resolvedTheme } = useAppTheme()
-
   return (
-    <ConfigProvider
-      theme={{
-        algorithm: resolvedTheme === 'dark' ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
-        token: {
-          colorPrimary: '#0F172A',
-          colorSuccess: '#15BE69',
-          colorInfo: '#2E7DF6',
-          colorWarning: '#F4B125',
-          colorError: '#F2546B',
-          fontFamily: "'Be Vietnam Pro', system-ui, -apple-system, sans-serif",
-          borderRadius: 12,
-        },
-        components: {
-          Button: {
-            controlHeight: 40,
-            borderRadius: 8,
-          },
-          Input: {
-            controlHeight: 40,
-            borderRadius: 8,
-          },
-          Menu: {
-            borderRadius: 8,
-          },
-        },
-      }}
-    >
-      <BrowserRouter>
+    <BrowserRouter>
         <SessionGuard />
         <Routes>
           {/* Root Redirect */}
@@ -105,10 +71,9 @@ function AppRoutes() {
           {/* Client Protected Routes */}
           <Route element={<ClientLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/habits" element={<HabitsPage />} />
             <Route path="/certifications" element={<CertificationsPage />} />
             <Route path="/certifications/:slug" element={<CertificationDetailPage />} />
-            <Route path="/courses" element={<CoursesPage />} />
-            <Route path="/courses/:id" element={<CourseDetailPage />} />
             <Route path="/certifications/results/:sessionId" element={<ResultDetailPage />} />
             <Route path="/certifications/exam-history" element={<ExamHistoryPage />} />
             <Route path="/practice" element={<PracticeLandingPage />} />
@@ -117,12 +82,16 @@ function AppRoutes() {
             <Route path="/practice/exam-sim" element={<PracticeExamSimPage />} />
             <Route path="/practice/flashcard" element={<PracticeFlashcardPage />} />
             <Route path="/practice/weakness" element={<PracticeWeaknessPage />} />
-            <Route path="/community" element={<CommunityPage />} />
+            <Route path="/resources" element={<ResourcesPage />} />
+            <Route path="/blog" element={<BlogPage />} />
+            <Route path="/blog/:slug" element={<PostDetailPage />} />
+            {/* Legacy aliases — keep old /community links working */}
+            <Route path="/community" element={<BlogPage />} />
             <Route path="/community/:slug" element={<PostDetailPage />} />
             <Route path="/bookmarks" element={<BookmarksPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/profile/:userId" element={<ProfilePage />} />
-            <Route path="/tags/:slug" element={<CommunityPage />} />
+            <Route path="/tags/:slug" element={<BlogPage />} />
           </Route>
 
           {/* Exam Protected Routes */}
@@ -130,17 +99,12 @@ function AppRoutes() {
             <Route path="/exam/:sessionId" element={<ExamPage />} />
           </Route>
 
-          {/* Standalone Client Routes */}
-          <Route path="/courses/:id/learn/:lessonId" element={<CourseLearningPage />} />
-
           {/* Admin Protected Routes */}
           <Route element={<AdminLayout />}>
             <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
             <Route path="/admin/users" element={<AdminUsersPage />} />
             <Route path="/admin/certifications" element={<AdminCertificationsPage />} />
             <Route path="/admin/certifications/:id" element={<AdminCertificationDetailPage />} />
-            <Route path="/admin/certifications/:id/courses" element={<AdminCoursesPage />} />
-            <Route path="/admin/courses" element={<AdminCoursesListPage />} />
             <Route path="/admin/questions" element={<AdminQuestionsPage />} />
             <Route path="/admin/posts" element={<AdminPostsPage />} />
             <Route path="/admin/notifications" element={<AdminNotificationsPage />} />
@@ -151,7 +115,6 @@ function AppRoutes() {
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </BrowserRouter>
-    </ConfigProvider>
   )
 }
 

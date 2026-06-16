@@ -1,6 +1,7 @@
-import { Progress as AntdProgress } from 'antd'
-import React from 'react'
+import { cn } from '@/lib/utils'
 
+// Flat, token-driven progress bar (ADR-0003) — a plain div track + fill, no antd.
+// API preserved: value, className, strokeColor (fill), trailColor (track), strokeWidth (height).
 export interface ProgressProps {
   value?: number
   className?: string
@@ -9,17 +10,20 @@ export interface ProgressProps {
   strokeWidth?: number
 }
 
-export function Progress({ value = 0, className, strokeColor = "#0A66C2", trailColor = "rgba(0, 0, 0, 0.06)", strokeWidth = 8, ...props }: ProgressProps) {
+export function Progress({
+  value = 0,
+  className,
+  strokeColor = 'var(--color-accent)',
+  trailColor = 'var(--color-surface-muted)',
+  strokeWidth = 8,
+}: ProgressProps) {
+  const pct = Math.max(0, Math.min(100, value))
   return (
-    <div className={`w-full ${className || ''}`}>
-      <AntdProgress
-        percent={value}
-        showInfo={false}
-        strokeColor={strokeColor}
-        trailColor={trailColor}
-        strokeWidth={strokeWidth}
-        {...props}
-      />
+    <div
+      className={cn('w-full overflow-hidden rounded-full', className)}
+      style={{ height: strokeWidth, background: trailColor }}
+    >
+      <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: strokeColor }} />
     </div>
   )
 }

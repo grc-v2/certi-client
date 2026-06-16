@@ -38,7 +38,7 @@ function CertStatusPill({ status }: { status: string }) {
   return (
     <span
       className="pill"
-      style={{ background: 'var(--surface-3)', color: 'var(--ink-3)' }}
+      style={{ background: 'var(--color-surface-hover)', color: 'var(--color-ink-faint)' }}
     >
       {status}
     </span>
@@ -50,7 +50,7 @@ function ExamStatusPill({ status }: { status: string }) {
   return (
     <span
       className="pill"
-      style={{ background: 'var(--surface-3)', color: 'var(--ink-3)', fontSize: 11 }}
+      style={{ background: 'var(--color-surface-hover)', color: 'var(--color-ink-faint)', fontSize: 11 }}
     >
       {status}
     </span>
@@ -137,16 +137,16 @@ export default function CertificationDetailPage() {
   if (isLoading) {
     return (
       <div className="col" style={{ gap: 16 }}>
-        <div style={{ height: 28, width: 220, background: 'var(--surface-3)', borderRadius: 8 }} />
-        <div style={{ height: 120, background: 'var(--surface-3)', borderRadius: 12 }} />
-        <div style={{ height: 220, background: 'var(--surface-3)', borderRadius: 12 }} />
+        <div style={{ height: 28, width: 220, background: 'var(--color-surface-hover)', borderRadius: 8 }} />
+        <div style={{ height: 120, background: 'var(--color-surface-hover)', borderRadius: 12 }} />
+        <div style={{ height: 220, background: 'var(--color-surface-hover)', borderRadius: 12 }} />
       </div>
     )
   }
 
   if (!cert) {
     return (
-      <p style={{ textAlign: 'center', padding: '40px 0', color: 'var(--ink-3)' }}>
+      <p style={{ textAlign: 'center', padding: '40px 0', color: 'var(--color-ink-faint)' }}>
         Không tìm thấy chứng chỉ
       </p>
     )
@@ -168,12 +168,6 @@ export default function CertificationDetailPage() {
             Quay lại
           </button>
         </Link>
-        <Link to={`/admin/certifications/${id}/courses`}>
-          <button className="btn3d sm" style={{ fontSize: 12.5 }}>
-            <BookOpen size={14} />
-            Khoá học
-          </button>
-        </Link>
       </div>
 
       {/* Cert info */}
@@ -181,25 +175,25 @@ export default function CertificationDetailPage() {
         <div className="row" style={{ alignItems: 'flex-start', gap: 14 }}>
           <div
             className="itile"
-            style={{ width: 48, height: 48, background: 'var(--gold-soft)', color: 'var(--gold)', flexShrink: 0 }}
+            style={{ width: 48, height: 48, background: 'var(--color-accent-soft)', color: 'var(--color-accent)', flexShrink: 0 }}
           >
             <GraduationCap size={22} />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div className="row" style={{ alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <h1 style={{ fontSize: 20, fontWeight: 800, color: 'var(--ink)', margin: 0 }}>
+              <h1 style={{ fontSize: 20, fontWeight: 800, color: 'var(--color-ink)', margin: 0 }}>
                 {cert.name}
               </h1>
               <CertStatusPill status={cert.status} />
             </div>
-            <p style={{ fontSize: 13, color: 'var(--ink-3)', margin: '4px 0 0' }}>
+            <p style={{ fontSize: 13, color: 'var(--color-ink-faint)', margin: '4px 0 0' }}>
               {cert.provider} · {cert.code}
             </p>
             {cert.description && (
               <p
                 style={{
                   fontSize: 13.5,
-                  color: 'var(--ink-2)',
+                  color: 'var(--color-ink-soft)',
                   margin: '8px 0 0',
                   lineHeight: 1.55,
                 }}
@@ -209,30 +203,30 @@ export default function CertificationDetailPage() {
             )}
             <div
               className="row"
-              style={{ gap: 16, marginTop: 10, flexWrap: 'wrap', fontSize: 12.5, color: 'var(--ink-3)' }}
+              style={{ gap: 16, marginTop: 10, flexWrap: 'wrap', fontSize: 12.5, color: 'var(--color-ink-faint)' }}
             >
               {cert.totalQuestions != null && (
                 <span>
                   Câu hỏi:{' '}
-                  <strong style={{ color: 'var(--ink-2)' }}>{cert.totalQuestions}</strong>
+                  <strong style={{ color: 'var(--color-ink-soft)' }}>{cert.totalQuestions}</strong>
                 </span>
               )}
               {cert.durationMinutes != null && (
                 <span>
                   Thời gian:{' '}
-                  <strong style={{ color: 'var(--ink-2)' }}>{cert.durationMinutes} phút</strong>
+                  <strong style={{ color: 'var(--color-ink-soft)' }}>{cert.durationMinutes} phút</strong>
                 </span>
               )}
               {cert.passingScore != null && (
                 <span>
                   Điểm đạt:{' '}
-                  <strong style={{ color: 'var(--ink-2)' }}>{cert.passingScore}%</strong>
+                  <strong style={{ color: 'var(--color-ink-soft)' }}>{cert.passingScore}%</strong>
                 </span>
               )}
               {cert.price != null && (
                 <span>
                   Giá:{' '}
-                  <strong style={{ color: 'var(--ink-2)' }}>${cert.price}</strong>
+                  <strong style={{ color: 'var(--color-ink-soft)' }}>${cert.price}</strong>
                 </span>
               )}
             </div>
@@ -248,12 +242,12 @@ export default function CertificationDetailPage() {
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '14px 18px',
-            borderBottom: '1px solid var(--border)',
+            borderBottom: '1px solid var(--color-line)',
           }}
         >
           <div className="row" style={{ alignItems: 'center', gap: 8 }}>
-            <Layers size={16} style={{ color: 'var(--brand)' }} />
-            <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--ink)' }}>
+            <Layers size={16} style={{ color: 'var(--color-accent)' }} />
+            <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--color-ink)' }}>
               Domains ({domains.length})
             </span>
           </div>
@@ -270,13 +264,13 @@ export default function CertificationDetailPage() {
               className="row"
               style={{ justifyContent: 'space-between', marginBottom: 4 }}
             >
-              <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>Tổng trọng số</span>
+              <span style={{ fontSize: 12, color: 'var(--color-ink-faint)' }}>Tổng trọng số</span>
               <span
                 className="mono tnum"
                 style={{
                   fontSize: 12,
                   fontWeight: 700,
-                  color: weightValid ? 'var(--brand)' : 'var(--hard)',
+                  color: weightValid ? 'var(--color-accent)' : '#dc2626',
                 }}
               >
                 {totalWeight}%
@@ -286,7 +280,7 @@ export default function CertificationDetailPage() {
               <i
                 style={{
                   width: `${Math.min(totalWeight, 100)}%`,
-                  background: weightValid ? 'var(--brand)' : 'var(--gold)',
+                  background: weightValid ? 'var(--color-accent)' : 'var(--color-accent)',
                 }}
               />
             </div>
@@ -297,7 +291,7 @@ export default function CertificationDetailPage() {
                   alignItems: 'center',
                   gap: 4,
                   fontSize: 11.5,
-                  color: 'var(--hard)',
+                  color: '#dc2626',
                   marginTop: 6,
                 }}
               >
@@ -312,7 +306,7 @@ export default function CertificationDetailPage() {
               style={{
                 textAlign: 'center',
                 padding: '30px 0',
-                color: 'var(--ink-3)',
+                color: 'var(--color-ink-faint)',
                 fontSize: 13,
               }}
             >
@@ -343,12 +337,12 @@ export default function CertificationDetailPage() {
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '14px 18px',
-            borderBottom: '1px solid var(--border)',
+            borderBottom: '1px solid var(--color-line)',
           }}
         >
           <div className="row" style={{ alignItems: 'center', gap: 8 }}>
-            <BookOpen size={16} style={{ color: 'var(--brand)' }} />
-            <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--ink)' }}>
+            <BookOpen size={16} style={{ color: 'var(--color-accent)' }} />
+            <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--color-ink)' }}>
               Bài thi ({cert.exams?.length ?? 0})
             </span>
           </div>
@@ -359,7 +353,7 @@ export default function CertificationDetailPage() {
               style={{
                 textAlign: 'center',
                 padding: '30px 0',
-                color: 'var(--ink-3)',
+                color: 'var(--color-ink-faint)',
                 fontSize: 13,
               }}
             >
@@ -375,8 +369,8 @@ export default function CertificationDetailPage() {
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     padding: '10px 12px',
-                    background: 'var(--surface-2)',
-                    borderRadius: 'var(--radius-sm)',
+                    background: 'var(--color-surface-muted)',
+                    borderRadius: 'var(--radius-inner)',
                     gap: 10,
                   }}
                 >
@@ -385,7 +379,7 @@ export default function CertificationDetailPage() {
                       style={{
                         fontWeight: 600,
                         fontSize: 13.5,
-                        color: 'var(--ink)',
+                        color: 'var(--color-ink)',
                         margin: 0,
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
@@ -396,7 +390,7 @@ export default function CertificationDetailPage() {
                     </p>
                     <div
                       className="row"
-                      style={{ gap: 10, marginTop: 2, fontSize: 11.5, color: 'var(--ink-3)' }}
+                      style={{ gap: 10, marginTop: 2, fontSize: 11.5, color: 'var(--color-ink-faint)' }}
                     >
                       <span>{exam.totalQuestions} câu</span>
                       <span>{exam.durationMinutes} phút</span>
@@ -456,7 +450,7 @@ export default function CertificationDetailPage() {
             <Button
               type="submit"
               disabled={createDomainMutation.isPending || updateDomainMutation.isPending}
-              className="w-full bg-primary hover:bg-slate-800 text-white cursor-pointer"
+              className="w-full bg-accent hover:bg-zinc-800 text-white cursor-pointer"
             >
               {createDomainMutation.isPending || updateDomainMutation.isPending
                 ? 'Đang lưu...'
@@ -477,7 +471,7 @@ export default function CertificationDetailPage() {
           <DialogHeader>
             <DialogTitle>Xóa domain</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-slate-600 dark:text-slate-300">
+          <p className="text-sm text-zinc-600 dark:text-zinc-300">
             Xóa domain &quot;{confirmDeleteDomain?.name}&quot;?
           </p>
           <DialogFooter className="gap-2">
@@ -523,8 +517,8 @@ function DomainRow({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '10px 12px',
-        background: 'var(--surface-2)',
-        borderRadius: 'var(--radius-sm)',
+        background: 'var(--color-surface-muted)',
+        borderRadius: 'var(--radius-inner)',
         gap: 10,
         transition: 'background .12s',
       }}
@@ -535,7 +529,7 @@ function DomainRow({
             className="mono tnum"
             style={{
               fontSize: 11,
-              color: 'var(--ink-3)',
+              color: 'var(--color-ink-faint)',
               minWidth: 22,
               textAlign: 'right',
             }}
@@ -546,7 +540,7 @@ function DomainRow({
             style={{
               fontWeight: 600,
               fontSize: 13.5,
-              color: 'var(--ink)',
+              color: 'var(--color-ink)',
               margin: 0,
             }}
           >
@@ -563,7 +557,7 @@ function DomainRow({
           <p
             style={{
               fontSize: 12,
-              color: 'var(--ink-3)',
+              color: 'var(--color-ink-faint)',
               margin: '4px 0 0',
               paddingLeft: 28,
             }}
@@ -586,7 +580,7 @@ function DomainRow({
         <button
           onClick={onDelete}
           className="iconbtn"
-          style={{ width: 28, height: 28, color: 'var(--hard)' }}
+          style={{ width: 28, height: 28, color: '#dc2626' }}
           title="Xóa"
         >
           <Trash2 size={13} />

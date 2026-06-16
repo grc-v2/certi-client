@@ -40,9 +40,9 @@ export default function RegisterPage() {
   })
 
   return (
-    <Card className="border-slate-200 dark:border-slate-700 shadow-lg">
+    <Card className="border-line shadow-none rounded-[var(--radius-card)]">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-slate-900 dark:text-white">Tạo tài khoản</CardTitle>
+        <CardTitle className="text-2xl font-bold text-ink">Tạo tài khoản</CardTitle>
         <CardDescription>Bắt đầu hành trình học chứng chỉ của bạn</CardDescription>
       </CardHeader>
       <CardContent>
@@ -61,7 +61,7 @@ export default function RegisterPage() {
             <Label htmlFor="password">Mật khẩu</Label>
             <div className="relative">
               <Input id="password" type={showPwd ? 'text' : 'password'} placeholder="••••••••" {...register('password')} className={cn('pr-10', errors.password && 'border-red-500')} />
-              <button type="button" onClick={() => setShowPwd(!showPwd)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer transition-colors">
+              <button type="button" onClick={() => setShowPwd(!showPwd)} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink-soft cursor-pointer transition-colors">
                 {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
@@ -69,10 +69,10 @@ export default function RegisterPage() {
               <div className="space-y-1">
                 <div className="flex gap-1">
                   {[1,2,3,4].map(i => (
-                    <div key={i} className={cn('h-1 flex-1 rounded-full transition-colors', i <= strength ? strength <= 1 ? 'bg-red-500' : strength <= 2 ? 'bg-yellow-500' : strength <= 3 ? 'bg-blue-500' : 'bg-green-500' : 'bg-slate-200 dark:bg-slate-700')} />
+                    <div key={i} className={cn('h-1 flex-1 rounded-full transition-colors', i <= strength ? strength <= 1 ? 'bg-red-500' : strength <= 2 ? 'bg-yellow-500' : strength <= 3 ? 'bg-accent' : 'bg-green-500' : 'bg-surface-muted')} />
                   ))}
                 </div>
-                <p className="text-xs text-slate-500">{['', 'Yếu', 'Trung bình', 'Mạnh', 'Rất mạnh'][strength]}</p>
+                <p className="text-xs text-ink-soft">{['', 'Yếu', 'Trung bình', 'Mạnh', 'Rất mạnh'][strength]}</p>
               </div>
             )}
             {errors.password && <p className="text-xs text-red-500">{errors.password.message}</p>}
@@ -82,7 +82,7 @@ export default function RegisterPage() {
             <Input id="confirmPassword" type="password" placeholder="••••••••" {...register('confirmPassword')} className={cn(errors.confirmPassword && 'border-red-500')} />
             {errors.confirmPassword && <p className="text-xs text-red-500">{errors.confirmPassword.message}</p>}
           </div>
-          <Button type="submit" className="w-full bg-primary hover:bg-slate-800 text-white cursor-pointer transition-colors" disabled={mutation.isPending}>
+          <Button type="submit" className="w-full cursor-pointer" disabled={mutation.isPending}>
             {mutation.isPending ? (
               <span className="flex items-center gap-2"><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Đang tạo tài khoản...</span>
             ) : (
@@ -92,9 +92,9 @@ export default function RegisterPage() {
         </form>
       </CardContent>
       <CardFooter className="text-sm text-center">
-        <p className="text-slate-500 dark:text-slate-400 w-full">
+        <p className="text-ink-soft w-full">
           Đã có tài khoản?{' '}
-          <Link to="/login" className="text-primary hover:underline cursor-pointer font-medium">Đăng nhập</Link>
+          <Link to="/login" className="text-accent hover:underline cursor-pointer font-medium">Đăng nhập</Link>
         </p>
       </CardFooter>
     </Card>

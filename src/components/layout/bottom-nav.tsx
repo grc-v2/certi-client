@@ -1,12 +1,11 @@
 import { Link, useLocation } from 'react-router-dom'
-import { LayoutDashboard, GraduationCap, BookOpen, Dumbbell, Users } from 'lucide-react'
+import { LayoutDashboard, GraduationCap, Library, Newspaper } from 'lucide-react'
 
 const ITEMS = [
-  { href: '/dashboard',      icon: LayoutDashboard, label: 'Tổng quan'  },
-  { href: '/certifications', icon: GraduationCap,   label: 'Chứng chỉ' },
-  { href: '/courses',        icon: BookOpen,        label: 'Khoá học'   },
-  { href: '/practice',       icon: Dumbbell,        label: 'Luyện tập'  },
-  { href: '/community',      icon: Users,           label: 'Cộng đồng'  },
+  { href: '/dashboard',      icon: LayoutDashboard, label: 'Tracker',  match: ['/dashboard'] },
+  { href: '/certifications', icon: GraduationCap,   label: 'Ôn thi',   match: ['/certifications', '/practice'] },
+  { href: '/resources',      icon: Library,         label: 'Resources', match: ['/resources'] },
+  { href: '/blog',           icon: Newspaper,       label: 'Blog',     match: ['/blog', '/community'] },
 ]
 
 export function BottomNav() {
@@ -15,9 +14,7 @@ export function BottomNav() {
   return (
     <nav className="botnav">
       {ITEMS.map(item => {
-        const active =
-          pathname === item.href ||
-          (item.href !== '/certifications' && pathname.startsWith(item.href + '/'))
+        const active = item.match.some(m => pathname === m || pathname.startsWith(m + '/'))
         return (
           <Link key={item.href} to={item.href} className={active ? 'active' : ''}>
             <item.icon size={22} strokeWidth={active ? 2.4 : 2} />

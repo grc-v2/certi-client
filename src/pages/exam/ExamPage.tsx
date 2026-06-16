@@ -61,8 +61,8 @@ function FeedbackBanner({ fb }: { fb: AnswerFeedbackResponse }) {
           : <><XCircle className="w-4 h-4" />Chưa đúng</>}
       </p>
       {fb.explanation && (
-        <div className="flex gap-2 text-sm text-slate-300">
-          <BookOpen className="w-4 h-4 flex-shrink-0 mt-0.5 text-slate-400" />
+        <div className="flex gap-2 text-sm text-zinc-300">
+          <BookOpen className="w-4 h-4 flex-shrink-0 mt-0.5 text-zinc-400" />
           <p>{fb.explanation}</p>
         </div>
       )}
@@ -70,7 +70,7 @@ function FeedbackBanner({ fb }: { fb: AnswerFeedbackResponse }) {
         <div className="flex flex-wrap gap-2 pt-1">
           {fb.referenceLinks.map((link, i) => (
             <a key={i} href={link} target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
+              className="inline-flex items-center gap-1 text-xs text-accent hover:underline">
               <ExternalLink className="w-3 h-3" />Tham khảo {i + 1}
             </a>
           ))}
@@ -114,10 +114,10 @@ function QuestionView({
       const isCorrectOption = fb!.correctOptionIds?.includes(optionId)
       if (isCorrectOption)  return 'border-green-500 bg-green-50/50 dark:bg-green-500/10 border-l-[4px]'
       if (isSelected && !isCorrectOption) return 'border-red-500 bg-red-50/50 dark:bg-red-500/10 border-l-[4px]'
-      return 'border-slate-200 bg-slate-50 opacity-50 dark:border-slate-700 dark:bg-slate-800/50 border-l-[1px]'
+      return 'border-zinc-200 bg-zinc-50 opacity-50 dark:border-zinc-700 dark:bg-zinc-800/50 border-l-[1px]'
     }
-    if (isSelected) return 'border-primary bg-primary/5 dark:bg-primary/10 border-l-[4px] shadow-sm'
-    return 'border-slate-200 bg-white hover:border-primary/40 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:bg-slate-800 border-l-[1px] hover:border-l-[4px] transition-all'
+    if (isSelected) return 'border-accent bg-accent/5 dark:bg-accent/10 border-l-[4px] shadow-sm'
+    return 'border-zinc-200 bg-white hover:border-accent/40 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800/50 dark:hover:bg-zinc-800 border-l-[1px] hover:border-l-[4px] transition-all'
   }
 
   return (
@@ -125,9 +125,9 @@ function QuestionView({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Câu {index + 1} / {total}</span>
+          <span className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Câu {index + 1} / {total}</span>
           {isMulti && (
-            <span className="text-xs bg-primary/20 text-primary border border-primary/30 px-2 py-0.5 rounded-full">
+            <span className="text-xs bg-accent/20 text-accent border border-accent/30 px-2 py-0.5 rounded-full">
               Nhiều đáp án
             </span>
           )}
@@ -138,10 +138,10 @@ function QuestionView({
           aria-pressed={!!flagged[question.id]}
           aria-label={flagged[question.id] ? 'Bỏ đánh dấu câu hỏi này' : 'Đánh dấu câu hỏi này'}
           className={cn(
-            'flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
+            'flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50',
             flagged[question.id]
               ? 'bg-orange-500/20 text-orange-400 border border-orange-500/40'
-              : 'text-slate-500 hover:text-orange-500 hover:bg-orange-500/10 dark:text-slate-400 dark:hover:text-orange-400',
+              : 'text-zinc-500 hover:text-orange-500 hover:bg-orange-500/10 dark:text-zinc-400 dark:hover:text-orange-400',
             isLocked && 'opacity-50 cursor-default',
           )}
         >
@@ -151,12 +151,12 @@ function QuestionView({
       </div>
 
       {/* Question text */}
-      <div className="bg-white dark:bg-slate-800/50 rounded-2xl p-4 sm:p-6 border border-slate-200 dark:border-transparent shadow-sm dark:shadow-none relative">
-        <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-xs font-semibold text-slate-500 dark:text-slate-400 mb-3 w-fit border border-slate-200 dark:border-slate-700">
-          <Tag className="w-3 h-3 text-primary" />
+      <div className="bg-white dark:bg-zinc-800/50 rounded-2xl p-4 sm:p-6 border border-zinc-200 dark:border-transparent shadow-sm dark:shadow-none relative">
+        <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-3 w-fit border border-zinc-200 dark:border-zinc-700">
+          <Tag className="w-3 h-3 text-accent" />
           {getDomainName(question.domainId)}
         </div>
-        <p className="text-base sm:text-lg leading-relaxed text-slate-800 dark:text-white">{question.content}</p>
+        <p className="text-base sm:text-lg leading-relaxed text-zinc-800 dark:text-white">{question.content}</p>
       </div>
 
       {/* Options */}
@@ -176,26 +176,26 @@ function QuestionView({
               aria-checked={isSelected}
               aria-label={`Đáp án ${optionLabels[oi]}: ${option.content}`}
               className={cn(
-                'group w-full text-left flex items-center gap-4 p-3 sm:p-4 rounded-xl border transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
+                'group w-full text-left flex items-center gap-4 p-3 sm:p-4 rounded-xl border transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50',
                 isLocked ? 'cursor-default' : 'cursor-pointer',
                 getOptionStyle(option.id),
               )}
             >
               {isMulti ? (
                 isSelected
-                  ? <CheckSquare className="flex-shrink-0 w-5 h-5 text-primary" />
-                  : <Square className="flex-shrink-0 w-5 h-5 text-slate-400 group-hover:text-primary/70 transition-colors" />
+                  ? <CheckSquare className="flex-shrink-0 w-5 h-5 text-accent" />
+                  : <Square className="flex-shrink-0 w-5 h-5 text-zinc-400 group-hover:text-accent/70 transition-colors" />
               ) : (
                 <span className={cn(
                   'flex-shrink-0 w-8 h-8 rounded-lg border flex items-center justify-center text-sm font-bold transition-colors',
-                  isSelected && !fbHasAnswer ? 'bg-primary border-primary text-white' : 'bg-slate-50 dark:bg-slate-800 border-slate-300 text-slate-500 dark:border-slate-600 dark:text-slate-400 group-hover:bg-primary/10 group-hover:text-primary group-hover:border-primary/30',
+                  isSelected && !fbHasAnswer ? 'bg-accent border-accent text-white' : 'bg-zinc-50 dark:bg-zinc-800 border-zinc-300 text-zinc-500 dark:border-zinc-600 dark:text-zinc-400 group-hover:bg-accent/10 group-hover:text-accent group-hover:border-accent/30',
                 )}>
                   {optionLabels[oi]}
                 </span>
               )}
               <span className={cn(
                 "text-sm leading-relaxed transition-colors",
-                isSelected ? "text-slate-900 dark:text-white font-medium" : "text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white"
+                isSelected ? "text-zinc-900 dark:text-white font-medium" : "text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-white"
               )}>{option.content}</span>
             </button>
           )
@@ -207,7 +207,7 @@ function QuestionView({
         <Button
           onClick={() => onConfirmMulti(question.id)}
           disabled={pendingSubmit}
-          className="w-full bg-primary hover:bg-slate-800 text-white cursor-pointer"
+          className="w-full bg-accent hover:bg-zinc-800 text-white cursor-pointer"
         >
           {pendingSubmit ? 'Đang xử lý...' : `Xác nhận ${selected.length} đáp án`}
         </Button>
@@ -243,16 +243,16 @@ function QuestionNavigator({
   return (
     <div className="flex flex-col h-full min-h-0">
       {/* Sticky progress header */}
-      <div className="shrink-0 px-4 pt-4 pb-3 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+      <div className="shrink-0 px-4 pt-4 pb-3 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tiến độ</p>
-          <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md tabular-nums">
+          <p className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Tiến độ</p>
+          <span className="text-xs font-bold text-accent bg-accent/10 px-2 py-0.5 rounded-md tabular-nums">
             {answeredCount}/{totalQuestions} · {Math.round(progress)}%
           </span>
         </div>
-        <div className="h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+        <div className="h-2 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-500"
+            className="h-full bg-gradient-to-r from-accent to-accent/80 transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -273,14 +273,14 @@ function QuestionNavigator({
             const showWrong   = isPractice && fb && fb.isCorrect === false
 
             const cellClass = isActive
-              ? 'bg-primary text-white ring-2 ring-primary/30 ring-offset-1 ring-offset-white dark:ring-offset-slate-900 shadow-sm'
+              ? 'bg-accent text-white ring-2 ring-accent/30 ring-offset-1 ring-offset-white dark:ring-offset-zinc-900 shadow-sm'
               : showCorrect
               ? 'bg-[#22C55E]/15 text-[#15803D] border border-[#22C55E]/40 hover:bg-[#22C55E]/25 dark:text-[#22C55E]'
               : showWrong
               ? 'bg-red-500/15 text-red-600 border border-red-500/40 hover:bg-red-500/25 dark:text-red-400'
               : isAnswered
-              ? 'bg-slate-200 text-slate-700 border border-slate-300 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:border-slate-600 dark:hover:bg-slate-600'
-              : 'bg-slate-50 text-slate-500 border border-slate-200 hover:bg-slate-100 hover:text-slate-700 dark:bg-slate-800/60 dark:text-slate-400 dark:border-slate-700 dark:hover:bg-slate-700'
+              ? 'bg-zinc-200 text-zinc-700 border border-zinc-300 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-600 dark:hover:bg-zinc-600'
+              : 'bg-zinc-50 text-zinc-500 border border-zinc-200 hover:bg-zinc-100 hover:text-zinc-700 dark:bg-zinc-800/60 dark:text-zinc-400 dark:border-zinc-700 dark:hover:bg-zinc-700'
 
             return (
               <button
@@ -290,7 +290,7 @@ function QuestionNavigator({
                 aria-label={`Đi đến câu ${i + 1}${isAnswered ? ', đã trả lời' : ''}${isFlagged ? ', đã đánh dấu' : ''}`}
                 className={cn(
                   'relative h-10 rounded-lg text-sm font-semibold tabular-nums transition-all cursor-pointer',
-                  'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
+                  'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50',
                   cellClass,
                 )}
               >
@@ -307,13 +307,13 @@ function QuestionNavigator({
         </div>
 
         {/* Legend — immediately after the cells, no gap, scrolls with them */}
-        <div className="mt-3 px-4 pt-3 pb-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/40">
-          <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+        <div className="mt-3 px-4 pt-3 pb-3 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-900/40">
+          <p className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-2">
             Chú giải
           </p>
-          <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs text-slate-600 dark:text-slate-400">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs text-zinc-600 dark:text-zinc-400">
             <LegendItem
-              swatchClass="bg-primary ring-1 ring-primary/40"
+              swatchClass="bg-accent ring-1 ring-accent/40"
               label="Đang chọn"
             />
             {isPractice ? (
@@ -329,12 +329,12 @@ function QuestionNavigator({
               </>
             ) : (
               <LegendItem
-                swatchClass="bg-slate-200 border border-slate-300 dark:bg-slate-700 dark:border-slate-600"
+                swatchClass="bg-zinc-200 border border-zinc-300 dark:bg-zinc-700 dark:border-zinc-600"
                 label="Đã trả lời"
               />
             )}
             <LegendItem
-              swatchClass="bg-slate-50 border border-slate-200 dark:bg-slate-800/60 dark:border-slate-700"
+              swatchClass="bg-zinc-50 border border-zinc-200 dark:bg-zinc-800/60 dark:border-zinc-700"
               label="Chưa trả lời"
             />
             <LegendItem
@@ -422,8 +422,8 @@ export default function ExamPage() {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-slate-300 dark:border-white/20 border-t-primary dark:border-t-white rounded-full animate-spin" />
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-zinc-300 dark:border-white/20 border-t-primary dark:border-t-white rounded-full animate-spin" />
       </div>
     )
   }
@@ -436,42 +436,42 @@ export default function ExamPage() {
   const isPractice     = session.mode === 'PRACTICE'
 
   const timerColor = !hasDuration
-    ? 'text-slate-500 dark:text-slate-400'
+    ? 'text-zinc-500 dark:text-zinc-400'
     : timeLeft > 600 ? 'text-[#22C55E]' : timeLeft > 180 ? 'text-yellow-600 dark:text-yellow-500' : 'text-red-500 animate-pulse'
   const timerDotColor = !hasDuration
-    ? 'bg-slate-400'
+    ? 'bg-zinc-400'
     : timeLeft > 600 ? 'bg-[#22C55E]' : timeLeft > 180 ? 'bg-yellow-500' : 'bg-red-500 animate-pulse'
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col text-slate-900 dark:text-white">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col text-zinc-900 dark:text-white">
       {/* Top bar */}
-      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-3 sm:px-4 py-3 flex items-center justify-between gap-2 sm:gap-4 shadow-sm z-10 relative">
+      <header className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 px-3 sm:px-4 py-3 flex items-center justify-between gap-2 sm:gap-4 shadow-sm z-10 relative">
         <div className="flex items-center gap-2 sm:gap-4 min-w-0">
           <button
             onClick={() => setMobileNavOpen(true)}
-            className="lg:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+            className="lg:hidden p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
             aria-label="Mở danh sách câu hỏi"
           >
             <Menu className="w-5 h-5" />
           </button>
-          <div className="hidden sm:flex items-center gap-2 pr-4 border-r border-slate-200 dark:border-slate-800">
-            <GraduationCap className="w-6 h-6 text-primary" />
-            <span className="font-extrabold text-slate-900 dark:text-white tracking-tight text-lg">CertiMaster</span>
+          <div className="hidden sm:flex items-center gap-2 pr-4 border-r border-zinc-200 dark:border-zinc-800">
+            <GraduationCap className="w-6 h-6 text-accent" />
+            <span className="font-extrabold text-zinc-900 dark:text-white tracking-tight text-lg">CertiMaster</span>
           </div>
           <div className="min-w-0 flex flex-col justify-center">
             <div className="flex items-center gap-2 mb-0.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-1.5 py-0.5 rounded flex-shrink-0">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-accent bg-accent/10 px-1.5 py-0.5 rounded flex-shrink-0">
                 {isPractice ? 'Luyện tập' : 'Thi thử'} · {session.certificationName}
               </span>
             </div>
-            <p className="text-xs sm:text-sm font-semibold truncate text-slate-800 dark:text-slate-200 leading-tight">{session.examTitle}</p>
+            <p className="text-xs sm:text-sm font-semibold truncate text-zinc-800 dark:text-zinc-200 leading-tight">{session.examTitle}</p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           {hasDuration && (
             <div className={cn(
-              'flex items-center gap-2 px-2 sm:px-3 py-1.5 rounded-lg font-mono text-sm sm:text-base md:text-lg font-bold flex-shrink-0 bg-slate-100 dark:bg-slate-800 transition-colors',
+              'flex items-center gap-2 px-2 sm:px-3 py-1.5 rounded-lg font-mono text-sm sm:text-base md:text-lg font-bold flex-shrink-0 bg-zinc-100 dark:bg-zinc-800 transition-colors',
               timerColor
             )}
               aria-live="polite"
@@ -489,7 +489,7 @@ export default function ExamPage() {
               size="sm"
               onClick={() => exam.pause()}
               disabled={exam.isPausing}
-              className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white cursor-pointer flex-shrink-0 bg-slate-50 dark:bg-slate-800/50"
+              className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white cursor-pointer flex-shrink-0 bg-zinc-50 dark:bg-zinc-800/50"
               aria-label="Tạm dừng"
             >
               <Pause className="w-4 h-4 sm:mr-1.5 text-yellow-500" />
@@ -501,23 +501,23 @@ export default function ExamPage() {
             variant="ghost"
             size="sm"
             onClick={() => setSubmitDialog(true)}
-            className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white cursor-pointer flex-shrink-0 bg-slate-50 dark:bg-slate-800/50"
+            className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white cursor-pointer flex-shrink-0 bg-zinc-50 dark:bg-zinc-800/50"
             aria-label="Nộp bài"
           >
-            <Send className="w-4 h-4 sm:mr-1.5 text-primary" />
+            <Send className="w-4 h-4 sm:mr-1.5 text-accent" />
             <span className="hidden sm:inline">Nộp bài</span>
           </Button>
         </div>
       </header>
 
       {/* Progress bar */}
-      <div className="h-1 bg-slate-200 dark:bg-slate-800">
+      <div className="h-1 bg-zinc-200 dark:bg-zinc-800">
         <div className="h-full bg-[#22C55E] transition-all duration-500" style={{ width: `${progress}%` }} />
       </div>
 
       <div className="flex-1 flex overflow-hidden">
         {/* Desktop sidebar — internal scroll, no outer overflow so legend stays pinned. */}
-        <aside className="hidden lg:flex flex-col w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 min-h-0">
+        <aside className="hidden lg:flex flex-col w-64 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 min-h-0">
           <QuestionNavigator
             questions={questions} answers={answers} flagged={flagged} feedback={feedback}
             currentIndex={currentIndex} isPractice={isPractice}
@@ -528,11 +528,11 @@ export default function ExamPage() {
         {/* Mobile drawer */}
         {mobileNavOpen && (
           <div className="lg:hidden fixed inset-0 z-40 flex">
-            <div className="absolute inset-0 bg-slate-900/60" onClick={() => setMobileNavOpen(false)} aria-hidden="true" />
-            <aside className="relative flex flex-col w-72 max-w-[85vw] bg-white dark:bg-slate-900 h-full shadow-xl">
-              <div className="shrink-0 flex items-center justify-between p-3 border-b border-slate-200 dark:border-slate-800">
+            <div className="absolute inset-0 bg-zinc-900/60" onClick={() => setMobileNavOpen(false)} aria-hidden="true" />
+            <aside className="relative flex flex-col w-72 max-w-[85vw] bg-white dark:bg-zinc-900 h-full shadow-xl">
+              <div className="shrink-0 flex items-center justify-between p-3 border-b border-zinc-200 dark:border-zinc-800">
                 <span className="font-semibold text-sm">Danh sách câu hỏi</span>
-                <button onClick={() => setMobileNavOpen(false)} className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Đóng">
+                <button onClick={() => setMobileNavOpen(false)} className="p-1.5 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800" aria-label="Đóng">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -566,12 +566,12 @@ export default function ExamPage() {
           )}
 
           {/* Bottom navigation */}
-          <div className="sticky bottom-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 p-3 sm:p-4 flex items-center justify-between gap-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
+          <div className="sticky bottom-0 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 p-3 sm:p-4 flex items-center justify-between gap-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10">
             <Button
               variant="outline"
               onClick={() => exam.goTo(Math.max(0, currentIndex - 1))}
               disabled={currentIndex === 0}
-              className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white cursor-pointer disabled:opacity-50"
+              className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white cursor-pointer disabled:opacity-50"
               aria-label="Câu trước"
             >
               <ChevronLeft className="w-4 h-4 sm:mr-1" />
@@ -579,17 +579,17 @@ export default function ExamPage() {
             </Button>
 
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <span className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">
-                Đã trả lời <span className="text-slate-900 dark:text-white font-bold">{answeredCount}</span> / {totalQuestions}
+              <span className="text-xs sm:text-sm font-medium text-zinc-500 dark:text-zinc-400 whitespace-nowrap">
+                Đã trả lời <span className="text-zinc-900 dark:text-white font-bold">{answeredCount}</span> / {totalQuestions}
               </span>
-              <div className="h-4 w-px bg-slate-300 dark:bg-slate-700 hidden sm:block"></div>
-              <span className="text-xs sm:text-sm text-slate-400 hidden sm:inline lg:hidden">Câu {currentIndex + 1}</span>
+              <div className="h-4 w-px bg-zinc-300 dark:bg-zinc-700 hidden sm:block"></div>
+              <span className="text-xs sm:text-sm text-zinc-400 hidden sm:inline lg:hidden">Câu {currentIndex + 1}</span>
             </div>
 
             {currentIndex === totalQuestions - 1 ? (
               <Button
                 onClick={() => setSubmitDialog(true)}
-                className="bg-primary hover:bg-slate-800 dark:hover:bg-primary/80 text-white cursor-pointer shadow-md shadow-primary/20"
+                className="bg-accent hover:bg-zinc-800 dark:hover:bg-accent/80 text-white cursor-pointer shadow-md shadow-primary/20"
               >
                 <Send className="w-4 h-4 sm:mr-1.5" />
                 <span className="hidden sm:inline">Nộp bài</span>
@@ -598,7 +598,7 @@ export default function ExamPage() {
               <Button
                 variant="default"
                 onClick={() => exam.goTo(Math.min(totalQuestions - 1, currentIndex + 1))}
-                className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 cursor-pointer shadow-sm"
+                className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-100 cursor-pointer shadow-sm"
                 aria-label="Câu sau"
               >
                 <span className="hidden sm:inline">Câu sau</span>
@@ -611,21 +611,21 @@ export default function ExamPage() {
 
       {/* Pause overlay */}
       {isPaused && (
-        <div className="fixed inset-0 z-50 bg-slate-900/85 backdrop-blur-sm flex items-center justify-center px-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full p-8 text-center space-y-5 border border-slate-200 dark:border-slate-800">
+        <div className="fixed inset-0 z-50 bg-zinc-900/85 backdrop-blur-sm flex items-center justify-center px-4">
+          <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl max-w-md w-full p-8 text-center space-y-5 border border-zinc-200 dark:border-zinc-800">
             <div className="w-16 h-16 mx-auto rounded-full bg-yellow-500/15 flex items-center justify-center">
               <Pause className="w-8 h-8 text-yellow-500" />
             </div>
             <div className="space-y-2">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">Phiên đã tạm dừng</h2>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <h2 className="text-xl font-bold text-zinc-900 dark:text-white">Phiên đã tạm dừng</h2>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
                 Phiên luyện tập đã được lưu. Bấm tiếp tục để quay lại làm bài.
               </p>
             </div>
             <Button
               onClick={() => exam.resume()}
               disabled={exam.isResuming}
-              className="w-full bg-primary hover:bg-primary/90 text-white cursor-pointer"
+              className="w-full bg-accent hover:bg-accent/90 text-white cursor-pointer"
             >
               <Play className="w-4 h-4 mr-1.5" />
               {exam.isResuming ? 'Đang tiếp tục...' : 'Tiếp tục làm bài'}
@@ -654,10 +654,10 @@ export default function ExamPage() {
           <div className="space-y-4">
             {/* Summary stats — 3-column grid scales to the wider dialog */}
             <div className="grid grid-cols-3 gap-3">
-              <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-3 text-center">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Đã trả lời</p>
-                <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white tabular-nums">
-                  {answeredCount}<span className="text-base font-medium text-slate-400">/{totalQuestions}</span>
+              <div className="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 p-3 text-center">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Đã trả lời</p>
+                <p className="mt-1 text-2xl font-bold text-zinc-900 dark:text-white tabular-nums">
+                  {answeredCount}<span className="text-base font-medium text-zinc-400">/{totalQuestions}</span>
                 </p>
               </div>
               <div className="rounded-xl border border-orange-200 dark:border-orange-500/30 bg-orange-50 dark:bg-orange-500/10 p-3 text-center">
@@ -666,9 +666,9 @@ export default function ExamPage() {
                   {Object.values(flagged).filter(Boolean).length}
                 </p>
               </div>
-              <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-3 text-center">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Chưa trả lời</p>
-                <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white tabular-nums">
+              <div className="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 p-3 text-center">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Chưa trả lời</p>
+                <p className="mt-1 text-2xl font-bold text-zinc-900 dark:text-white tabular-nums">
                   {totalQuestions - answeredCount}
                 </p>
               </div>
@@ -688,7 +688,7 @@ export default function ExamPage() {
             <Button
               variant="ghost"
               onClick={() => setSubmitDialog(false)}
-              className="text-slate-600 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="text-zinc-600 dark:text-zinc-300 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
               Tiếp tục làm bài
             </Button>
@@ -720,13 +720,13 @@ export default function ExamPage() {
             </div>
           </DialogHeader>
 
-          <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-4">
+          <div className="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 p-4">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Tiến độ của bạn</p>
-                <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white tabular-nums">
-                  {answeredCount}<span className="text-base font-medium text-slate-400">/{totalQuestions}</span>
-                  <span className="ml-2 text-sm font-medium text-slate-500">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Tiến độ của bạn</p>
+                <p className="mt-1 text-2xl font-bold text-zinc-900 dark:text-white tabular-nums">
+                  {answeredCount}<span className="text-base font-medium text-zinc-400">/{totalQuestions}</span>
+                  <span className="ml-2 text-sm font-medium text-zinc-500">
                     ({totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0}%)
                   </span>
                 </p>

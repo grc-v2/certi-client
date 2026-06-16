@@ -42,10 +42,10 @@ export const usePinPost = (options?: PostMutationOptions<{ id: number; pinned: b
   useInvalidatingPostMutation(({ id, pinned }) => postsApi.adminPin(id, pinned), options)
 
 export const usePublishPost = (options?: PostMutationOptions<number>) =>
-  useInvalidatingPostMutation((id: number) => postsApi.publish(id), options)
+  useInvalidatingPostMutation((id: number) => postsApi.adminPublish(id), options)
 
 export const useArchivePost = (options?: PostMutationOptions<number>) =>
-  useInvalidatingPostMutation((id: number) => postsApi.archive(id), options)
+  useInvalidatingPostMutation((id: number) => postsApi.adminArchive(id), options)
 
 export const useDeletePost = (options?: PostMutationOptions<number>) =>
-  useInvalidatingPostMutation((id: number) => postsApi.delete(id), options)
+  useInvalidatingPostMutation((id: number) => postsApi.adminDelete(id), options)

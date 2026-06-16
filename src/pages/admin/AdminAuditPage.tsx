@@ -11,10 +11,10 @@ import { adminApi, type AuditLogResponse } from '@/lib/api/admin'
 
 const METHOD_STYLE: Record<string, { bg: string; color: string }> = {
   GET:    { bg: '#2E7DF618', color: '#2E7DF6' },
-  POST:   { bg: 'var(--brand-soft)', color: 'var(--brand)' },
-  PUT:    { bg: 'var(--gold-soft)', color: 'var(--gold-deep)' },
+  POST:   { bg: 'var(--color-accent-soft)', color: 'var(--color-accent)' },
+  PUT:    { bg: 'var(--color-accent-soft)', color: 'var(--color-accent-ink)' },
   PATCH:  { bg: '#F4943B18', color: '#F4943B' },
-  DELETE: { bg: 'var(--hard-soft)', color: 'var(--hard)' },
+  DELETE: { bg: 'color-mix(in srgb, #dc2626 14%, #fff)', color: '#dc2626' },
 }
 
 function formatDatetime(dt: string) {
@@ -24,7 +24,7 @@ function formatDatetime(dt: string) {
 }
 
 function HttpMethodChip({ method }: { method: string }) {
-  const s = METHOD_STYLE[method] ?? { bg: 'var(--surface-3)', color: 'var(--ink-3)' }
+  const s = METHOD_STYLE[method] ?? { bg: 'var(--color-surface-hover)', color: 'var(--color-ink-faint)' }
   return (
     <span className="codechip" style={{ fontSize: 11, background: s.bg, color: s.color, border: 'none' }}>{method}</span>
   )
@@ -62,13 +62,13 @@ export default function AdminAuditPage() {
       <div className="row enter" style={{ alignItems: 'flex-start', gap: 12 }}>
         <div>
           <span className="eyebrow">Quản trị</span>
-          <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--ink)', marginTop: 6 }}>
+          <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-ink)', marginTop: 6 }}>
             <span className="row" style={{ alignItems: 'center', gap: 8 }}>
-              <ClipboardList size={22} style={{ color: 'var(--violet)' }} />
+              <ClipboardList size={22} style={{ color: 'var(--color-accent)' }} />
               Nhật ký hoạt động
             </span>
           </h1>
-          <p style={{ color: 'var(--ink-3)', fontSize: 13.5, marginTop: 4 }}>{total} bản ghi</p>
+          <p style={{ color: 'var(--color-ink-faint)', fontSize: 13.5, marginTop: 4 }}>{total} bản ghi</p>
         </div>
       </div>
 
@@ -77,7 +77,7 @@ export default function AdminAuditPage() {
         <div className="row" style={{ gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
           <Select value={resourceType} onValueChange={v => { setResourceType(v ?? ''); setPage(0) }}>
             <SelectTrigger className="w-full sm:w-44 cursor-pointer">
-              <Filter className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
+              <Filter className="w-3.5 h-3.5 mr-1.5 text-zinc-400" />
               <SelectValue placeholder="Resource Type" />
             </SelectTrigger>
             <SelectContent>
@@ -91,9 +91,9 @@ export default function AdminAuditPage() {
             </SelectContent>
           </Select>
           <div className="row" style={{ alignItems: 'center', gap: 8 }}>
-            <Calendar size={15} style={{ color: 'var(--ink-3)', flexShrink: 0 }} />
+            <Calendar size={15} style={{ color: 'var(--color-ink-faint)', flexShrink: 0 }} />
             <Input type="date" value={fromDate} onChange={e => { setFromDate(e.target.value); setPage(0) }} className="w-40" />
-            <span style={{ color: 'var(--ink-3)' }}>-</span>
+            <span style={{ color: 'var(--color-ink-faint)' }}>-</span>
             <Input type="date" value={toDate} onChange={e => { setToDate(e.target.value); setPage(0) }} className="w-40" />
           </div>
           {(resourceType || fromDate || toDate) && (
@@ -114,15 +114,15 @@ export default function AdminAuditPage() {
             <thead>
               <tr>
                 {['Thời gian', 'Actor', 'Method', 'Action', 'Resource', 'Status', 'Chi tiết'].map(h => (
-                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 800, letterSpacing: '.07em', textTransform: 'uppercase', color: 'var(--ink-3)', background: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}>{h}</th>
+                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 800, letterSpacing: '.07em', textTransform: 'uppercase', color: 'var(--color-ink-faint)', background: 'var(--color-surface-muted)', borderBottom: '1px solid var(--color-line)' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 Array(10).fill(0).map((_, i) => (
-                  <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
-                    {[1,2,3,4,5,6,7].map(j => <td key={j} style={{ padding: '12px 14px' }}><div style={{ height: 14, background: 'var(--surface-3)', borderRadius: 6 }} /></td>)}
+                  <tr key={i} style={{ borderBottom: '1px solid var(--color-line)' }}>
+                    {[1,2,3,4,5,6,7].map(j => <td key={j} style={{ padding: '12px 14px' }}><div style={{ height: 14, background: 'var(--color-surface-hover)', borderRadius: 6 }} /></td>)}
                   </tr>
                 ))
               ) : logs.map((log: AuditLogResponse) => (
@@ -131,8 +131,8 @@ export default function AdminAuditPage() {
             </tbody>
           </table>
         </div>
-        <div className="row" style={{ alignItems: 'center', justifyContent: 'space-between', padding: '12px 18px', borderTop: '1px solid var(--border)' }}>
-          <p style={{ fontSize: 13, color: 'var(--ink-3)' }}>Trang {page + 1} / {totalPages || 1}</p>
+        <div className="row" style={{ alignItems: 'center', justifyContent: 'space-between', padding: '12px 18px', borderTop: '1px solid var(--color-line)' }}>
+          <p style={{ fontSize: 13, color: 'var(--color-ink-faint)' }}>Trang {page + 1} / {totalPages || 1}</p>
           <div className="row" style={{ gap: 8 }}>
             <button className="btn3d ghost sm" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}><ChevronLeft size={15} /></button>
             <button className="btn3d ghost sm" onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1}><ChevronRight size={15} /></button>
@@ -147,21 +147,21 @@ export default function AdminAuditPage() {
           {detailLog && (
             <div className="space-y-3 pt-2 text-sm">
               <div className="grid grid-cols-2 gap-3">
-                <div><span className="text-slate-500">Thời gian:</span><p className="font-medium">{formatDatetime(detailLog.occurredAt)}</p></div>
-                <div><span className="text-slate-500">Actor:</span><p className="font-medium">{detailLog.actorUsername ?? `#${detailLog.actorId}`}</p></div>
-                <div><span className="text-slate-500">Action:</span><p className="font-medium">{detailLog.action}</p></div>
-                <div><span className="text-slate-500">Service:</span><p className="font-medium">{detailLog.serviceName ?? '-'}</p></div>
-                <div><span className="text-slate-500">Resource:</span><p className="font-medium">{detailLog.resourceType} #{detailLog.resourceId}</p></div>
+                <div><span className="text-zinc-500">Thời gian:</span><p className="font-medium">{formatDatetime(detailLog.occurredAt)}</p></div>
+                <div><span className="text-zinc-500">Actor:</span><p className="font-medium">{detailLog.actorUsername ?? `#${detailLog.actorId}`}</p></div>
+                <div><span className="text-zinc-500">Action:</span><p className="font-medium">{detailLog.action}</p></div>
+                <div><span className="text-zinc-500">Service:</span><p className="font-medium">{detailLog.serviceName ?? '-'}</p></div>
+                <div><span className="text-zinc-500">Resource:</span><p className="font-medium">{detailLog.resourceType} #{detailLog.resourceId}</p></div>
                 <div className="flex items-center gap-2">
-                  <span className="text-slate-500">Status:</span>
+                  <span className="text-zinc-500">Status:</span>
                   {detailLog.statusCode && <StatusCodePill code={detailLog.statusCode} />}
                 </div>
               </div>
-              <div className="border-t border-slate-100 dark:border-slate-800 pt-3 space-y-2">
-                <div><span className="text-slate-500">HTTP:</span><p className="font-mono text-xs">{detailLog.httpMethod} {detailLog.httpPath}{detailLog.queryString ? `?${detailLog.queryString}` : ''}</p></div>
-                <div><span className="text-slate-500">Duration:</span><p className="font-medium">{detailLog.durationMs ?? '-'} ms</p></div>
-                <div><span className="text-slate-500">IP:</span><p className="font-mono text-xs">{detailLog.ipAddress ?? '-'}</p></div>
-                <div><span className="text-slate-500">User Agent:</span><p className="text-xs text-slate-600 dark:text-slate-400 break-all">{detailLog.userAgent ?? '-'}</p></div>
+              <div className="border-t border-zinc-100 dark:border-zinc-800 pt-3 space-y-2">
+                <div><span className="text-zinc-500">HTTP:</span><p className="font-mono text-xs">{detailLog.httpMethod} {detailLog.httpPath}{detailLog.queryString ? `?${detailLog.queryString}` : ''}</p></div>
+                <div><span className="text-zinc-500">Duration:</span><p className="font-medium">{detailLog.durationMs ?? '-'} ms</p></div>
+                <div><span className="text-zinc-500">IP:</span><p className="font-mono text-xs">{detailLog.ipAddress ?? '-'}</p></div>
+                <div><span className="text-zinc-500">User Agent:</span><p className="text-xs text-zinc-600 dark:text-zinc-400 break-all">{detailLog.userAgent ?? '-'}</p></div>
               </div>
             </div>
           )}
@@ -175,28 +175,28 @@ function AuditRow({ log, onView }: { log: AuditLogResponse; onView: () => void }
   const [hovered, setHovered] = useState(false)
   return (
     <tr
-      style={{ borderBottom: '1px solid var(--border)', background: hovered ? 'var(--surface-2)' : 'transparent', transition: 'background .12s' }}
+      style={{ borderBottom: '1px solid var(--color-line)', background: hovered ? 'var(--color-surface-muted)' : 'transparent', transition: 'background .12s' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <td style={{ padding: '10px 14px', fontSize: 11.5, color: 'var(--ink-3)', whiteSpace: 'nowrap', fontFamily: 'var(--font-mono)' }}>{formatDatetime(log.occurredAt)}</td>
+      <td style={{ padding: '10px 14px', fontSize: 11.5, color: 'var(--color-ink-faint)', whiteSpace: 'nowrap', fontFamily: 'var(--font-mono)' }}>{formatDatetime(log.occurredAt)}</td>
       <td style={{ padding: '10px 14px' }}>
-        <span style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--ink)' }}>{log.actorUsername ?? `#${log.actorId}`}</span>
+        <span style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--color-ink)' }}>{log.actorUsername ?? `#${log.actorId}`}</span>
       </td>
       <td style={{ padding: '10px 14px' }}>
         {log.httpMethod && <HttpMethodChip method={log.httpMethod} />}
       </td>
-      <td style={{ padding: '10px 14px', fontSize: 13, color: 'var(--ink-2)' }}>{log.action}</td>
+      <td style={{ padding: '10px 14px', fontSize: 13, color: 'var(--color-ink-soft)' }}>{log.action}</td>
       <td style={{ padding: '10px 14px' }}>
         <div className="row" style={{ alignItems: 'center', gap: 6 }}>
           {log.resourceType && <span className="codechip" style={{ fontSize: 11 }}>{log.resourceType}</span>}
-          {log.resourceId && <span style={{ fontSize: 11, color: 'var(--ink-3)' }}>#{log.resourceId}</span>}
+          {log.resourceId && <span style={{ fontSize: 11, color: 'var(--color-ink-faint)' }}>#{log.resourceId}</span>}
         </div>
       </td>
       <td style={{ padding: '10px 14px' }}>
         <div className="row" style={{ alignItems: 'center', gap: 6 }}>
           {log.statusCode && <StatusCodePill code={log.statusCode} />}
-          {log.durationMs != null && <span style={{ fontSize: 11, color: 'var(--ink-3)' }}>{log.durationMs}ms</span>}
+          {log.durationMs != null && <span style={{ fontSize: 11, color: 'var(--color-ink-faint)' }}>{log.durationMs}ms</span>}
         </div>
       </td>
       <td style={{ padding: '10px 14px' }}>

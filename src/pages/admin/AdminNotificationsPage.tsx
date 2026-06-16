@@ -51,13 +51,13 @@ export default function AdminNotificationsPage() {
       <div className="row enter" style={{ alignItems: 'flex-start', gap: 12 }}>
         <div>
           <span className="eyebrow">Quản trị</span>
-          <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--ink)', marginTop: 6 }}>
+          <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-ink)', marginTop: 6 }}>
             <span className="row" style={{ alignItems: 'center', gap: 8 }}>
-              <Bell size={22} style={{ color: 'var(--gold)' }} />
+              <Bell size={22} style={{ color: 'var(--color-accent)' }} />
               Quản lý thông báo
             </span>
           </h1>
-          <p style={{ color: 'var(--ink-3)', fontSize: 13.5, marginTop: 4 }}>Broadcast và quản lý template thông báo</p>
+          <p style={{ color: 'var(--color-ink-faint)', fontSize: 13.5, marginTop: 4 }}>Broadcast và quản lý template thông báo</p>
         </div>
       </div>
 
@@ -116,7 +116,7 @@ export default function AdminNotificationsPage() {
           {templatesLoading ? (
             <div className="col" style={{ gap: 10, maxWidth: 640 }}>
               {Array(4).fill(0).map((_, i) => (
-                <div key={i} style={{ height: 72, background: 'var(--surface-2)', borderRadius: 'var(--radius-lg)' }} />
+                <div key={i} style={{ height: 72, background: 'var(--color-surface-muted)', borderRadius: 'var(--radius-card)' }} />
               ))}
             </div>
           ) : templatesList.length > 0 ? (
@@ -125,8 +125,8 @@ export default function AdminNotificationsPage() {
                 <div key={t.key} className="card enter" style={{ padding: '14px 18px' }}>
                   <div className="row" style={{ alignItems: 'center', gap: 12 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontWeight: 700, fontSize: 14, color: 'var(--ink)', margin: 0 }}>{t.name}</p>
-                      <p style={{ fontSize: 12, color: 'var(--ink-3)', margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.subject}</p>
+                      <p style={{ fontWeight: 700, fontSize: 14, color: 'var(--color-ink)', margin: 0 }}>{t.name}</p>
+                      <p style={{ fontSize: 12, color: 'var(--color-ink-faint)', margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.subject}</p>
                       <div className="row" style={{ gap: 6, marginTop: 6 }}>
                         <span className="codechip" style={{ fontSize: 10.5 }}>{t.key}</span>
                         <span className="codechip" style={{ fontSize: 10.5 }}>{t.type}</span>
@@ -144,7 +144,7 @@ export default function AdminNotificationsPage() {
               ))}
             </div>
           ) : (
-            <p style={{ textAlign: 'center', padding: '40px 0', color: 'var(--ink-3)', fontSize: 14 }}>Chưa có template nào</p>
+            <p style={{ textAlign: 'center', padding: '40px 0', color: 'var(--color-ink-faint)', fontSize: 14 }}>Chưa có template nào</p>
           )}
 
           {/* Edit Template Dialog */}
@@ -154,7 +154,7 @@ export default function AdminNotificationsPage() {
               <form onSubmit={e => { e.preventDefault(); editTemplate && updateTemplateMutation.mutate({ key: editTemplate.key, data: templateForm }) }} className="space-y-4 pt-2">
                 <div><Label>Subject</Label><Input value={templateForm.subject} onChange={e => setTemplateForm(f => ({ ...f, subject: e.target.value }))} /></div>
                 <div><Label>Body</Label><Textarea value={templateForm.body} onChange={e => setTemplateForm(f => ({ ...f, body: e.target.value }))} rows={6} /></div>
-                <Button type="submit" disabled={updateTemplateMutation.isPending} className="w-full bg-primary hover:bg-slate-800 text-white cursor-pointer">
+                <Button type="submit" disabled={updateTemplateMutation.isPending} className="w-full bg-accent hover:bg-zinc-800 text-white cursor-pointer">
                   {updateTemplateMutation.isPending ? 'Đang lưu...' : 'Lưu template'}
                 </Button>
               </form>

@@ -54,7 +54,7 @@ export default function PracticeWeaknessPage() {
   if (!cert) {
     return (
       <div className="max-w-5xl mx-auto px-4 py-8">
-        <button onClick={() => navigate('/practice')} className="text-sm text-slate-500 hover:text-primary inline-flex items-center gap-1 mb-4 cursor-pointer">
+        <button onClick={() => navigate('/practice')} className="text-sm text-zinc-500 hover:text-accent inline-flex items-center gap-1 mb-4 cursor-pointer">
           <ArrowLeft className="w-4 h-4" />Quay lại
         </button>
         <CertificationPicker
@@ -70,7 +70,7 @@ export default function PracticeWeaknessPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-      <button onClick={() => setCert(null)} className="text-sm text-slate-500 hover:text-primary inline-flex items-center gap-1 cursor-pointer">
+      <button onClick={() => setCert(null)} className="text-sm text-zinc-500 hover:text-accent inline-flex items-center gap-1 cursor-pointer">
         <ArrowLeft className="w-4 h-4" />Chọn chứng chỉ khác
       </button>
 
@@ -79,20 +79,20 @@ export default function PracticeWeaknessPage() {
           <Zap className="w-6 h-6 text-orange-500" />
         </div>
         <div>
-          <h1 className="text-xl font-extrabold text-slate-900 dark:text-white">Khắc phục điểm yếu</h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400">{cert.name}</p>
+          <h1 className="text-xl font-extrabold text-zinc-900 dark:text-white">Khắc phục điểm yếu</h1>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">{cert.name}</p>
         </div>
       </div>
 
       {loading ? (
-        <div className="h-32 rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse" />
+        <div className="h-32 rounded-xl bg-zinc-100 dark:bg-zinc-800 animate-pulse" />
       ) : !history?.results?.length ? (
         <Card className="border-yellow-200 dark:border-yellow-500/30 bg-yellow-50/50 dark:bg-yellow-500/5">
           <CardContent className="p-5 flex gap-3 items-start">
             <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-500 flex-shrink-0 mt-0.5" />
             <div className="text-sm">
-              <p className="font-semibold text-slate-900 dark:text-yellow-200 mb-1">Chưa có lịch sử làm bài</p>
-              <p className="text-slate-600 dark:text-slate-300 mb-3">
+              <p className="font-semibold text-zinc-900 dark:text-yellow-200 mb-1">Chưa có lịch sử làm bài</p>
+              <p className="text-zinc-600 dark:text-zinc-300 mb-3">
                 Bạn cần hoàn thành ít nhất một bài thi với chứng chỉ này để chúng tôi xác định được điểm yếu.
               </p>
               <Button
@@ -108,31 +108,31 @@ export default function PracticeWeaknessPage() {
       ) : weakDomains.length === 0 ? (
         <Card className="border-emerald-200 dark:border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-500/5">
           <CardContent className="p-5">
-            <p className="font-semibold text-slate-900 dark:text-emerald-200 mb-1">Bạn đang làm rất tốt!</p>
-            <p className="text-sm text-slate-600 dark:text-slate-300">
+            <p className="font-semibold text-zinc-900 dark:text-emerald-200 mb-1">Bạn đang làm rất tốt!</p>
+            <p className="text-sm text-zinc-600 dark:text-zinc-300">
               Tất cả các chủ đề đều đạt trên {WEAKNESS_THRESHOLD}%. Hãy thử thi thử lại để duy trì phong độ.
             </p>
           </CardContent>
         </Card>
       ) : (
         <>
-          <Card className="border-slate-200 dark:border-slate-800">
+          <Card className="border-zinc-200 dark:border-zinc-800">
             <CardContent className="p-5 space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-slate-900 dark:text-white text-sm">
+                <h3 className="font-semibold text-zinc-900 dark:text-white text-sm">
                   Các chủ đề cần ôn lại
                 </h3>
                 <Badge variant="secondary" className="text-[10px]">{weakDomains.length} chủ đề</Badge>
               </div>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-zinc-500">
                 Dựa trên kết quả gần nhất ({history.results[0].percentage}%)
               </p>
               <div className="space-y-2">
                 {weakDomains.map((d) => (
-                  <div key={d.topicId} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                  <div key={d.topicId} className="flex items-center justify-between p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800">
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{d.topicName}</p>
-                      <p className="text-[11px] text-slate-500">{d.correctAnswers}/{d.totalQuestions} câu đúng</p>
+                      <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">{d.topicName}</p>
+                      <p className="text-[11px] text-zinc-500">{d.correctAnswers}/{d.totalQuestions} câu đúng</p>
                     </div>
                     <div className={cn(
                       'font-bold text-sm tabular-nums px-2 py-0.5 rounded',

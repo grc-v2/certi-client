@@ -83,9 +83,9 @@ export default function LoginPage() {
   }
 
   return (
-    <Card className="border-slate-200 dark:border-slate-700 shadow-lg">
+    <Card className="border-line shadow-none rounded-[var(--radius-card)]">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-slate-900 dark:text-white">Đăng nhập</CardTitle>
+        <CardTitle className="text-2xl font-bold text-ink">Đăng nhập</CardTitle>
         <CardDescription>Nhập thông tin tài khoản để tiếp tục</CardDescription>
       </CardHeader>
       <CardContent>
@@ -106,7 +106,7 @@ export default function LoginPage() {
             type="button"
             onClick={() => handleOAuthLogin('google')}
             disabled={oauthLoading !== null}
-            className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors relative"
+            className="cursor-pointer transition-colors relative"
           >
             {oauthLoading === 'google' ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -125,7 +125,7 @@ export default function LoginPage() {
             type="button"
             onClick={() => handleOAuthLogin('github')}
             disabled={oauthLoading !== null}
-            className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+            className="cursor-pointer transition-colors"
           >
             {oauthLoading === 'github' ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -139,9 +139,9 @@ export default function LoginPage() {
         </div>
 
         <div className="relative mb-4">
-          <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200 dark:border-slate-700" /></div>
-          <div className="relative flex justify-center text-xs text-slate-500 dark:text-slate-400">
-            <span className="bg-white dark:bg-slate-800 px-2">Hoặc đăng nhập bằng email</span>
+          <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-line" /></div>
+          <div className="relative flex justify-center text-xs text-ink-faint">
+            <span className="bg-surface px-2">Hoặc đăng nhập bằng email</span>
           </div>
         </div>
 
@@ -170,7 +170,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink-soft cursor-pointer transition-colors"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -179,7 +179,7 @@ export default function LoginPage() {
           </div>
           <Button
             type="submit"
-            className="w-full bg-primary hover:bg-slate-800 text-white cursor-pointer transition-colors"
+            className="w-full cursor-pointer"
             disabled={loginMutation.isPending}
           >
             {loginMutation.isPending ? (
@@ -194,9 +194,9 @@ export default function LoginPage() {
         </form>
       </CardContent>
       <CardFooter className="flex flex-col gap-2 text-sm text-center">
-        <p className="text-slate-500 dark:text-slate-400">
+        <p className="text-ink-soft">
           Chưa có tài khoản?{' '}
-          <Link to="/register" className="text-primary hover:underline cursor-pointer font-medium">
+          <Link to="/register" className="text-accent hover:underline cursor-pointer font-medium">
             Đăng ký ngay
           </Link>
         </p>

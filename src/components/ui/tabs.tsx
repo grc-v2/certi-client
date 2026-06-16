@@ -22,7 +22,7 @@ export function Tabs({ defaultValue, value, onValueChange, className, children, 
 export function TabsList({ className, ...props }: any) {
   return (
     <div
-      className={`inline-flex h-9 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 p-1 text-slate-500 dark:text-slate-400 ${className}`}
+      className={`inline-flex h-9 items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800 p-1 text-zinc-500 dark:text-zinc-400 ${className}`}
       {...props}
     />
   )
@@ -38,8 +38,8 @@ export function TabsTrigger({ value, className, children, ...props }: any) {
       onClick={() => context.setValue(value)}
       className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 cursor-pointer ${
         isActive
-          ? 'bg-white dark:bg-slate-950 text-slate-950 dark:text-slate-50 shadow-sm font-semibold'
-          : 'hover:text-slate-900 dark:hover:text-slate-200'
+          ? 'bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 shadow-sm font-semibold'
+          : 'hover:text-zinc-900 dark:hover:text-zinc-200'
       } ${className}`}
       {...props}
     >

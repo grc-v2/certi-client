@@ -62,7 +62,7 @@ export default function PracticeFreePage() {
   if (!cert) {
     return (
       <div className="max-w-5xl mx-auto px-4 py-8">
-        <button onClick={() => navigate('/practice')} className="text-sm text-slate-500 hover:text-primary inline-flex items-center gap-1 mb-4 cursor-pointer">
+        <button onClick={() => navigate('/practice')} className="text-sm text-ink-soft hover:text-accent inline-flex items-center gap-1 mb-4 cursor-pointer">
           <ArrowLeft className="w-4 h-4" />Quay lại
         </button>
         <CertificationPicker
@@ -78,35 +78,35 @@ export default function PracticeFreePage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-      <button onClick={() => setCert(null)} className="text-sm text-slate-500 hover:text-primary inline-flex items-center gap-1 cursor-pointer">
+      <button onClick={() => setCert(null)} className="text-sm text-ink-soft hover:text-accent inline-flex items-center gap-1 cursor-pointer">
         <ArrowLeft className="w-4 h-4" />Chọn chứng chỉ khác
       </button>
 
       <div className="flex items-start gap-3">
-        <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-          <Target className="w-6 h-6 text-blue-500" />
+        <div className="w-12 h-12 rounded-[var(--radius-inner)] bg-accent-soft flex items-center justify-center flex-shrink-0">
+          <Target className="w-6 h-6 text-accent" />
         </div>
         <div>
-          <h1 className="text-xl font-extrabold text-slate-900 dark:text-white">Luyện tập tự do</h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400">{cert.name}</p>
+          <h1 className="text-xl font-extrabold text-ink">Luyện tập tự do</h1>
+          <p className="text-sm text-ink-soft">{cert.name}</p>
         </div>
       </div>
 
-      <Card className="border-slate-200 dark:border-slate-800">
+      <Card className="border-line shadow-none rounded-[var(--radius-card)]">
         <CardContent className="p-5 space-y-5">
           {/* Question count */}
           <div className="space-y-2">
-            <Label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Số lượng câu hỏi</Label>
+            <Label className="text-xs font-semibold text-ink-soft uppercase tracking-wider">Số lượng câu hỏi</Label>
             <div className="flex gap-2 flex-wrap">
               {COUNT_OPTIONS.map(count => (
                 <button
                   key={count}
                   onClick={() => setQuestionCount(count)}
                   className={cn(
-                    'px-4 py-2 rounded-lg border text-sm font-medium transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
+                    'px-4 py-2 rounded-lg border text-sm font-medium transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40',
                     questionCount === count
-                      ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-primary/40',
+                      ? 'border-accent bg-accent/10 text-accent'
+                      : 'border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:border-accent/40',
                   )}
                 >
                   {count}
@@ -117,7 +117,7 @@ export default function PracticeFreePage() {
 
           {/* Difficulty */}
           <div className="space-y-2">
-            <Label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Độ khó</Label>
+            <Label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Độ khó</Label>
             <div className="flex gap-2 flex-wrap">
               {DIFFICULTIES.map(d => {
                 const selected = difficulties.includes(d.value)
@@ -126,10 +126,10 @@ export default function PracticeFreePage() {
                     key={d.value}
                     onClick={() => toggleDifficulty(d.value)}
                     className={cn(
-                      'px-3 py-1.5 rounded-lg border text-sm font-medium transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
+                      'px-3 py-1.5 rounded-lg border text-sm font-medium transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40',
                       selected
                         ? d.color
-                        : 'border-slate-200 dark:border-slate-700 text-slate-500 hover:border-slate-300',
+                        : 'border-zinc-200 dark:border-zinc-700 text-zinc-500 hover:border-zinc-300',
                     )}
                   >
                     {d.label}
@@ -142,7 +142,7 @@ export default function PracticeFreePage() {
           {/* Domains */}
           {detail?.domains?.length ? (
             <div className="space-y-2">
-              <Label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Chủ đề ({activeDomainIds.length}/{detail.domains.length})</Label>
+              <Label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Chủ đề ({activeDomainIds.length}/{detail.domains.length})</Label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-1">
                 {detail.domains.map(d => {
                   const selected = activeDomainIds.includes(d.id)
@@ -151,15 +151,15 @@ export default function PracticeFreePage() {
                       key={d.id}
                       onClick={() => toggleDomain(d.id)}
                       className={cn(
-                        'text-left px-3 py-2 rounded-lg border text-xs transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
+                        'text-left px-3 py-2 rounded-lg border text-xs transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40',
                         selected
-                          ? 'border-primary/40 bg-primary/5 text-slate-900 dark:text-white'
-                          : 'border-slate-200 dark:border-slate-700 text-slate-500 hover:border-slate-300',
+                          ? 'border-accent/40 bg-accent/5 text-zinc-900 dark:text-white'
+                          : 'border-zinc-200 dark:border-zinc-700 text-zinc-500 hover:border-zinc-300',
                       )}
                     >
                       <div className="font-medium line-clamp-1">{d.name}</div>
                       {d.weightPercentage > 0 && (
-                        <div className="text-[10px] text-slate-400 mt-0.5">Trọng số {d.weightPercentage}%</div>
+                        <div className="text-[10px] text-zinc-400 mt-0.5">Trọng số {d.weightPercentage}%</div>
                       )}
                     </button>
                   )
@@ -178,7 +178,7 @@ export default function PracticeFreePage() {
           difficulties,
         })}
         disabled={startMutation.isPending || activeDomainIds.length === 0}
-        className="w-full bg-primary hover:bg-primary/90 text-white cursor-pointer"
+        className="w-full bg-accent hover:bg-accent/90 text-white cursor-pointer"
       >
         <Play className="w-4 h-4 mr-1.5" />
         {startMutation.isPending ? 'Đang tạo phiên...' : 'Bắt đầu luyện tập'}

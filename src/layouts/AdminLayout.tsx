@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/store/auth-store'
 import {
-  LayoutDashboard, Users, GraduationCap, Sparkles, BookOpen,
+  LayoutDashboard, Users, GraduationCap, Sparkles,
   FileText, Bell, ClipboardList, Menu, X, Sun, Moon,
   ArrowLeft,
 } from 'lucide-react'
@@ -11,7 +11,6 @@ const adminNavItems = [
   { href: '/admin/dashboard', icon: LayoutDashboard, label: 'Tổng quan' },
   { href: '/admin/users', icon: Users, label: 'Học viên' },
   { href: '/admin/certifications', icon: GraduationCap, label: 'Chứng chỉ' },
-  { href: '/admin/courses', icon: BookOpen, label: 'Khoá học' },
   { href: '/admin/questions', icon: Sparkles, label: 'Câu hỏi' },
   { href: '/admin/posts', icon: FileText, label: 'Bài viết' },
   { href: '/admin/notifications', icon: Bell, label: 'Thông báo' },
@@ -22,7 +21,6 @@ const ROUTE_TITLES: Record<string, string> = {
   '/admin/dashboard': 'Tổng quan hệ thống',
   '/admin/users': 'Học viên',
   '/admin/certifications': 'Chứng chỉ',
-  '/admin/courses': 'Khoá học',
   '/admin/questions': 'Ngân hàng đề',
   '/admin/posts': 'Bài viết',
   '/admin/notifications': 'Thông báo',
@@ -37,27 +35,29 @@ function getTitle(pathname: string): string {
   return 'Admin'
 }
 
+const PT_PILL = 'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium'
+
 export function StatusPill({ status }: { status: string }) {
   if (status === 'ACTIVE' || status === 'PUBLISHED') {
-    return <span className="pill brand">{status === 'ACTIVE' ? 'Hoạt động' : 'Published'}</span>
+    return <span className={`${PT_PILL} bg-emerald-50 text-emerald-700`}>{status === 'ACTIVE' ? 'Hoạt động' : 'Published'}</span>
   }
   if (status === 'INACTIVE' || status === 'BANNED') {
-    return <span className="pill hard">{status === 'INACTIVE' ? 'Vô hiệu' : 'Banned'}</span>
+    return <span className={`${PT_PILL} bg-red-50 text-red-600`}>{status === 'INACTIVE' ? 'Vô hiệu' : 'Banned'}</span>
   }
   if (status === 'PENDING_REVIEW' || status === 'IN_REVIEW' || status === 'PENDING') {
-    return <span className="pill gold">{status === 'PENDING_REVIEW' ? 'Chờ duyệt' : status === 'IN_REVIEW' ? 'Đang duyệt' : 'Pending'}</span>
+    return <span className={`${PT_PILL} bg-amber-50 text-amber-700`}>{status === 'PENDING_REVIEW' ? 'Chờ duyệt' : status === 'IN_REVIEW' ? 'Đang duyệt' : 'Pending'}</span>
   }
   if (status === 'DRAFT') {
-    return <span className="pill" style={{ background: 'var(--surface-3)', color: 'var(--ink-3)' }}>Draft</span>
+    return <span className={`${PT_PILL} bg-surface-muted text-ink-soft`}>Draft</span>
   }
-  return <span className="pill" style={{ background: 'var(--surface-3)', color: 'var(--ink-3)' }}>{status}</span>
+  return <span className={`${PT_PILL} bg-surface-muted text-ink-soft`}>{status}</span>
 }
 
 export function RolePill({ role }: { role: string }) {
   if (role === 'ADMIN') {
-    return <span className="pill violet">Admin</span>
+    return <span className={`${PT_PILL} bg-accent-soft text-accent-ink`}>Admin</span>
   }
-  return <span className="pill" style={{ background: 'var(--surface-3)', color: 'var(--ink-2)' }}>User</span>
+  return <span className={`${PT_PILL} bg-surface-muted text-ink-soft`}>User</span>
 }
 
 export default function AdminLayout() {
@@ -100,9 +100,9 @@ export default function AdminLayout() {
       <div className="brandmark">
         <div className="glyph">C</div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 16, color: 'var(--ink)', letterSpacing: '-0.02em' }}>Certi Hub</div>
+          <div style={{ fontFamily: 'var(--font-heading)', fontWeight: 800, fontSize: 16, color: 'var(--color-ink)', letterSpacing: '-0.02em' }}>Certi Hub</div>
         </div>
-        <span className="pill violet" style={{ fontSize: 10, padding: '2px 8px', letterSpacing: '.06em' }}>QUẢN TRỊ</span>
+        <span className="pill" style={{ fontSize: 10, padding: '2px 8px', letterSpacing: '.06em', background: 'var(--color-accent-soft)', color: 'var(--color-accent-ink)' }}>QUẢN TRỊ</span>
       </div>
 
       {/* Nav */}
@@ -125,9 +125,9 @@ export default function AdminLayout() {
 
       {/* Bottom warning + back link */}
       <div style={{ paddingTop: 14 }}>
-        <div className="card" style={{ padding: '12px 14px', background: 'var(--gold-soft)', borderColor: 'var(--gold-deep)', marginBottom: 10 }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--gold-deep)', marginBottom: 4 }}>Cẩn trọng</p>
-          <p style={{ fontSize: 11, color: 'var(--ink-2)', lineHeight: 1.5 }}>Cẩn trọng khi thay đổi dữ liệu hệ thống.</p>
+        <div style={{ padding: '12px 14px', background: 'var(--color-surface-muted)', border: '1px solid var(--color-line)', borderRadius: 'var(--radius-inner)', marginBottom: 10 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--color-ink)', marginBottom: 4 }}>Cẩn trọng</p>
+          <p style={{ fontSize: 11, color: 'var(--color-ink-soft)', lineHeight: 1.5 }}>Cẩn trọng khi thay đổi dữ liệu hệ thống.</p>
         </div>
         <Link
           to="/dashboard"
@@ -167,8 +167,8 @@ export default function AdminLayout() {
           zIndex: 60,
           width: 'var(--nav-w)',
           flexShrink: 0,
-          background: 'var(--surface)',
-          borderRight: '1px solid var(--border)',
+          background: 'var(--color-surface)',
+          borderRight: '1px solid var(--color-line)',
           display: 'flex',
           flexDirection: 'column',
           padding: '18px 14px',
@@ -198,19 +198,19 @@ export default function AdminLayout() {
           >
             <Menu size={18} />
           </button>
-          <h2 style={{ flex: 1, fontSize: 18, fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.02em' }}>{title}</h2>
+          <h2 style={{ flex: 1, fontSize: 18, fontWeight: 800, color: 'var(--color-ink)', letterSpacing: '-0.02em' }}>{title}</h2>
 
           {/* Search */}
           <div
             className="admin-topbar-search row"
-            style={{ alignItems: 'center', gap: 8, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', padding: '6px 12px', minWidth: 220 }}
+            style={{ alignItems: 'center', gap: 8, background: 'var(--color-surface-muted)', border: '1px solid var(--color-line)', borderRadius: 'var(--radius-inner)', padding: '6px 12px', minWidth: 220 }}
           >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ color: 'var(--ink-3)', flexShrink: 0 }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ color: 'var(--color-ink-faint)', flexShrink: 0 }}>
               <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
             </svg>
             <input
               placeholder="Tìm kiếm..."
-              style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13.5, color: 'var(--ink)', width: '100%', fontFamily: 'var(--font-body)' }}
+              style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13.5, color: 'var(--color-ink)', width: '100%', fontFamily: 'var(--font-sans)' }}
             />
           </div>
 
@@ -227,17 +227,17 @@ export default function AdminLayout() {
           {/* User avatar pill */}
           <div
             className="itile row"
-            style={{ gap: 8, padding: '5px 10px 5px 5px', background: 'var(--violet-soft)', borderRadius: 'var(--radius-sm)', cursor: 'default' }}
+            style={{ gap: 8, padding: '5px 10px 5px 5px', background: 'var(--color-accent-soft)', borderRadius: 'var(--radius-inner)', cursor: 'default' }}
           >
             <div
               className="itile"
-              style={{ width: 28, height: 28, background: 'var(--violet)', color: '#fff', fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 12 }}
+              style={{ width: 28, height: 28, background: 'var(--color-accent)', color: '#fff', fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 12 }}
             >
               {initials}
             </div>
             <div className="col" style={{ gap: 0 }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)', lineHeight: 1.2 }}>{user?.fullName}</span>
-              <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--violet)' }}>Admin</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-ink)', lineHeight: 1.2 }}>{user?.fullName}</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-accent-ink)' }}>Admin</span>
             </div>
           </div>
         </div>

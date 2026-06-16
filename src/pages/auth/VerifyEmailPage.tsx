@@ -34,38 +34,38 @@ function VerifyEmailContent() {
 
   if (token) {
     if (verifyMutation.isPending) return (
-      <Card className="shadow-lg"><CardContent className="pt-8 pb-8 text-center space-y-4">
-        <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto" />
-        <p className="text-slate-600 dark:text-slate-300">Đang xác thực email...</p>
+      <Card className="shadow-none border-line rounded-[var(--radius-card)]"><CardContent className="pt-8 pb-8 text-center space-y-4">
+        <div className="w-16 h-16 border-4 border-accent/30 border-t-accent rounded-full animate-spin mx-auto" />
+        <p className="text-ink-soft">Đang xác thực email...</p>
       </CardContent></Card>
     )
     if (status === 'success') return (
-      <Card className="shadow-lg"><CardContent className="pt-8 pb-8 text-center space-y-4">
+      <Card className="shadow-none border-line rounded-[var(--radius-card)]"><CardContent className="pt-8 pb-8 text-center space-y-4">
         <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto" />
-        <h2 className="text-xl font-bold text-slate-900 dark:text-white">Xác thực thành công!</h2>
-        <p className="text-slate-500">Đang chuyển hướng đến trang đăng nhập...</p>
+        <h2 className="text-xl font-bold text-ink">Xác thực thành công!</h2>
+        <p className="text-ink-soft">Đang chuyển hướng đến trang đăng nhập...</p>
       </CardContent></Card>
     )
     return (
-      <Card className="shadow-lg"><CardContent className="pt-8 pb-8 text-center space-y-4">
+      <Card className="shadow-none border-line rounded-[var(--radius-card)]"><CardContent className="pt-8 pb-8 text-center space-y-4">
         <XCircle className="w-16 h-16 text-red-500 mx-auto" />
-        <h2 className="text-xl font-bold text-slate-900 dark:text-white">Xác thực thất bại</h2>
-        <p className="text-slate-500">Liên kết không hợp lệ hoặc đã hết hạn.</p>
-        <Button onClick={() => navigate('/login')} className="bg-primary hover:bg-slate-800 text-white cursor-pointer">Về trang đăng nhập</Button>
+        <h2 className="text-xl font-bold text-ink">Xác thực thất bại</h2>
+        <p className="text-ink-soft">Liên kết không hợp lệ hoặc đã hết hạn.</p>
+        <Button onClick={() => navigate('/login')} className="cursor-pointer">Về trang đăng nhập</Button>
       </CardContent></Card>
     )
   }
 
   return (
-    <Card className="shadow-lg">
-      <CardHeader><CardTitle className="text-2xl font-bold text-center text-slate-900 dark:text-white">Xác thực email</CardTitle></CardHeader>
+    <Card className="shadow-none border-line rounded-[var(--radius-card)]">
+      <CardHeader><CardTitle className="text-2xl font-bold text-center text-ink">Xác thực email</CardTitle></CardHeader>
       <CardContent className="text-center space-y-6 pb-8">
-        <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-          <Mail className="w-10 h-10 text-primary" />
+        <div className="w-20 h-20 bg-accent-soft rounded-full flex items-center justify-center mx-auto">
+          <Mail className="w-10 h-10 text-accent" />
         </div>
         <div className="space-y-2">
-          <p className="text-slate-700 dark:text-slate-200 font-medium">Kiểm tra hộp thư của bạn</p>
-          <p className="text-slate-500 dark:text-slate-400 text-sm">Chúng tôi đã gửi email xác thực. Nhấn vào liên kết trong email để kích hoạt tài khoản.</p>
+          <p className="text-ink font-medium">Kiểm tra hộp thư của bạn</p>
+          <p className="text-ink-soft text-sm">Chúng tôi đã gửi email xác thực. Nhấn vào liên kết trong email để kích hoạt tài khoản.</p>
         </div>
         <Button
           variant="outline"

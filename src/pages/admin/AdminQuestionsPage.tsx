@@ -33,13 +33,13 @@ function DiffPill({ diff }: { diff: string }) {
   if (diff === 'EASY') return <span className="pill easy">Dễ</span>
   if (diff === 'MEDIUM') return <span className="pill medium">Trung bình</span>
   if (diff === 'HARD') return <span className="pill hard">Khó</span>
-  return <span className="pill" style={{ background: 'var(--surface-3)', color: 'var(--ink-3)' }}>{diff}</span>
+  return <span className="pill" style={{ background: 'var(--color-surface-hover)', color: 'var(--color-ink-faint)' }}>{diff}</span>
 }
 
 function QStatusPill({ status }: { status: string }) {
   if (status === 'ACTIVE') return <span className="pill brand">Active</span>
   if (status === 'INACTIVE') return <span className="pill hard">Inactive</span>
-  return <span className="pill" style={{ background: 'var(--surface-3)', color: 'var(--ink-3)' }}>Draft</span>
+  return <span className="pill" style={{ background: 'var(--color-surface-hover)', color: 'var(--color-ink-faint)' }}>Draft</span>
 }
 
 export default function AdminQuestionsPage() {
@@ -180,13 +180,13 @@ export default function AdminQuestionsPage() {
       <div className="row enter" style={{ alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <span className="eyebrow">Quản trị</span>
-          <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--ink)', marginTop: 6 }}>
+          <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--color-ink)', marginTop: 6 }}>
             <span className="row" style={{ alignItems: 'center', gap: 8 }}>
-              <Sparkles size={22} style={{ color: 'var(--violet)' }} />
+              <Sparkles size={22} style={{ color: 'var(--color-accent)' }} />
               Ngân hàng câu hỏi
             </span>
           </h1>
-          <p style={{ color: 'var(--ink-3)', fontSize: 13.5, marginTop: 4 }}>{total} câu hỏi</p>
+          <p style={{ color: 'var(--color-ink-faint)', fontSize: 13.5, marginTop: 4 }}>{total} câu hỏi</p>
         </div>
         <button className="btn3d sm" onClick={openCreate}>
           <Plus size={15} />Thêm câu hỏi
@@ -196,34 +196,34 @@ export default function AdminQuestionsPage() {
       {/* Filters */}
       <div className="card enter enter-1" style={{ padding: '14px 16px' }}>
         <div className="col" style={{ gap: 12 }}>
-          <div className="row" style={{ alignItems: 'center', gap: 8, background: 'var(--surface-2)', borderRadius: 'var(--radius-sm)', padding: '7px 12px', border: '1px solid var(--border)' }}>
-            <Search size={14} style={{ color: 'var(--ink-3)', flexShrink: 0 }} />
+          <div className="row" style={{ alignItems: 'center', gap: 8, background: 'var(--color-surface-muted)', borderRadius: 'var(--radius-inner)', padding: '7px 12px', border: '1px solid var(--color-line)' }}>
+            <Search size={14} style={{ color: 'var(--color-ink-faint)', flexShrink: 0 }} />
             <input
               placeholder="Tìm câu hỏi..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13.5, color: 'var(--ink)', width: '100%', fontFamily: 'var(--font-body)' }}
+              style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: 13.5, color: 'var(--color-ink)', width: '100%', fontFamily: 'var(--font-sans)' }}
             />
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 8 }}>
             <Select value={certFilter || 'all'} onValueChange={v => { setCertFilter(v === 'all' ? '' : v); setDomainFilter('') }}>
               <SelectTrigger className="cursor-pointer"><SelectValue placeholder="Chứng chỉ" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all" className="text-slate-500 italic">Tất cả chứng chỉ</SelectItem>
+                <SelectItem value="all" className="text-zinc-500 italic">Tất cả chứng chỉ</SelectItem>
                 {certs.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={domainFilter || 'all'} onValueChange={v => setDomainFilter(v === 'all' ? '' : v)} disabled={!certFilter || domains.length === 0}>
               <SelectTrigger className="cursor-pointer"><SelectValue placeholder="Domain" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all" className="text-slate-500 italic">Tất cả domain</SelectItem>
+                <SelectItem value="all" className="text-zinc-500 italic">Tất cả domain</SelectItem>
                 {domains.map(d => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={typeFilter || 'all'} onValueChange={v => setTypeFilter(v === 'all' ? '' : v)}>
               <SelectTrigger className="cursor-pointer"><SelectValue placeholder="Loại" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all" className="text-slate-500 italic">Tất cả loại</SelectItem>
+                <SelectItem value="all" className="text-zinc-500 italic">Tất cả loại</SelectItem>
                 {getOptions('constants.questionTypes').map(opt => (
                   <SelectItem key={opt.value} value={opt.value}>{getLabel('constants.questionTypes', opt.value)}</SelectItem>
                 ))}
@@ -232,7 +232,7 @@ export default function AdminQuestionsPage() {
             <Select value={diffFilter || 'all'} onValueChange={v => setDiffFilter(v === 'all' ? '' : v)}>
               <SelectTrigger className="cursor-pointer"><SelectValue placeholder="Độ khó" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all" className="text-slate-500 italic">Tất cả độ khó</SelectItem>
+                <SelectItem value="all" className="text-zinc-500 italic">Tất cả độ khó</SelectItem>
                 {getOptions('constants.questionDifficulties').map(opt => (
                   <SelectItem key={opt.value} value={opt.value}>{getLabel('constants.questionDifficulties', opt.value)}</SelectItem>
                 ))}
@@ -241,7 +241,7 @@ export default function AdminQuestionsPage() {
             <Select value={statusFilter || 'all'} onValueChange={v => setStatusFilter(v === 'all' ? '' : v)}>
               <SelectTrigger className="cursor-pointer"><SelectValue placeholder="Trạng thái" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all" className="text-slate-500 italic">Tất cả trạng thái</SelectItem>
+                <SelectItem value="all" className="text-zinc-500 italic">Tất cả trạng thái</SelectItem>
                 {getOptions('constants.questionStatuses').map(opt => (
                   <SelectItem key={opt.value} value={opt.value}>{getLabel('constants.questionStatuses', opt.value)}</SelectItem>
                 ))}
@@ -249,7 +249,7 @@ export default function AdminQuestionsPage() {
             </Select>
           </div>
           {selectedIds.length > 0 && (
-            <div className="row" style={{ gap: 8, paddingTop: 4, borderTop: '1px solid var(--border)' }}>
+            <div className="row" style={{ gap: 8, paddingTop: 4, borderTop: '1px solid var(--color-line)' }}>
               <button className="btn3d ghost sm" onClick={() => setBulkStatusDialog(true)}>
                 <Power size={13} />Đổi trạng thái ({selectedIds.length})
               </button>
@@ -264,19 +264,19 @@ export default function AdminQuestionsPage() {
           <table style={{ width: '100%', fontSize: 13.5, borderCollapse: 'collapse' }}>
             <thead>
               <tr>
-                <th style={{ padding: '10px 14px', textAlign: 'left', width: 40, background: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}>
+                <th style={{ padding: '10px 14px', textAlign: 'left', width: 40, background: 'var(--color-surface-muted)', borderBottom: '1px solid var(--color-line)' }}>
                   <Checkbox checked={selectedIds.length === questions.length && questions.length > 0} onCheckedChange={toggleAll} className="cursor-pointer" />
                 </th>
                 {['Câu hỏi', 'Loại', 'Độ khó', 'Trạng thái', 'Thao tác'].map(h => (
-                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 800, letterSpacing: '.07em', textTransform: 'uppercase', color: 'var(--ink-3)', background: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}>{h}</th>
+                  <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 800, letterSpacing: '.07em', textTransform: 'uppercase', color: 'var(--color-ink-faint)', background: 'var(--color-surface-muted)', borderBottom: '1px solid var(--color-line)' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 Array(8).fill(0).map((_, i) => (
-                  <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
-                    {[1,2,3,4,5,6].map(j => <td key={j} style={{ padding: '12px 14px' }}><div style={{ height: 14, background: 'var(--surface-3)', borderRadius: 6 }} /></td>)}
+                  <tr key={i} style={{ borderBottom: '1px solid var(--color-line)' }}>
+                    {[1,2,3,4,5,6].map(j => <td key={j} style={{ padding: '12px 14px' }}><div style={{ height: 14, background: 'var(--color-surface-hover)', borderRadius: 6 }} /></td>)}
                   </tr>
                 ))
               ) : questions.map((q: AdminQuestionResponse) => (
@@ -295,8 +295,8 @@ export default function AdminQuestionsPage() {
             </tbody>
           </table>
         </div>
-        <div className="row" style={{ alignItems: 'center', justifyContent: 'space-between', padding: '12px 18px', borderTop: '1px solid var(--border)' }}>
-          <p style={{ fontSize: 13, color: 'var(--ink-3)' }}>Trang {page + 1} / {totalPages || 1}</p>
+        <div className="row" style={{ alignItems: 'center', justifyContent: 'space-between', padding: '12px 18px', borderTop: '1px solid var(--color-line)' }}>
+          <p style={{ fontSize: 13, color: 'var(--color-ink-faint)' }}>Trang {page + 1} / {totalPages || 1}</p>
           <div className="row" style={{ gap: 8 }}>
             <button className="btn3d ghost sm" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}><ChevronLeft size={15} /></button>
             <button className="btn3d ghost sm" onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1}><ChevronRight size={15} /></button>
@@ -363,11 +363,11 @@ export default function AdminQuestionsPage() {
               </div>
               <div className="space-y-2">
                 {formData.options.map((opt, idx) => (
-                  <div key={idx} className="flex items-start gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                  <div key={idx} className="flex items-start gap-2 p-2 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
                     <button
                       type="button"
                       onClick={() => updateOption(idx, { isCorrect: !opt.isCorrect })}
-                      className={cn('mt-1.5 p-1 rounded cursor-pointer transition-colors', opt.isCorrect ? 'text-green-600 bg-green-100 dark:bg-green-950/30' : 'text-slate-400 hover:text-green-500')}
+                      className={cn('mt-1.5 p-1 rounded cursor-pointer transition-colors', opt.isCorrect ? 'text-green-600 bg-green-100 dark:bg-green-950/30' : 'text-zinc-400 hover:text-green-500')}
                     >
                       {opt.isCorrect ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
                     </button>
@@ -378,7 +378,7 @@ export default function AdminQuestionsPage() {
                       onChange={e => updateOption(idx, { content: e.target.value })}
                     />
                     {formData.options.length > 2 && (
-                      <button type="button" onClick={() => removeOption(idx)} className="mt-1.5 p-1 text-slate-400 hover:text-red-500 cursor-pointer">
+                      <button type="button" onClick={() => removeOption(idx)} className="mt-1.5 p-1 text-zinc-400 hover:text-red-500 cursor-pointer">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     )}
@@ -386,7 +386,7 @@ export default function AdminQuestionsPage() {
                 ))}
               </div>
             </div>
-            <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="w-full bg-primary hover:bg-slate-800 text-white cursor-pointer">
+            <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="w-full bg-accent hover:bg-zinc-800 text-white cursor-pointer">
               {(createMutation.isPending || updateMutation.isPending) ? 'Đang lưu...' : editingQuestion ? 'Cập nhật' : 'Tạo câu hỏi'}
             </Button>
           </form>
@@ -405,14 +405,14 @@ export default function AdminQuestionsPage() {
                 <QStatusPill status={previewQuestion.status} />
                 {previewQuestion.domainName && <span className="codechip">{previewQuestion.domainName}</span>}
               </div>
-              <p className="text-slate-900 dark:text-white font-medium">{previewQuestion.content}</p>
+              <p className="text-zinc-900 dark:text-white font-medium">{previewQuestion.content}</p>
               <div className="space-y-2">
                 {previewQuestion.options.map((opt, idx) => (
                   <div key={opt.id} className={cn(
                     'flex items-center gap-3 p-3 rounded-lg border',
-                    opt.isCorrect ? 'border-green-300 bg-green-50 dark:bg-green-950/20 dark:border-green-800' : 'border-slate-200 dark:border-slate-700'
+                    opt.isCorrect ? 'border-green-300 bg-green-50 dark:bg-green-950/20 dark:border-green-800' : 'border-zinc-200 dark:border-zinc-700'
                   )}>
-                    <span className="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-xs font-medium flex-shrink-0">
+                    <span className="w-6 h-6 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-xs font-medium flex-shrink-0">
                       {String.fromCharCode(65 + idx)}
                     </span>
                     <span className="text-sm flex-1">{opt.content}</span>
@@ -435,7 +435,7 @@ export default function AdminQuestionsPage() {
       <Dialog open={!!confirmDelete} onOpenChange={() => setConfirmDelete(null)}>
         <DialogContent className="max-w-sm">
           <DialogHeader><DialogTitle>Xóa câu hỏi</DialogTitle></DialogHeader>
-          <p className="text-sm text-slate-600 dark:text-slate-300">Xóa câu hỏi này? Hành động không thể hoàn tác.</p>
+          <p className="text-sm text-zinc-600 dark:text-zinc-300">Xóa câu hỏi này? Hành động không thể hoàn tác.</p>
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setConfirmDelete(null)} className="cursor-pointer">Hủy</Button>
             <Button className="bg-red-600 hover:bg-red-700 text-white cursor-pointer" disabled={deleteMutation.isPending} onClick={() => confirmDelete && deleteMutation.mutate(confirmDelete.id)}>
@@ -449,7 +449,7 @@ export default function AdminQuestionsPage() {
       <Dialog open={bulkStatusDialog} onOpenChange={() => setBulkStatusDialog(false)}>
         <DialogContent className="max-w-sm">
           <DialogHeader><DialogTitle>Đổi trạng thái hàng loạt</DialogTitle></DialogHeader>
-          <p className="text-sm text-slate-500">{selectedIds.length} câu hỏi đã chọn</p>
+          <p className="text-sm text-zinc-500">{selectedIds.length} câu hỏi đã chọn</p>
           <Select value={bulkStatus} onValueChange={v => setBulkStatus(v ?? '')}>
             <SelectTrigger className="cursor-pointer"><SelectValue placeholder="Chọn trạng thái" /></SelectTrigger>
             <SelectContent>
@@ -460,7 +460,7 @@ export default function AdminQuestionsPage() {
           </Select>
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setBulkStatusDialog(false)} className="cursor-pointer">Hủy</Button>
-            <Button className="bg-primary hover:bg-slate-800 text-white cursor-pointer" disabled={!bulkStatus} onClick={handleBulkStatus}>
+            <Button className="bg-accent hover:bg-zinc-800 text-white cursor-pointer" disabled={!bulkStatus} onClick={handleBulkStatus}>
               Áp dụng
             </Button>
           </DialogFooter>
@@ -483,7 +483,7 @@ function QRow({ q, selected, onToggle, onPreview, onEdit, onToggleStatus, onDele
   const [hovered, setHovered] = useState(false)
   return (
     <tr
-      style={{ borderBottom: '1px solid var(--border)', background: hovered ? 'var(--surface-2)' : 'transparent', transition: 'background .12s' }}
+      style={{ borderBottom: '1px solid var(--color-line)', background: hovered ? 'var(--color-surface-muted)' : 'transparent', transition: 'background .12s' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -491,7 +491,7 @@ function QRow({ q, selected, onToggle, onPreview, onEdit, onToggleStatus, onDele
         <Checkbox checked={selected} onCheckedChange={onToggle} className="cursor-pointer" />
       </td>
       <td style={{ padding: '10px 14px', maxWidth: 300 }}>
-        <p style={{ fontSize: 13.5, color: 'var(--ink)', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{q.content}</p>
+        <p style={{ fontSize: 13.5, color: 'var(--color-ink)', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{q.content}</p>
         <div className="row" style={{ gap: 6, marginTop: 4, flexWrap: 'wrap' }}>
           {q.domainName && <span className="codechip" style={{ fontSize: 11 }}>{q.domainName}</span>}
           {q.questionCode && <span className="codechip" style={{ fontSize: 11 }}>#{q.questionCode}</span>}
@@ -514,10 +514,10 @@ function QRow({ q, selected, onToggle, onPreview, onEdit, onToggleStatus, onDele
           <button onClick={onEdit} className="iconbtn" style={{ width: 30, height: 30 }} title="Sửa">
             <Edit2 size={14} />
           </button>
-          <button onClick={onToggleStatus} className="iconbtn" style={{ width: 30, height: 30, color: q.status === 'ACTIVE' ? 'var(--brand)' : 'var(--ink-3)' }} title="Bật/tắt">
+          <button onClick={onToggleStatus} className="iconbtn" style={{ width: 30, height: 30, color: q.status === 'ACTIVE' ? 'var(--color-accent)' : 'var(--color-ink-faint)' }} title="Bật/tắt">
             <Power size={14} />
           </button>
-          <button onClick={onDelete} className="iconbtn" style={{ width: 30, height: 30, color: 'var(--hard)' }} title="Xóa">
+          <button onClick={onDelete} className="iconbtn" style={{ width: 30, height: 30, color: '#dc2626' }} title="Xóa">
             <Trash2 size={14} />
           </button>
         </div>
