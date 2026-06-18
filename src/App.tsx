@@ -26,7 +26,7 @@ import ResultDetailPage from '@/pages/client/ResultDetailPage'
 import ExamHistoryPage from '@/pages/client/ExamHistoryPage'
 import BlogPage from '@/pages/client/BlogPage'
 import ResourcesPage from '@/pages/client/ResourcesPage'
-import HabitsPage from '@/pages/client/HabitsPage'
+// import HabitsPage from '@/pages/client/HabitsPage'
 import PostDetailPage from '@/pages/client/PostDetailPage'
 import BookmarksPage from '@/pages/client/BookmarksPage'
 import NotificationsPage from '@/pages/client/NotificationsPage'
@@ -71,7 +71,7 @@ function AppRoutes() {
           {/* Client Protected Routes */}
           <Route element={<ClientLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/habits" element={<HabitsPage />} />
+            {/* <Route path="/habits" element={<HabitsPage />} /> */}
             <Route path="/certifications" element={<CertificationsPage />} />
             <Route path="/certifications/:slug" element={<CertificationDetailPage />} />
             <Route path="/certifications/results/:sessionId" element={<ResultDetailPage />} />

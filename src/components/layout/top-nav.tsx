@@ -22,7 +22,7 @@ const isGroup = (e: NavEntry): e is NavGroup => 'children' in e
 // "Ôn thi" gom các mục liên quan của mục tiêu Mock exam (chứng chỉ → luyện tập → kết quả).
 const NAV_ITEMS: NavEntry[] = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Tracker' },
-  { href: '/habits',    icon: Repeat,          label: 'Thói quen' },
+  // { href: '/habits',    icon: Repeat,          label: 'Thói quen' },
   {
     label: 'Ôn thi', icon: GraduationCap,
     children: [

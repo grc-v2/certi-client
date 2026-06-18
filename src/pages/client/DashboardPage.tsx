@@ -3,7 +3,7 @@ import { LayoutGrid, Settings, RotateCcw } from 'lucide-react'
 import { ResourceHubSummaryCard } from '@/features/tracker/resources/resource-hub-summary-card'
 import { TodoCard } from '@/features/tracker/todo/todo-card'
 import { PomodoroCard } from '@/features/tracker/pomodoro/pomodoro-card'
-import { HabitCard } from '@/features/tracker/habits/habit-card'
+// import { HabitCard } from '@/features/tracker/habits/habit-card'
 import { SettingsDialog } from '@/features/tracker/settings/settings-dialog'
 import { useResetTrackerData } from '@/hooks/queries/tracker-data'
 import { useAuthStore } from '@/store/auth-store'
@@ -76,12 +76,12 @@ export default function DashboardPage() {
       </div>
 
       {/* Habits — today's good habits with quick check-in */}
-      <HabitCard className="enter enter-3" />
+      {/* <HabitCard className="enter enter-3" /> */}
 
       {/* Roadmap hint — kept slim, off the prime grid */}
-      <p style={{ fontSize: 12, color: 'var(--color-ink-faint)', textAlign: 'center', margin: 0 }}>
+      {/* <p style={{ fontSize: 12, color: 'var(--color-ink-faint)', textAlign: 'center', margin: 0 }}>
         Sắp ra mắt: Chi tiêu
-      </p>
+      </p> */}
 
       <SettingsDialog
         open={settingsOpen}
