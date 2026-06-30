@@ -85,7 +85,14 @@ export interface CertificationDomainRequest {
   displayOrder: number
 }
 
+export interface CertificationOption {
+  id: number
+  name: string
+}
+
 export const certificationsApi = {
+  getOptions: (includeInactive = false) =>
+    apiClient.get<CertificationOption[]>('/api/v1/certifications/options', { params: { includeInactive } }).then(r => r.data),
   search: (params?: CertificationSearchParams) =>
     apiClient.get<PageDto<CertificationResponse>>('/api/v1/certifications', { params }).then(r => r.data),
   getBySlug: (slug: string) =>

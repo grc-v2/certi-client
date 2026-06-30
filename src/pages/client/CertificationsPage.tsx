@@ -11,7 +11,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useDebounce } from '@/hooks/use-debounce'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
-import { useLookups } from '@/hooks/use-lookups'
+
 
 const LEVEL_TONE: Record<string, string> = {
   BEGINNER:     'easy',
@@ -163,7 +163,6 @@ const LEVELS = [['', 'Tất cả'], ['BEGINNER', 'Cơ bản'], ['INTERMEDIATE', 
 
 export default function CertificationsPage() {
   const navigate = useNavigate()
-  const { getOptions, getLabel } = useLookups()
   const [search, setSearch] = useState('')
   const [level, setLevel] = useState('')
   const debouncedSearch = useDebounce(search, 400)

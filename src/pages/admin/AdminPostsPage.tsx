@@ -23,7 +23,7 @@ import { formatRelativeTime } from '@/lib/utils'
 import { toast } from 'sonner'
 import { useDebounce } from '@/hooks/use-debounce'
 import { Link } from 'react-router-dom'
-import { useLookups } from '@/hooks/use-lookups'
+import { useEngagementPostLookups } from '@/hooks/use-engagement-lookups'
 import { StatusPill } from '@/layouts/AdminLayout'
 
 type ConfirmType = 'publish' | 'archive' | 'delete'
@@ -56,7 +56,7 @@ const CONFIRM_COPY: Record<
 }
 
 export default function AdminPostsPage() {
-  const { getOptions, getLabel } = useLookups()
+  const { statuses, getLabel } = useEngagementPostLookups()
   const [page, setPage] = useState(0)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
@@ -130,8 +130,8 @@ export default function AdminPostsPage() {
             <SelectTrigger className="w-full sm:w-40 cursor-pointer"><SelectValue placeholder="Trạng thái" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="">Tất cả</SelectItem>
-              {getOptions('constants.postStatuses').map(opt => (
-                <SelectItem key={opt.value} value={opt.value}>{getLabel('constants.postStatuses', opt.value)}</SelectItem>
+              {statuses.map(opt => (
+                <SelectItem key={opt.value} value={opt.value}>{getLabel('statuses', opt.value)}</SelectItem>
               ))}
             </SelectContent>
           </Select>

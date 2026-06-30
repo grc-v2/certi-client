@@ -16,7 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { certificationsApi, type CertificationResponse } from '@/lib/api/certifications'
+import { certificationsApi, type CertificationResponse, type CertificationOption } from '@/lib/api/certifications'
 import {
   type AdminQuestionResponse,
   type QuestionCreateRequest,
@@ -25,7 +25,7 @@ import {
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { useDebounce } from '@/hooks/use-debounce'
-import { useLookups } from '@/hooks/use-lookups'
+import { useLearningQuestionLookups } from '@/hooks/use-learning-lookups'
 
 const DEFAULT_OPTION: QuestionOptionRequest = { content: '', isCorrect: false, orderIndex: 0 }
 
@@ -43,7 +43,7 @@ function QStatusPill({ status }: { status: string }) {
 }
 
 export default function AdminQuestionsPage() {
-  const { getOptions, getLabel } = useLookups()
+  const { types, difficulties, statuses, getLabel } = useLearningQuestionLookups()
   const [page, setPage] = useState(0)
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
@@ -76,7 +76,7 @@ export default function AdminQuestionsPage() {
 
   const { data: certsData } = useQuery({
     queryKey: ['certifications-for-filter'],
-    queryFn: () => certificationsApi.search({ size: 100 }),
+    queryFn: () => certificationsApi.getOptions(),
   })
 
   const { data: domainsData } = useQuery({
@@ -106,7 +106,7 @@ export default function AdminQuestionsPage() {
   const questions = data?.content ?? []
   const totalPages = data?.totalPages ?? 0
   const total = data?.totalElements ?? 0
-  const certs = certsData?.content ?? []
+  const certs = certsData ?? []
   const domains = domainsData?.domains ?? []
 
   const toggleSelect = (id: number) => setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
@@ -224,8 +224,8 @@ export default function AdminQuestionsPage() {
               <SelectTrigger className="cursor-pointer"><SelectValue placeholder="Loại" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all" className="text-zinc-500 italic">Tất cả loại</SelectItem>
-                {getOptions('constants.questionTypes').map(opt => (
-                  <SelectItem key={opt.value} value={opt.value}>{getLabel('constants.questionTypes', opt.value)}</SelectItem>
+                {types.map(opt => (
+                  <SelectItem key={opt.value} value={opt.value}>{getLabel('types', opt.value)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -233,8 +233,8 @@ export default function AdminQuestionsPage() {
               <SelectTrigger className="cursor-pointer"><SelectValue placeholder="Độ khó" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all" className="text-zinc-500 italic">Tất cả độ khó</SelectItem>
-                {getOptions('constants.questionDifficulties').map(opt => (
-                  <SelectItem key={opt.value} value={opt.value}>{getLabel('constants.questionDifficulties', opt.value)}</SelectItem>
+                {difficulties.map(opt => (
+                  <SelectItem key={opt.value} value={opt.value}>{getLabel('difficulties', opt.value)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -242,8 +242,8 @@ export default function AdminQuestionsPage() {
               <SelectTrigger className="cursor-pointer"><SelectValue placeholder="Trạng thái" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all" className="text-zinc-500 italic">Tất cả trạng thái</SelectItem>
-                {getOptions('constants.questionStatuses').map(opt => (
-                  <SelectItem key={opt.value} value={opt.value}>{getLabel('constants.questionStatuses', opt.value)}</SelectItem>
+                {statuses.map(opt => (
+                  <SelectItem key={opt.value} value={opt.value}>{getLabel('statuses', opt.value)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -315,8 +315,8 @@ export default function AdminQuestionsPage() {
                 <Select value={formData.type} onValueChange={v => setFormData(f => ({ ...f, type: v ?? 'SINGLE_CHOICE' }))}>
                   <SelectTrigger className="cursor-pointer"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {getOptions('constants.questionTypes').map(opt => (
-                      <SelectItem key={opt.value} value={opt.value}>{getLabel('constants.questionTypes', opt.value)}</SelectItem>
+                    {types.map(opt => (
+                      <SelectItem key={opt.value} value={opt.value}>{getLabel('types', opt.value)}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -326,8 +326,8 @@ export default function AdminQuestionsPage() {
                 <Select value={formData.difficulty} onValueChange={v => setFormData(f => ({ ...f, difficulty: v ?? 'MEDIUM' }))}>
                   <SelectTrigger className="cursor-pointer"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {getOptions('constants.questionDifficulties').map(opt => (
-                      <SelectItem key={opt.value} value={opt.value}>{getLabel('constants.questionDifficulties', opt.value)}</SelectItem>
+                    {difficulties.map(opt => (
+                      <SelectItem key={opt.value} value={opt.value}>{getLabel('difficulties', opt.value)}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -400,7 +400,7 @@ export default function AdminQuestionsPage() {
           {previewQuestion && (
             <div className="space-y-4 pt-2">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="codechip">{getLabel('constants.questionTypes', previewQuestion.type)}</span>
+                <span className="codechip">{getLabel('types', previewQuestion.type)}</span>
                 <DiffPill diff={previewQuestion.difficulty} />
                 <QStatusPill status={previewQuestion.status} />
                 {previewQuestion.domainName && <span className="codechip">{previewQuestion.domainName}</span>}
@@ -453,8 +453,8 @@ export default function AdminQuestionsPage() {
           <Select value={bulkStatus} onValueChange={v => setBulkStatus(v ?? '')}>
             <SelectTrigger className="cursor-pointer"><SelectValue placeholder="Chọn trạng thái" /></SelectTrigger>
             <SelectContent>
-              {getOptions('constants.questionStatuses').map(opt => (
-                <SelectItem key={opt.value} value={opt.value}>{getLabel('constants.questionStatuses', opt.value)}</SelectItem>
+              {statuses.map(opt => (
+                <SelectItem key={opt.value} value={opt.value}>{getLabel('statuses', opt.value)}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -478,7 +478,7 @@ function QRow({ q, selected, onToggle, onPreview, onEdit, onToggleStatus, onDele
   onEdit: () => void
   onToggleStatus: () => void
   onDelete: () => void
-  getLabel: (ns: string, v: string) => string
+  getLabel: (group: 'types' | 'difficulties' | 'statuses', v: string) => string
 }) {
   const [hovered, setHovered] = useState(false)
   return (
@@ -498,7 +498,7 @@ function QRow({ q, selected, onToggle, onPreview, onEdit, onToggleStatus, onDele
         </div>
       </td>
       <td style={{ padding: '10px 14px' }}>
-        <span className="codechip" style={{ fontSize: 11 }}>{getLabel('constants.questionTypes', q.type)}</span>
+        <span className="codechip" style={{ fontSize: 11 }}>{getLabel('types', q.type)}</span>
       </td>
       <td style={{ padding: '10px 14px' }}>
         <DiffPill diff={q.difficulty} />
@@ -526,7 +526,7 @@ function QRow({ q, selected, onToggle, onPreview, onEdit, onToggleStatus, onDele
   )
 }
 
-function DomainSelector({ certs, value, onChange }: { certs: CertificationResponse[]; value: number; onChange: (v: number) => void }) {
+function DomainSelector({ certs, value, onChange }: { certs: CertificationOption[]; value: number; onChange: (v: number) => void }) {
   const [certId, setCertId] = useState('')
 
   const { data: certDetail } = useQuery({
