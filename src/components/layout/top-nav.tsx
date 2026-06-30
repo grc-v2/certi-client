@@ -24,11 +24,11 @@ const NAV_ITEMS: NavEntry[] = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Tracker' },
   // { href: '/habits',    icon: Repeat,          label: 'Thói quen' },
   {
-    label: 'Ôn thi', icon: GraduationCap,
+    label: 'Exam Prep', icon: GraduationCap,
     children: [
-      { href: '/certifications',              icon: GraduationCap, label: 'Chứng chỉ' },
-      { href: '/practice',                    icon: Dumbbell,      label: 'Luyện tập' },
-      { href: '/certifications/exam-history', icon: BarChart2,     label: 'Kết quả'   },
+      { href: '/certifications',              icon: GraduationCap, label: 'Certifications' },
+      { href: '/practice',                    icon: Dumbbell,      label: 'Practice' },
+      { href: '/certifications/exam-history', icon: BarChart2,     label: 'Results'   },
     ],
   },
   { href: '/resources', icon: Library,    label: 'Resources' },
@@ -134,7 +134,7 @@ export function TopNav({ title }: TopNavProps) {
       {/* Actions */}
       <div className="row" style={{ gap: 9, alignItems: 'center', flexShrink: 0 }}>
         <Link to="/notifications" style={{ position: 'relative' }}>
-          <button className="iconbtn" aria-label="Thông báo">
+          <button className="iconbtn" aria-label="Notifications">
             <Bell size={19} />
             <span style={{
               position: 'absolute', top: 8, right: 9, width: 7, height: 7,
@@ -146,7 +146,7 @@ export function TopNav({ title }: TopNavProps) {
         <button
           className="iconbtn"
           onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-          aria-label="Đổi giao diện"
+          aria-label="Toggle Theme"
         >
           {resolvedTheme === 'dark' ? <Sun size={19} /> : <Moon size={19} />}
         </button>
@@ -156,7 +156,7 @@ export function TopNav({ title }: TopNavProps) {
           <DropdownMenuTrigger asChild>
             <button
               className="itile"
-              aria-label="Tài khoản"
+              aria-label="Account"
               style={{
                 width: 40, height: 40, background: 'var(--color-accent)', color: '#fff',
                 fontWeight: 700, fontFamily: 'var(--font-mono)', fontSize: 14, borderRadius: 10,
@@ -170,24 +170,24 @@ export function TopNav({ title }: TopNavProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent side="bottom" align="end" className="min-w-[200px]">
             <DropdownMenuLabel>
-              <p className="font-bold text-[13px] text-ink">{user?.fullName || 'Người dùng'}</p>
+              <p className="font-bold text-[13px] text-ink">{user?.fullName || 'User'}</p>
               <p className="text-[11px] text-ink-faint">{user?.email}</p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => navigate('/profile/me')}>
-              <User className="w-4 h-4" /> Trang cá nhân
+              <User className="w-4 h-4" /> Profile
             </DropdownMenuItem>
             {isAdmin() && (
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate('/admin/dashboard')} className="text-accent font-semibold">
-                  <Settings className="w-4 h-4" /> Quản trị
+                  <Settings className="w-4 h-4" /> Admin
                 </DropdownMenuItem>
               </>
             )}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => logoutMutation.mutate()} className="text-red-500 font-semibold">
-              <LogOut className="w-4 h-4" /> Đăng xuất
+              <LogOut className="w-4 h-4" /> Logout
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

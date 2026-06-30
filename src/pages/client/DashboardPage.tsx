@@ -17,12 +17,13 @@ const BOARD_TITLE_KEY = 'tracker.boardTitle'
  */
 export default function DashboardPage() {
   const { user } = useAuthStore()
-  const defaultTitle = `Bảng của ${user?.fullName?.split(' ').pop() || 'bạn'}`
+  const firstName = user?.fullName?.split(' ').pop()
+  const defaultTitle = firstName ? `${firstName}'s Board` : 'Your Board'
   const [boardTitle, setBoardTitle] = useState(() => localStorage.getItem(BOARD_TITLE_KEY) || defaultTitle)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const resetData = useResetTrackerData()
 
-  const today = new Date().toLocaleDateString('vi-VN', {
+  const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -35,7 +36,7 @@ export default function DashboardPage() {
   }
 
   function quickReset() {
-    if (window.confirm('Xoá toàn bộ task, tài nguyên và nhóm? Cài đặt được giữ lại. Không thể hoàn tác.')) {
+    if (window.confirm('Delete all tasks, resources, and groups? Settings will be kept. This cannot be undone.')) {
       resetData.mutate()
     }
   }
@@ -54,10 +55,10 @@ export default function DashboardPage() {
           </div>
         </div>
         <div className="row" style={{ gap: 8 }}>
-          <button onClick={quickReset} disabled={resetData.isPending} className="iconbtn" title="Đặt lại dữ liệu">
+          <button onClick={quickReset} disabled={resetData.isPending} className="iconbtn" title="Reset Data">
             <RotateCcw size={18} />
           </button>
-          <button onClick={() => setSettingsOpen(true)} className="iconbtn" title="Cài đặt">
+          <button onClick={() => setSettingsOpen(true)} className="iconbtn" title="Settings">
             <Settings size={18} />
           </button>
         </div>

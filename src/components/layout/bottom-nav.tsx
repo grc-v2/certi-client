@@ -3,7 +3,7 @@ import { LayoutDashboard, GraduationCap, Library, Newspaper } from 'lucide-react
 
 const ITEMS = [
   { href: '/dashboard',      icon: LayoutDashboard, label: 'Tracker',  match: ['/dashboard'] },
-  { href: '/certifications', icon: GraduationCap,   label: 'Ôn thi',   match: ['/certifications', '/practice'] },
+  { href: '/certifications', icon: GraduationCap,   label: 'Exam Prep',   match: ['/certifications', '/practice'] },
   { href: '/resources',      icon: Library,         label: 'Resources', match: ['/resources'] },
   { href: '/blog',           icon: Newspaper,       label: 'Blog',     match: ['/blog', '/community'] },
 ]
